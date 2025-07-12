@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRickAndMortyCharacter } from "@/hooks/useApiController";
 
 export default function CreateCourseStepOne() {
   const [courseInput, setCourseInput] = useState("");
+  const router = useRouter();
   const { character, loading, error, fetchRandomCharacter } =
     useRickAndMortyCharacter();
 
@@ -21,6 +23,9 @@ export default function CreateCourseStepOne() {
       alert("Por favor, digite um tópico para o curso");
       return;
     }
+
+    // Navegar para o próximo step
+    router.push("/create-course-step-two");
   };
 
   const handleAPITesting = async () => {
