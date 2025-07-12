@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,8 +18,15 @@ export default function LoginPage() {
     general: "",
   });
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user, loading: authLoading } = useAuth();
   const router = useRouter();
+
+  // Verificar se o usuário já está logado
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.push("/");
+    }
+  }, [user, authLoading, router]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -95,10 +102,8 @@ export default function LoginPage() {
             general: error.message || "Erro ao criar conta",
           }));
         } else {
-          setErrors((prev) => ({
-            ...prev,
-            general: "Conta criada! Verifique seu email para confirmar.",
-          }));
+          // Conta criada com sucesso, redirecionar para home
+          router.push("/");
         }
       }
     } catch {
@@ -110,6 +115,18 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  // Mostrar loading enquanto verifica autenticação
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#fff7f0]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#cc6200] mx-auto mb-4"></div>
+          <p className="text-[#593100]">Verificando...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#fff7f0] px-4">
