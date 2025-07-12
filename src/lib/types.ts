@@ -47,7 +47,7 @@ export interface Course {
   id: string;
   name: string;
   description: string;
-  status: "em_andamento" | "concluido" | "pausado";
+  status: "nao_iniciado" | "em_andamento" | "concluido" | "pausado";
   progress: number; // 0-100
   totalLessons: number;
   completedLessons: number;
@@ -61,6 +61,7 @@ export interface Course {
 
 export interface CourseStats {
   totalCourses: number;
+  notStarted: number;
   inProgress: number;
   completed: number;
   paused: number;
@@ -80,9 +81,11 @@ export interface CourseActivity {
   courseName: string;
   type:
     | "lesson_completed"
+    | "course_created"
     | "course_started"
     | "course_completed"
-    | "course_paused";
+    | "course_paused"
+    | "course_resumed";
   timestamp: Date;
   description: string;
 }

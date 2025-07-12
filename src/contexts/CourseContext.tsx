@@ -24,6 +24,7 @@ export const CourseProvider: React.FC<{ children: React.ReactNode }> = ({
   const [courses, setCourses] = useState<Course[]>([]);
   const [stats, setStats] = useState<CourseStats>({
     totalCourses: 0,
+    notStarted: 0,
     inProgress: 0,
     completed: 0,
     paused: 0,
@@ -35,20 +36,75 @@ export const CourseProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Carregar dados iniciais
   useEffect(() => {
-    loadData();
+    // Garantir que está no cliente
+    if (typeof window !== "undefined") {
+      console.log("Iniciando useEffect do CourseContext");
+      loadData();
+    } else {
+      console.log("Window não está definido, pulando carregamento");
+    }
   }, []);
 
   const loadData = async () => {
     try {
       setLoading(true);
+      console.log("Iniciando carregamento dos dados...");
+
+      // Timeout de segurança para evitar loading infinito
+      const timeoutId = setTimeout(() => {
+        console.warn("Timeout atingido, forçando fim do loading");
+        setLoading(false);
+      }, 3000);
+
+      // Verificar se há dados, se não houver, inicializar com mock
+      if (!mockCourseDB.hasAnyCourses()) {
+        console.log("Nenhum curso encontrado, inicializando dados mock...");
+        mockCourseDB.initializeMockData();
+      }
+
       const dashboardData = mockCourseDB.getDashboardData();
-      setCourses(dashboardData.courses);
-      setStats(dashboardData.stats);
-      setRecentActivity(dashboardData.recentActivity);
+      console.log("Dados carregados:", dashboardData);
+
+      // Verificar se os dados são válidos
+      if (dashboardData && dashboardData.courses && dashboardData.stats) {
+        setCourses(dashboardData.courses);
+        setStats(dashboardData.stats);
+        setRecentActivity(dashboardData.recentActivity || []);
+        console.log("Estado atualizado com sucesso");
+      } else {
+        console.error("Dados inválidos recebidos:", dashboardData);
+        // Definir dados padrão em caso de erro
+        setCourses([]);
+        setStats({
+          totalCourses: 0,
+          notStarted: 0,
+          inProgress: 0,
+          completed: 0,
+          paused: 0,
+          totalHoursStudied: 0,
+          averageProgress: 0,
+        });
+        setRecentActivity([]);
+      }
+
+      clearTimeout(timeoutId);
     } catch (error) {
       console.error("Erro ao carregar dados dos cursos:", error);
+      // Definir dados padrão em caso de erro
+      setCourses([]);
+      setStats({
+        totalCourses: 0,
+        notStarted: 0,
+        inProgress: 0,
+        completed: 0,
+        paused: 0,
+        totalHoursStudied: 0,
+        averageProgress: 0,
+      });
+      setRecentActivity([]);
     } finally {
       setLoading(false);
+      console.log("Loading finalizado");
     }
   };
 

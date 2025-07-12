@@ -77,6 +77,51 @@ const mockCourses: Course[] = [
     estimatedHours: 45,
     tags: ["ux", "ui", "design", "figma"],
   },
+  {
+    id: "6",
+    name: "Python para Data Science",
+    description: "Análise de dados e machine learning com Python",
+    status: "nao_iniciado",
+    progress: 0,
+    totalLessons: 30,
+    completedLessons: 0,
+    createdAt: new Date("2024-01-25"),
+    updatedAt: new Date("2024-01-25"),
+    category: "Data Science",
+    difficulty: "intermediario",
+    estimatedHours: 80,
+    tags: ["python", "data", "ml", "pandas"],
+  },
+  {
+    id: "7",
+    name: "Marketing Digital",
+    description: "Estratégias completas de marketing online",
+    status: "nao_iniciado",
+    progress: 0,
+    totalLessons: 12,
+    completedLessons: 0,
+    createdAt: new Date("2024-01-22"),
+    updatedAt: new Date("2024-01-22"),
+    category: "Marketing",
+    difficulty: "iniciante",
+    estimatedHours: 25,
+    tags: ["marketing", "digital", "seo", "ads"],
+  },
+  {
+    id: "8",
+    name: "Fotografia Profissional",
+    description: "Técnicas avançadas de fotografia e edição",
+    status: "nao_iniciado",
+    progress: 0,
+    totalLessons: 16,
+    completedLessons: 0,
+    createdAt: new Date("2024-01-20"),
+    updatedAt: new Date("2024-01-20"),
+    category: "Arte",
+    difficulty: "intermediario",
+    estimatedHours: 35,
+    tags: ["fotografia", "arte", "lightroom", "composição"],
+  },
 ];
 
 const mockActivities: CourseActivity[] = [
@@ -119,6 +164,30 @@ const mockActivities: CourseActivity[] = [
     type: "course_completed",
     timestamp: new Date("2023-12-10T11:30:00"),
     description: "Curso concluído com certificado!",
+  },
+  {
+    id: "act_6",
+    courseId: "6",
+    courseName: "Python para Data Science",
+    type: "course_created",
+    timestamp: new Date("2024-01-25T15:45:00"),
+    description: "Novo curso criado",
+  },
+  {
+    id: "act_7",
+    courseId: "7",
+    courseName: "Marketing Digital",
+    type: "course_created",
+    timestamp: new Date("2024-01-22T11:20:00"),
+    description: "Novo curso criado",
+  },
+  {
+    id: "act_8",
+    courseId: "8",
+    courseName: "Fotografia Profissional",
+    type: "course_created",
+    timestamp: new Date("2024-01-20T09:15:00"),
+    description: "Novo curso criado",
   },
 ];
 
@@ -178,19 +247,33 @@ export class MockCourseDB {
 
   // CRUD de cursos
   static getCourses(): Course[] {
-    if (typeof window === "undefined") return [];
+    if (typeof window === "undefined") {
+      console.log("getCourses: window undefined, retornando array vazio");
+      return [];
+    }
 
     const stored = localStorage.getItem(STORAGE_KEYS.COURSES);
-    if (!stored) return [];
+    console.log("getCourses: dados armazenados:", stored);
+
+    if (!stored) {
+      console.log("getCourses: nenhum dado encontrado no localStorage");
+      return [];
+    }
 
     try {
       const courses = JSON.parse(stored) as Course[];
-      return courses.map((course) => ({
+      console.log("getCourses: cursos parseados:", courses.length);
+
+      const processedCourses = courses.map((course) => ({
         ...course,
         createdAt: new Date(course.createdAt),
         updatedAt: new Date(course.updatedAt),
       }));
-    } catch {
+
+      console.log("getCourses: cursos processados:", processedCourses.length);
+      return processedCourses;
+    } catch (error) {
+      console.error("getCourses: erro ao processar dados:", error);
       return [];
     }
   }
@@ -217,8 +300,8 @@ export class MockCourseDB {
     this.addActivity({
       courseId: newCourse.id,
       courseName: newCourse.name,
-      type: "course_started",
-      description: "Novo curso iniciado",
+      type: "course_created",
+      description: "Novo curso criado",
     });
 
     return newCourse;
@@ -319,6 +402,7 @@ export class MockCourseDB {
 
     const stats: CourseStats = {
       totalCourses: courses.length,
+      notStarted: courses.filter((c) => c.status === "nao_iniciado").length,
       inProgress: courses.filter((c) => c.status === "em_andamento").length,
       completed: courses.filter((c) => c.status === "concluido").length,
       paused: courses.filter((c) => c.status === "pausado").length,

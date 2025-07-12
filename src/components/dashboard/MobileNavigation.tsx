@@ -34,6 +34,13 @@ const menuItems: MenuItem[] = [
     group: "courses",
   },
   {
+    id: "my-courses",
+    label: "Meus Cursos",
+    href: "/dashboard/my-courses",
+    icon: "📋",
+    group: "courses",
+  },
+  {
     id: "in-progress",
     label: "Em Andamento",
     href: "/dashboard/in-progress",
