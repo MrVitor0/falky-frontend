@@ -4,13 +4,8 @@
  */
 
 import { api } from "@/services/api.service";
-import { API_BASE_URLS, API_ENDPOINTS } from "@/constants/api.constants";
-import {
-  ApiResponse,
-  Course,
-  RickAndMortyCharacter,
-  RickAndMortyResponse,
-} from "@/types/api.types";
+import { API_ENDPOINTS } from "@/constants/api.constants";
+import { ApiResponse, Course } from "@/types/api.types";
 import { AxiosResponse } from "axios";
 
 /**
@@ -116,95 +111,6 @@ export class ApiController {
       return response.data;
     } catch (error) {
       console.error("Erro ao remover curso:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Métodos para Rick and Morty API (placeholder)
-   */
-
-  /**
-   * Busca um personagem aleatório do Rick and Morty
-   * @returns Promessa com dados do personagem
-   */
-  public async getRandomRickAndMortyCharacter(): Promise<RickAndMortyCharacter> {
-    try {
-      // Primeiro, busca informações sobre a API para saber quantos personagens existem
-      const infoResponse = await api.get<RickAndMortyResponse>(
-        `${API_BASE_URLS.RICK_AND_MORTY}${API_ENDPOINTS.RICK_MORTY_CHARACTERS}`,
-        {
-          baseURL: "", // Override para usar a URL completa
-        }
-      );
-
-      // Gera um ID aleatório baseado no total de personagens
-      const totalCharacters = infoResponse.data.info.count;
-      const randomId = Math.floor(Math.random() * totalCharacters) + 1;
-
-      // Busca o personagem específico
-      const characterResponse = await api.get<RickAndMortyCharacter>(
-        `${
-          API_BASE_URLS.RICK_AND_MORTY
-        }${API_ENDPOINTS.RICK_MORTY_CHARACTER_BY_ID(randomId)}`,
-        {
-          baseURL: "", // Override para usar a URL completa
-        }
-      );
-
-      console.log("🎭 Personagem aleatório obtido:", characterResponse.data);
-
-      return characterResponse.data;
-    } catch (error) {
-      console.error("❌ Erro ao buscar personagem do Rick and Morty:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Busca personagem do Rick and Morty por ID
-   * @param characterId - ID do personagem
-   * @returns Promessa com dados do personagem
-   */
-  public async getRickAndMortyCharacterById(
-    characterId: number
-  ): Promise<RickAndMortyCharacter> {
-    try {
-      const response = await api.get<RickAndMortyCharacter>(
-        `${
-          API_BASE_URLS.RICK_AND_MORTY
-        }${API_ENDPOINTS.RICK_MORTY_CHARACTER_BY_ID(characterId)}`,
-        {
-          baseURL: "", // Override para usar a URL completa
-        }
-      );
-
-      return response.data;
-    } catch (error) {
-      console.error("Erro ao buscar personagem por ID:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Lista personagens do Rick and Morty com paginação
-   * @param page - Página a ser buscada
-   * @returns Promessa com lista de personagens
-   */
-  public async getRickAndMortyCharacters(
-    page = 1
-  ): Promise<RickAndMortyResponse> {
-    try {
-      const response = await api.get<RickAndMortyResponse>(
-        `${API_BASE_URLS.RICK_AND_MORTY}${API_ENDPOINTS.RICK_MORTY_CHARACTERS}?page=${page}`,
-        {
-          baseURL: "", // Override para usar a URL completa
-        }
-      );
-
-      return response.data;
-    } catch (error) {
-      console.error("Erro ao listar personagens:", error);
       throw error;
     }
   }

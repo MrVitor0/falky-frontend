@@ -1,23 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRickAndMortyCharacter } from "@/hooks/useApiController";
 
 export default function CreateCourseStepOne() {
   const [courseInput, setCourseInput] = useState("");
   const router = useRouter();
-  const { character, loading, error, fetchRandomCharacter } =
-    useRickAndMortyCharacter();
-
-  // Effect para mostrar o nome do personagem quando carregado
-  useEffect(() => {
-    if (character) {
-      console.log("Nome do personagem:", character.name);
-    }
-  }, [character]);
-
+  const [loading, setLoading] = useState(false);
   const handleContinue = async () => {
     if (!courseInput.trim()) {
       alert("Por favor, digite um tópico para o curso");
@@ -33,16 +23,15 @@ export default function CreateCourseStepOne() {
       alert("Por favor, digite um tópico para o curso");
       return;
     }
-
+    setLoading(true);
     try {
-      await fetchRandomCharacter();
-
-      if (error) {
-        alert("Erro ao processar solicitação. Tente novamente.");
-      }
+      console.log("Iniciando teste de API com o tópico:", courseInput);
+      // Aqui você pode chamar a função que faz a requisição à API
+      setLoading(false);
     } catch (err) {
       console.error("Erro ao fazer chamada para a API:", err);
       alert("Erro ao processar solicitação. Tente novamente.");
+      setLoading(false);
     }
   };
 
