@@ -1,8 +1,30 @@
+"use client";
 import React from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Hero() {
+  const { user, hasPreferences } = useAuth();
+  const router = useRouter();
+
+  const handleCreateCourse = () => {
+    if (!user) {
+      // Se não está logado, redireciona para login
+      router.push("/login");
+      return;
+    }
+
+    if (!hasPreferences()) {
+      // Se não tem preferências, redireciona para o cadastro
+      router.push("/signup-step-one");
+      return;
+    }
+
+    // Se tem tudo, vai para criar curso
+    router.push("/create-course-step-one");
+  };
+
   return (
     <section className="w-full flex flex-col-reverse md:flex-row items-center justify-between py-12 px-6 gap-8">
       <div className="ml-16 flex-1 flex flex-col items-start justify-center w-full ">
@@ -20,11 +42,12 @@ export default function Hero() {
           </span>
         </p>
 
-        <Link href="/create-course-step-one">
-          <button className="px-8 py-3 w-72 rounded-full shadow-md font-semibold text-[#593100] bg-gradient-to-br from-[#593100] via-[#ffddc2] to-[#593100] hover:brightness-110 hover:saturate-150 transition border-none relative">
-            Quero criar meu curso
-          </button>
-        </Link>
+        <button
+          onClick={handleCreateCourse}
+          className="px-8 py-3 w-72 rounded-full shadow-md font-semibold text-[#593100] bg-gradient-to-br from-[#593100] via-[#ffddc2] to-[#593100] hover:brightness-110 hover:saturate-150 transition border-none relative"
+        >
+          Quero criar meu curso
+        </button>
       </div>
       <div className="flex-1 flex items-center justify-center">
         <Image
