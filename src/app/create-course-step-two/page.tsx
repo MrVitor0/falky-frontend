@@ -97,9 +97,11 @@ export default function CreateCourseStepTwo() {
       {/* Botão Continuar - só aparece quando algo está selecionado */}
       {selectedLevel && (
         <div className="mb-8">
-          <button className="px-8 py-3 w-48 rounded-full shadow-md font-semibold text-[#593100] bg-gradient-to-br from-[#593100] via-[#ffddc2] to-[#593100] hover:brightness-110 hover:saturate-150 transition border-none relative">
-            Continuar
-          </button>
+          <Link href="/create-course-step-three">
+            <button className="px-8 py-3 w-48 rounded-full shadow-md font-semibold text-[#593100] bg-gradient-to-br from-[#593100] via-[#ffddc2] to-[#593100] hover:brightness-110 hover:saturate-150 transition border-none relative">
+              Continuar
+            </button>
+          </Link>
         </div>
       )}
     </div>
