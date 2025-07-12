@@ -4,31 +4,27 @@ import Image from "next/image";
 export default function Hero() {
   return (
     <section className="w-full flex flex-col-reverse md:flex-row items-center justify-between py-12 px-6 gap-8">
-      <div className="ml-16 flex-1 flex flex-col items-start justify-center w-full ">
-        <h1 className="text-4xl md:text-5xl font-bold text-[#593100] mb-4 leading-tight">
-          Sua mente é única.
-          <br />
-          Seu aprendizado também
+      <div className="flex-1 flex flex-col items-start justify-center max-w-xl">
+        <h1 className="text-4xl md:text-5xl font-bold text-[#cc6200] mb-4 leading-tight">
+          Educação para todos, personalizada por IA
         </h1>
         <p className="text-lg md:text-xl text-[#593100] mb-6">
-          Seja pra focar melhor, aprofundar um tema ou
+          Nossa plataforma usa inteligência artificial para criar cursos sob
+          medida para cada pessoa, respeitando ritmos, interesses e necessidades
+          — inclusive neurodivergências.
           <br />
-          comecar do zero,{" "}
-          <span className="text-[#cc6200]">
-            o curso se molda a você. Não o contrário:
-          </span>
+          Acreditamos que a educação transforma vidas, famílias e o mundo.
+          <br />
+          Junte-se a nós na missão de universalizar o acesso ao conhecimento de
+          qualidade.
         </p>
-
-        <button className="px-8 py-3 w-72 rounded-full shadow-md font-semibold text-[#593100] bg-gradient-to-br from-[#593100] via-[#ffddc2] to-[#593100] hover:brightness-110 hover:saturate-150 transition border-none relative">
-          Quero criar meu curso
-        </button>
       </div>
       <div className="flex-1 flex items-center justify-center">
         <Image
           src="/hero.svg"
           alt="Diversidade na educação"
-          width={500}
-          height={500}
+          width={400}
+          height={350}
           priority
         />
       </div>
