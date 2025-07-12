@@ -1,8 +1,8 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Course } from "@/lib/types";
-
 interface CourseCardProps {
   course: Course;
   onStatusChange: (courseId: string, newStatus: Course["status"]) => void;
