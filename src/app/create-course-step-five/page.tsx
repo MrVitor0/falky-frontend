@@ -4,12 +4,10 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCourseCreation } from "@/contexts/CourseCreationContext";
-import { apiController } from "@/controllers/api.controller";
 
 export default function CreateCourseStepFive() {
   const router = useRouter();
-  const { state, dispatch, getCoursePreferencesData } = useCourseCreation();
-  const [loading, setLoading] = useState(false);
+  const { state, dispatch } = useCourseCreation();
   const [additionalInfo, setAdditionalInfo] = useState(state.additionalInformation);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -18,48 +16,9 @@ export default function CreateCourseStepFive() {
     dispatch({ type: 'SET_ADDITIONAL_INFORMATION', payload: value });
   };
 
-  const handleCreateCourse = async () => {
-    setLoading(true);
-    try {
-      // Simulando um user_id (em produção, viria da autenticação)
-      const userId = "user_demo_123";
-      
-      // Obter dados formatados do context
-      const courseData = getCoursePreferencesData();
-      
-      // Adicionar user_id aos dados
-      const completeData = {
-        user_id: userId,
-        ...courseData,
-      };
-
-      console.log("Criando curso com dados:", completeData);
-
-      // Criar um delay mínimo de 3 segundos para a experiência do usuário
-      const minLoadingTime = new Promise(resolve => setTimeout(resolve, 3000));
-
-      // Chamar a API
-      const apiCall = apiController.setCoursePreferences(completeData);
-
-      // Aguardar tanto a API quanto o tempo mínimo de loading
-      const [response] = await Promise.all([apiCall, minLoadingTime]);
-
-      if (response.success) {
-        console.log("✅ Curso criado com sucesso:", response.data);
-        dispatch({ type: 'COMPLETE_CREATION' });
-        
-        // Redirecionar para página de sucesso
-        router.push("/course-created-success");
-      } else {
-        console.error("❌ Erro ao criar curso:", response.error);
-        alert("Erro ao criar curso: " + response.error);
-      }
-    } catch (error) {
-      console.error("❌ Erro ao criar curso:", error);
-      alert("Erro ao criar curso. Tente novamente.");
-    } finally {
-      setLoading(false);
-    }
+  const handleCreateCourse = () => {
+    // Redirecionar para a página de loading onde a API será chamada
+    router.push("/create-course-loading");
   };
 
   const handleBack = () => {
@@ -182,27 +141,16 @@ export default function CreateCourseStepFive() {
       <div className="w-full max-w-3xl flex justify-between items-center mb-8">
         <button
           onClick={handleBack}
-          disabled={loading}
-          className="px-6 py-3 rounded-full shadow-md font-semibold text-[#593100] bg-white border-2 border-[#cc6200] hover:bg-[#ffddc2] transition disabled:opacity-50"
+          className="px-6 py-3 rounded-full shadow-md font-semibold text-[#593100] bg-white border-2 border-[#cc6200] hover:bg-[#ffddc2] transition"
         >
           ← Voltar
         </button>
         
         <button
           onClick={handleCreateCourse}
-          disabled={loading}
-          className="px-8 py-4 rounded-full shadow-lg font-bold text-white bg-gradient-to-r from-[#cc6200] to-[#ff8c00] hover:from-[#ff8c00] hover:to-[#cc6200] transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2"
+          className="px-8 py-4 rounded-full shadow-lg font-bold text-white bg-gradient-to-r from-[#cc6200] to-[#ff8c00] hover:from-[#ff8c00] hover:to-[#cc6200] transition-all transform hover:scale-105 flex items-center gap-2"
         >
-          {loading ? (
-            <>
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              Criando curso...
-            </>
-          ) : (
-            <>
-              🚀 Criar meu curso!
-            </>
-          )}
+          🚀 Criar meu curso!
         </button>
       </div>
     </div>
