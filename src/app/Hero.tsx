@@ -25,6 +25,9 @@ export default function Hero() {
             Quero criar meu curso
           </button>
         </Link>
+        <button className="px-8 py-3 w-72 rounded-full shadow-md font-semibold text-[#593100] bg-gradient-to-br from-[#593100] via-[#ffddc2] to-[#593100] hover:brightness-110 hover:saturate-150 transition border-none relative">
+          Quero criar meu curso
+        </button>
       </div>
       <div className="flex-1 flex items-center justify-center">
         <Image

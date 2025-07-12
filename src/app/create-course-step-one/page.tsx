@@ -1,7 +1,48 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Link from "next/link";
 
 export default function CreateCourseStepOne() {
+  const [courseInput, setCourseInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleContinue = async () => {
+    if (!courseInput.trim()) {
+      alert("Por favor, digite um tópico para o curso");
+      return;
+    }
+  };
+
+  const handleAPITesting = async () => {
+    if (!courseInput.trim()) {
+      alert("Por favor, digite um tópico para o curso");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      const randomNumber = Math.floor(Math.random() * 1000) + 1;
+      // Chamada para a Rick and Morty API
+      const response = await fetch(
+        "https://rickandmortyapi.com/api/character/" + randomNumber
+      );
+
+      if (!response.ok) {
+        throw new Error("Erro ao buscar dados da API");
+      }
+
+      const character = await response.json();
+      console.log("Nome do personagem:", character.name);
+    } catch (error) {
+      console.error("Erro ao fazer chamada para a API:", error);
+      alert("Erro ao processar solicitação. Tente novamente.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-start bg-[#fff7f0] pt-16 px-4">
       <Link
@@ -21,14 +62,24 @@ export default function CreateCourseStepOne() {
         <div className="w-full flex gap-4 items-center">
           <input
             type="text"
+            value={courseInput}
+            onChange={(e) => setCourseInput(e.target.value)}
             placeholder="Ex: Inteligência Artificial, Culinária Italiana, Fotografia..."
             className="flex-1 px-4 py-2 text-lg text-[#593100] bg-[#fff7f0] border-2 border-[#cc6200] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cc6200] focus:border-transparent placeholder-[#593100] placeholder-opacity-30"
           />
-          <Link href="/create-course-step-two">
-            <button className="px-6 py-2 rounded-full shadow-md font-semibold text-[#593100] bg-gradient-to-br from-[#593100] via-[#ffddc2] to-[#593100] hover:brightness-110 hover:saturate-150 transition border-none relative whitespace-nowrap">
-              Continuar
-            </button>
-          </Link>
+          <button
+            onClick={handleContinue}
+            className="px-6 py-2 rounded-full shadow-md font-semibold text-[#593100] bg-gradient-to-br from-[#593100] via-[#ffddc2] to-[#593100] hover:brightness-110 hover:saturate-150 transition border-none relative whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Continuar
+          </button>
+          <button
+            onClick={handleAPITesting}
+            disabled={isLoading}
+            className="px-6 py-2 rounded-full shadow-md font-semibold text-[#593100] bg-gradient-to-br from-[#593100] via-[#ffddc2] to-[#593100] hover:brightness-110 hover:saturate-150 transition border-none relative whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? "Carregando..." : "Testar API"}
+          </button>
         </div>
       </div>
 
