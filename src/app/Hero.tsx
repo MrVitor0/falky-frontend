@@ -3,26 +3,14 @@ import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { handleCourseCreationNavigation } from "@/lib/navigation-utils";
 
 export default function Hero() {
-  const { user, hasPreferences } = useAuth();
+  const { user, preferences, hasPreferences } = useAuth();
   const router = useRouter();
 
   const handleCreateCourse = () => {
-    if (!user) {
-      // Se não está logado, redireciona para login
-      router.push("/login");
-      return;
-    }
-
-    if (!hasPreferences()) {
-      // Se não tem preferências, redireciona para o cadastro
-      router.push("/signup-step-one");
-      return;
-    }
-
-    // Se tem tudo, vai para criar curso
-    router.push("/create-course-step-one");
+    handleCourseCreationNavigation(user, preferences, hasPreferences, router);
   };
 
   return (

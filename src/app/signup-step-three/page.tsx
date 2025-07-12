@@ -74,8 +74,15 @@ export default function SignupStepThree() {
       // Limpar dados temporários
       localStorage.removeItem("signupData");
 
-      // Redirecionar para a home
-      router.push("/");
+      // Verificar se há um redirect pendente
+      const redirectPath = localStorage.getItem("redirectAfterProfile");
+      if (redirectPath) {
+        localStorage.removeItem("redirectAfterProfile");
+        router.push(redirectPath);
+      } else {
+        // Redirecionar para a home
+        router.push("/");
+      }
     }
   };
 
