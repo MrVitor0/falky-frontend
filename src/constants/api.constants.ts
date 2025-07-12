@@ -17,9 +17,13 @@ export const API_ENDPOINTS = {
   // Usuários
   USERS_PREFERENCES: "/user-preferences",
 
-  //Cursos
+  // Cursos
   COURSES: "/courses",
   COURSE_BY_ID: (courseId: string) => `/courses/${courseId}`,
+  
+  // Preferências de Curso
+  COURSE_PREFERENCES: "/course-preferences",
+  COURSE_PREFERENCES_BY_IDS: (userId: string, courseId: string) => `/course-preferences/${userId}/${courseId}`,
 } as const;
 
 /**

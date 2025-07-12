@@ -5,13 +5,188 @@
 
 import { api } from "@/services/api.service";
 import { API_ENDPOINTS } from "@/constants/api.constants";
-import { ApiResponse, Course } from "@/types/api.types";
+import {
+  ApiResponse,
+  Course,
+  UserPreferencesCreate,
+  UserPreferencesResponse,
+  UserPreferencesUpdate,
+  CoursePreferencesCreate,
+  CoursePreferencesResponse,
+  CoursePreferencesUpdate,
+} from "@/types/api.types";
 import { AxiosResponse } from "axios";
 
 /**
  * Classe controller para gerenciar operações da API
  */
 export class ApiController {
+  /**
+   * Métodos para Preferências do Usuário
+   */
+
+  /**
+   * Cria preferências do usuário
+   * @param preferences - Dados das preferências do usuário
+   * @returns Promessa com dados das preferências criadas
+   */
+  public async setUserPreferences(
+    preferences: UserPreferencesCreate
+  ): Promise<ApiResponse<UserPreferencesResponse>> {
+    try {
+      const response: AxiosResponse<ApiResponse<UserPreferencesResponse>> = await api.post(
+        API_ENDPOINTS.USERS_PREFERENCES,
+        preferences
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao definir preferências do usuário:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Busca preferências do usuário por ID
+   * @param userId - ID do usuário
+   * @returns Promessa com dados das preferências do usuário
+   */
+  public async getUserPreferences(userId: string): Promise<ApiResponse<UserPreferencesResponse>> {
+    try {
+      const response: AxiosResponse<ApiResponse<UserPreferencesResponse>> = await api.get(
+        `${API_ENDPOINTS.USERS_PREFERENCES}/${userId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar preferências do usuário:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Atualiza preferências do usuário
+   * @param userId - ID do usuário
+   * @param preferences - Dados das preferências a serem atualizadas
+   * @returns Promessa com dados das preferências atualizadas
+   */
+  public async updateUserPreferences(
+    userId: string,
+    preferences: UserPreferencesUpdate
+  ): Promise<ApiResponse<UserPreferencesResponse>> {
+    try {
+      const response: AxiosResponse<ApiResponse<UserPreferencesResponse>> = await api.put(
+        `${API_ENDPOINTS.USERS_PREFERENCES}/${userId}`,
+        preferences
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao atualizar preferências do usuário:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Lista todas as preferências de usuários
+   * @returns Promessa com lista de preferências de usuários
+   */
+  public async listUserPreferences(): Promise<ApiResponse<Record<string, UserPreferencesResponse>>> {
+    try {
+      const response: AxiosResponse<ApiResponse<Record<string, UserPreferencesResponse>>> = await api.get(
+        API_ENDPOINTS.USERS_PREFERENCES
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao listar preferências de usuários:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Métodos para Preferências de Curso
+   */
+
+  /**
+   * Cria preferências de curso
+   * @param preferences - Dados das preferências do curso
+   * @returns Promessa com dados das preferências criadas
+   */
+  public async setCoursePreferences(
+    preferences: CoursePreferencesCreate
+  ): Promise<ApiResponse<CoursePreferencesResponse>> {
+    try {
+      const response: AxiosResponse<ApiResponse<CoursePreferencesResponse>> = await api.post(
+        API_ENDPOINTS.COURSE_PREFERENCES,
+        preferences
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao definir preferências do curso:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Busca preferências de curso por ID do usuário e curso
+   * @param userId - ID do usuário
+   * @param courseId - ID do curso
+   * @returns Promessa com dados das preferências do curso
+   */
+  public async getCoursePreferences(
+    userId: string,
+    courseId: string
+  ): Promise<ApiResponse<CoursePreferencesResponse>> {
+    try {
+      const response: AxiosResponse<ApiResponse<CoursePreferencesResponse>> = await api.get(
+        API_ENDPOINTS.COURSE_PREFERENCES_BY_IDS(userId, courseId)
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar preferências do curso:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Atualiza preferências de curso
+   * @param userId - ID do usuário
+   * @param courseId - ID do curso
+   * @param preferences - Dados das preferências a serem atualizadas
+   * @returns Promessa com dados das preferências atualizadas
+   */
+  public async updateCoursePreferences(
+    userId: string,
+    courseId: string,
+    preferences: CoursePreferencesUpdate
+  ): Promise<ApiResponse<CoursePreferencesResponse>> {
+    try {
+      const response: AxiosResponse<ApiResponse<CoursePreferencesResponse>> = await api.put(
+        API_ENDPOINTS.COURSE_PREFERENCES_BY_IDS(userId, courseId),
+        preferences
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao atualizar preferências do curso:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Lista todas as preferências de cursos
+   * @param userId - ID do usuário (opcional)
+   * @returns Promessa com lista de preferências de cursos
+   */
+  public async listCoursePreferences(
+    userId?: string
+  ): Promise<ApiResponse<Record<string, CoursePreferencesResponse>>> {
+    try {
+      const url = userId ? `${API_ENDPOINTS.COURSE_PREFERENCES}?user_id=${userId}` : API_ENDPOINTS.COURSE_PREFERENCES;
+      const response: AxiosResponse<ApiResponse<Record<string, CoursePreferencesResponse>>> = await api.get(url);
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao listar preferências de cursos:", error);
+      throw error;
+    }
+  }
+
   /**
    * Métodos CRUD para Cursos
    */

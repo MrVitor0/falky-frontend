@@ -88,6 +88,115 @@ export interface RickAndMortyResponse {
 }
 
 /**
+ * Enums para preferências do usuário
+ */
+export enum NeurodivergenceType {
+  NONE = "none",
+  AUTISMO_LEVE = "autismo_leve",
+  TDAH = "tdah",
+  DISLEXIA = "dislexia",
+  DISCALCULIA = "discalculia",
+  TRANSTORNO_PROCESSAMENTO_SENSORIAL = "transtorno_processamento_sensorial",
+}
+
+export enum FalkyPersonalityType {
+  CONVERSADOR = "conversador",
+  COACH_MOTIVACIONAL = "coach_motivacional",
+  SUPERDIRETO = "superdireto",
+  PROFESSOR_CLASSICO = "professor_classico",
+  CIENTISTA = "cientista",
+  ZUEIRO = "zueiro",
+  GAMER = "gamer",
+  ZEN = "zen",
+  SABIO = "sabio",
+  HACKER = "hacker",
+}
+
+export enum KnowledgeLevelType {
+  NOVATO = "novato",
+  INTERMEDIARIO = "intermediario",
+  AVANCADO = "avancado",
+}
+
+export enum StudyRhythmType {
+  RAPIDO = "rapido",
+  MODERADO = "moderado",
+  PAUSADO = "pausado",
+}
+
+export enum MotivationGoalType {
+  APROVACAO_PROVA = "aprovacao_prova",
+  DOMINIO_TEMA = "dominio_tema",
+  HOBBY = "hobby",
+}
+
+/**
+ * Interfaces para criação de preferências
+ */
+export interface UserPreferencesCreate {
+  user_name: string;
+  user_birth_date: string; // ISO date string
+  falky_personality: FalkyPersonalityType;
+  user_neurodivergence?: NeurodivergenceType;
+}
+
+export interface CoursePreferencesCreate {
+  user_id: string;
+  course_name: string;
+  knowledge_level: KnowledgeLevelType;
+  study_pace: StudyRhythmType;
+  goals_and_motivations: MotivationGoalType;
+  additional_information?: string;
+}
+
+/**
+ * Interfaces para respostas das preferências
+ */
+export interface UserPreferencesResponse {
+  prefs_created_at: string;
+  user_id: string;
+  user_name: string;
+  user_birth_date: string;
+  user_age: number;
+  falky_personality: FalkyPersonalityType;
+  falky_personality_description: string;
+  user_neurodivergence: NeurodivergenceType;
+  user_neurodivergence_description: string;
+}
+
+export interface CoursePreferencesResponse {
+  course_created_at: string;
+  user_id: string;
+  course_id: string;
+  course_name: string;
+  knowledge_level: KnowledgeLevelType;
+  knowledge_level_description: string;
+  study_pace: StudyRhythmType;
+  study_pace_description: string;
+  goals_and_motivations: MotivationGoalType;
+  goals_and_motivations_description: string;
+  additional_information?: string;
+}
+
+/**
+ * Interfaces para atualização de preferências
+ */
+export interface UserPreferencesUpdate {
+  user_name?: string;
+  user_birth_date?: string;
+  falky_personality?: FalkyPersonalityType;
+  user_neurodivergence?: NeurodivergenceType;
+}
+
+export interface CoursePreferencesUpdate {
+  course_name?: string;
+  knowledge_level?: KnowledgeLevelType;
+  study_pace?: StudyRhythmType;
+  goals_and_motivations?: MotivationGoalType;
+  additional_information?: string;
+}
+
+/**
  * Tipos para métodos HTTP
  */
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';

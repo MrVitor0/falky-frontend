@@ -3,12 +3,11 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { apiController } from "@/controllers/api.controller";
 
 export default function CreateCourseStepOne() {
   const [courseInput, setCourseInput] = useState("");
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+
   const handleContinue = async () => {
     if (!courseInput.trim()) {
       alert("Por favor, digite um tópico para o curso");
@@ -17,28 +16,6 @@ export default function CreateCourseStepOne() {
 
     // Navegar para o próximo step
     router.push("/create-course-step-two");
-  };
-
-  const handleAPITesting = async () => {
-    setLoading(true);
-    try {
-      console.log("Iniciando teste de API com o tópico:", courseInput);
-
-      // Testa a conexão com a API
-      const isConnected = await apiController.testConnection();
-
-      if (isConnected) {
-        console.log("✅ Conexão com a API estabelecida com sucesso!");
-      } else {
-        console.log("❌ Falha na conexão com a API");
-      }
-
-      setLoading(false);
-    } catch (err) {
-      console.error("Erro ao fazer chamada para a API:", err);
-      alert("Erro ao processar solicitação. Tente novamente.");
-      setLoading(false);
-    }
   };
 
   return (
@@ -67,16 +44,9 @@ export default function CreateCourseStepOne() {
           />
           <button
             onClick={handleContinue}
-            className="px-6 py-2 rounded-full shadow-md font-semibold text-[#593100] bg-gradient-to-br from-[#593100] via-[#ffddc2] to-[#593100] hover:brightness-110 hover:saturate-150 transition border-none relative whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 rounded-full shadow-md font-semibold text-[#593100] bg-gradient-to-br from-[#593100] via-[#ffddc2] to-[#593100] hover:brightness-110 hover:saturate-150 transition border-none relative whitespace-nowrap"
           >
             Continuar
-          </button>
-          <button
-            onClick={handleAPITesting}
-            disabled={loading}
-            className="px-6 py-2 rounded-full shadow-md font-semibold text-[#593100] bg-gradient-to-br from-[#593100] via-[#ffddc2] to-[#593100] hover:brightness-110 hover:saturate-150 transition border-none relative whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Carregando..." : "Testar API"}
           </button>
         </div>
       </div>
