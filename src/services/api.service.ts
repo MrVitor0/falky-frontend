@@ -149,14 +149,11 @@ export class ApiService {
         timestamp: new Date().toISOString(),
       };
 
-      // Log da resposta em desenvolvimento
-      if (process.env.NODE_ENV === "development") {
-        console.log("✅ Resposta recebida:", {
-          status: response.status,
-          data: response.data,
-          headers: response.headers,
-        });
-      }
+      console.log("✅ Resposta recebida:", {
+        status: response.status,
+        data: response.data,
+        headers: response.headers,
+      });
 
       // Retorna a resposta formatada
       return {

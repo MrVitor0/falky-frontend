@@ -7,8 +7,7 @@
  * URLs base das APIs
  */
 export const API_BASE_URLS = {
-  MAIN: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api",
-  RICK_AND_MORTY: "https://rickandmortyapi.com/api",
+  MAIN: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1",
 } as const;
 
 /**
@@ -16,12 +15,11 @@ export const API_BASE_URLS = {
  */
 export const API_ENDPOINTS = {
   // Usuários
-  USERS: "/users",
-  USER_BY_ID: (id: string) => `/users/${id}`,
+  USERS_PREFERENCES: "/user-preferences",
 
-  // Cursos
+  //Cursos
   COURSES: "/courses",
-  COURSE_BY_ID: (id: string) => `/courses/${id}`,
+  COURSE_BY_ID: (courseId: string) => `/courses/${courseId}`,
 } as const;
 
 /**
@@ -74,6 +72,9 @@ export const STATIC_USER_ID = "user_12345_static";
 
 /**
  * Lista de bad words para filtro
+ * Esta lista contém palavras ofensivas que devem ser filtradas
+ * Pode ser expandida conforme necessário
+ * @see
  */
 export const BAD_WORDS = [
   "merda",
@@ -83,8 +84,6 @@ export const BAD_WORDS = [
   "buceta",
   "puta",
   "viado",
-  "gay",
   "bicha",
   "traveco",
-  // Adicione mais conforme necessário
 ] as const;

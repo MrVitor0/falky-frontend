@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { apiController } from "@/controllers/api.controller";
 
 export default function CreateCourseStepOne() {
   const [courseInput, setCourseInput] = useState("");
@@ -19,14 +20,19 @@ export default function CreateCourseStepOne() {
   };
 
   const handleAPITesting = async () => {
-    if (!courseInput.trim()) {
-      alert("Por favor, digite um tópico para o curso");
-      return;
-    }
     setLoading(true);
     try {
       console.log("Iniciando teste de API com o tópico:", courseInput);
-      // Aqui você pode chamar a função que faz a requisição à API
+
+      // Testa a conexão com a API
+      const isConnected = await apiController.testConnection();
+
+      if (isConnected) {
+        console.log("✅ Conexão com a API estabelecida com sucesso!");
+      } else {
+        console.log("❌ Falha na conexão com a API");
+      }
+
       setLoading(false);
     } catch (err) {
       console.error("Erro ao fazer chamada para a API:", err);
