@@ -15,15 +15,26 @@ export const API_BASE_URLS = {
  */
 export const API_ENDPOINTS = {
   // Usuários
-  USERS_PREFERENCES: "/user-preferences",
+  USERS_PREFERENCES: "/config/user-preferences",
 
   // Cursos
   COURSES: "/courses",
   COURSE_BY_ID: (courseId: string) => `/courses/${courseId}`,
+  COURSE_GENERATE: "/courses/generate",
+  COURSE_LIST: (userId: string) => `/courses/list/${userId}`,
+  COURSE_DETAILS: (userId: string, filename: string) => `/courses/details/${userId}/${filename}`,
+  COURSE_DELETE: (userId: string, filename: string) => `/courses/delete/${userId}/${filename}`,
   
   // Preferências de Curso
-  COURSE_PREFERENCES: "/course-preferences",
-  COURSE_PREFERENCES_BY_IDS: (userId: string, courseId: string) => `/course-preferences/${userId}/${courseId}`,
+  COURSE_PREFERENCES: "/config/course-preferences",
+  COURSE_PREFERENCES_BY_IDS: (userId: string, courseId: string) => `/config/course-preferences/${userId}/${courseId}`,
+  
+  // Configurações adicionais
+  CONFIG_PERSONALITIES: "/config/personalities",
+  CONFIG_NEURODIVERGENCES: "/config/neurodivergences",
+  CONFIG_KNOWLEDGE_LEVELS: "/config/knowledge-levels",
+  CONFIG_STUDY_RHYTHMS: "/config/study-rhythms",
+  CONFIG_MOTIVATION_GOALS: "/config/motivation-goals",
 } as const;
 
 /**
@@ -70,9 +81,32 @@ export const DEFAULT_HEADERS = {
 } as const;
 
 /**
- * ID de usuário estático (como solicitado)
+ * Função para gerar user_id compatível com o backend
+ * Usa o mesmo algoritmo: SHA256 dos dados concatenados
  */
-export const STATIC_USER_ID = "user_12345_static";
+async function generateUserId(userName: string, birthDate: string): Promise<string> {
+  const dataString = `${userName.toLowerCase()}${birthDate}`;
+  const encoder = new TextEncoder();
+  const data = encoder.encode(dataString);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex.substring(0, 16); // Primeiros 16 caracteres como no backend
+}
+
+/**
+ * ID de usuário compatível com backend
+ * Gerado baseado nos dados padrão: "Usuário Falky" + "1990-01-01"
+ */
+export const getStaticUserId = async (): Promise<string> => {
+  return await generateUserId("Usuário Falky", "1990-01-01");
+};
+
+/**
+ * ID de usuário compatível com backend
+ * Este ID corresponde ao usuário padrão "Usuário Falky" + "1990-01-01" já existente no backend
+ */
+export const STATIC_USER_ID = "3fc68c1415e8d009"; // Hash gerado pelo backend para "Usuário Falky" + "1990-01-01"
 
 /**
  * Lista de bad words para filtro

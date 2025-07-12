@@ -31,7 +31,14 @@ export default function CreateCourseStepOne() {
       >
         ← Voltar
       </Link>
-      
+ 
+      <h1 className="text-4xl md:text-5xl font-bold text-[#593100] text-center mb-6 mt-10">
+        Sua próxima jornada de conhecimento começa aqui.
+      </h1>
+      <p className="text-xl md:text-2xl text-[#593100] text-center mb-10 max-w-2xl">
+        Qual assunto você gostaria de dominar? Digite o nome do seu curso e vamos personalizar sua experiência de aprendizado.
+      </p>
+           
       {/* Indicador de progresso */}
       <div className="w-full max-w-3xl mb-8">
         <div className="flex items-center justify-between mb-2">
@@ -43,13 +50,6 @@ export default function CreateCourseStepOne() {
         </div>
       </div>
 
-      <h1 className="text-4xl md:text-5xl font-bold text-[#593100] text-center mb-6 mt-10">
-        Sua próxima jornada de conhecimento começa aqui.
-      </h1>
-      <p className="text-xl md:text-2xl text-[#593100] text-center mb-10 max-w-2xl">
-        Qual assunto você gostaria de dominar? Digite o nome do seu curso e vamos personalizar sua experiência de aprendizado.
-      </p>
-      
       <div className="w-full max-w-3xl bg-[#ffddc2] rounded-xl p-8 shadow-md flex flex-col items-center mb-16">
         <div className="w-full flex flex-col gap-4">
           <label className="text-lg font-semibold text-[#593100] text-center">
@@ -73,6 +73,7 @@ export default function CreateCourseStepOne() {
           </div>
         </div>
       </div>
+      
 
       {/* Cards de cursos sugeridos */}
       <div className="w-full max-w-6xl">

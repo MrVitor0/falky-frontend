@@ -174,25 +174,25 @@ export default function CourseCreatedSuccess() {
         {/* Botões de ação */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            href="/"
-            className="px-8 py-4 rounded-full shadow-lg font-semibold text-[#593100] bg-[#ffddc2] border-2 border-[#cc6200] hover:bg-[#fff7f0] transition"
+            href="/dashboard"
+            className="px-8 py-4 rounded-full shadow-lg font-bold text-white bg-gradient-to-r from-[#cc6200] to-[#ff8c00] hover:from-[#ff8c00] hover:to-[#cc6200] transition transform hover:scale-105"
           >
-            🏠 Voltar ao Início
+            🎯 Ir para Dashboard
           </Link>
           
           <Link
             href="/create-course-step-one"
             onClick={() => dispatch({ type: 'RESET' })}
-            className="px-8 py-4 rounded-full shadow-lg font-semibold text-white bg-gradient-to-r from-[#cc6200] to-[#ff8c00] hover:from-[#ff8c00] hover:to-[#cc6200] transition transform hover:scale-105"
+            className="px-8 py-4 rounded-full shadow-lg font-semibold text-[#593100] bg-[#ffddc2] border-2 border-[#cc6200] hover:bg-[#fff7f0] transition"
           >
             ➕ Criar outro curso
           </Link>
           
           <Link
-            href="/api-test"
+            href="/"
             className="px-8 py-4 rounded-full shadow-lg font-semibold text-[#593100] bg-white border-2 border-[#cc6200] hover:bg-[#ffddc2] transition"
           >
-            🧪 Testar API
+            🏠 Voltar ao Início
           </Link>
         </div>
 

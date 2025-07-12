@@ -3,11 +3,10 @@ import React, { useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { handleCourseCreationNavigation } from "@/lib/navigation-utils";
 import { mockCourseDB } from "@/lib/mock-courses";
 
 export default function Hero() {
-  const { user, preferences, hasPreferences } = useAuth();
+  const { user, hasPreferences } = useAuth();
   const router = useRouter();
 
   // Verificar se o usuário tem cursos e redirecionar para dashboard
@@ -21,7 +20,9 @@ export default function Hero() {
   // window.location.reload();
 
   const handleCreateCourse = () => {
-    handleCourseCreationNavigation(user, preferences, hasPreferences, router);
+    // Simplificar navegação - ir direto para criação de curso
+    // Como estamos usando STATIC_USER_ID, não precisamos de autenticação completa
+    router.push("/create-course-step-one");
   };
 
   return (

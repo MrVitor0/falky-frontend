@@ -1,12 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, ReactNode } from 'react';
 import {
   KnowledgeLevelType,
   StudyRhythmType,
   MotivationGoalType,
   CoursePreferencesCreate,
   CoursePreferencesResponse,
+  CourseGenerationResponse,
 } from '@/types/api.types';
 
 // Estado do curso em criação
@@ -20,6 +21,7 @@ interface CourseCreationState {
   isCompleted: boolean;
   userId: string;
   createdCourseData: CoursePreferencesResponse | null;
+  generatedCourseData: CourseGenerationResponse | null;
 }
 
 // Ações possíveis
@@ -31,6 +33,7 @@ type CourseCreationAction =
   | { type: 'SET_ADDITIONAL_INFORMATION'; payload: string }
   | { type: 'SET_USER_ID'; payload: string }
   | { type: 'SET_CREATED_COURSE_DATA'; payload: CoursePreferencesResponse }
+  | { type: 'SET_GENERATED_COURSE_DATA'; payload: CourseGenerationResponse }
   | { type: 'NEXT_STEP' }
   | { type: 'PREVIOUS_STEP' }
   | { type: 'COMPLETE_CREATION' }
@@ -47,6 +50,7 @@ const initialState: CourseCreationState = {
   isCompleted: false,
   userId: '',
   createdCourseData: null,
+  generatedCourseData: null,
 };
 
 // Reducer
@@ -69,6 +73,8 @@ function courseCreationReducer(
       return { ...state, userId: action.payload };
     case 'SET_CREATED_COURSE_DATA':
       return { ...state, createdCourseData: action.payload };
+    case 'SET_GENERATED_COURSE_DATA':
+      return { ...state, generatedCourseData: action.payload };
     case 'NEXT_STEP':
       return { ...state, step: Math.min(state.step + 1, 5) };
     case 'PREVIOUS_STEP':
@@ -134,15 +140,20 @@ export function CourseCreationProvider({ children }: CourseCreationProviderProps
   };
 
   // Retorna os dados formatados para o endpoint
-  const getCoursePreferencesData = (): Omit<CoursePreferencesCreate, 'user_id'> => {
+  const getCoursePreferencesData = useCallback((): Omit<CoursePreferencesCreate, 'user_id'> => {
+    // Validação adicional para evitar valores nulos
+    if (!state.courseName || !state.knowledgeLevel || !state.studyPace || !state.goalsAndMotivations) {
+      throw new Error('Dados incompletos: certifique-se de preencher todos os campos obrigatórios');
+    }
+    
     return {
       course_name: state.courseName,
-      knowledge_level: state.knowledgeLevel!,
-      study_pace: state.studyPace!,
-      goals_and_motivations: state.goalsAndMotivations!,
+      knowledge_level: state.knowledgeLevel,
+      study_pace: state.studyPace,
+      goals_and_motivations: state.goalsAndMotivations,
       additional_information: state.additionalInformation || undefined,
     };
-  };
+  }, [state.courseName, state.knowledgeLevel, state.studyPace, state.goalsAndMotivations, state.additionalInformation]);
 
   const value: CourseCreationContextValue = {
     state,
