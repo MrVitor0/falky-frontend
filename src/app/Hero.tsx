@@ -1,13 +1,24 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { handleCourseCreationNavigation } from "@/lib/navigation-utils";
+import { mockCourseDB } from "@/lib/mock-courses";
 
 export default function Hero() {
   const { user, preferences, hasPreferences } = useAuth();
   const router = useRouter();
+
+  // Verificar se o usuário tem cursos e redirecionar para dashboard
+  useEffect(() => {
+    if (user && hasPreferences() && mockCourseDB.hasAnyCourses()) {
+      router.push("/dashboard");
+    }
+  }, [user, hasPreferences, router]);
+
+  // localStorage.setItem("falky_has_courses", "true");
+  // window.location.reload();
 
   const handleCreateCourse = () => {
     handleCourseCreationNavigation(user, preferences, hasPreferences, router);

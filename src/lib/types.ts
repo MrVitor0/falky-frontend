@@ -41,3 +41,77 @@ export interface AuthContextType {
   ) => Promise<{ error: Error | null }>;
   hasPreferences: () => boolean;
 }
+
+// Interfaces para o sistema de cursos
+export interface Course {
+  id: string;
+  name: string;
+  description: string;
+  status: "em_andamento" | "concluido" | "pausado";
+  progress: number; // 0-100
+  totalLessons: number;
+  completedLessons: number;
+  createdAt: Date;
+  updatedAt: Date;
+  category: string;
+  difficulty: "iniciante" | "intermediario" | "avancado";
+  estimatedHours: number;
+  tags: string[];
+}
+
+export interface CourseStats {
+  totalCourses: number;
+  inProgress: number;
+  completed: number;
+  paused: number;
+  totalHoursStudied: number;
+  averageProgress: number;
+}
+
+export interface DashboardData {
+  courses: Course[];
+  stats: CourseStats;
+  recentActivity: CourseActivity[];
+}
+
+export interface CourseActivity {
+  id: string;
+  courseId: string;
+  courseName: string;
+  type:
+    | "lesson_completed"
+    | "course_started"
+    | "course_completed"
+    | "course_paused";
+  timestamp: Date;
+  description: string;
+}
+
+// Context para cursos
+export interface CourseContextType {
+  courses: Course[];
+  stats: CourseStats;
+  recentActivity: CourseActivity[];
+  loading: boolean;
+  addCourse: (course: Omit<Course, "id" | "createdAt" | "updatedAt">) => void;
+  updateCourse: (id: string, updates: Partial<Course>) => void;
+  deleteCourse: (id: string) => void;
+  getCourseById: (id: string) => Course | undefined;
+  getCoursesByStatus: (status: Course["status"]) => Course[];
+  refreshData: () => void;
+}
+
+// Configurações de layout do dashboard
+export interface DashboardSettings {
+  layoutType: "sidebar" | "cards";
+  sidebarCollapsed: boolean;
+  theme: "light" | "dark";
+  showStats: boolean;
+  itemsPerPage: number;
+}
+
+export interface DashboardContextType {
+  settings: DashboardSettings;
+  updateSettings: (updates: Partial<DashboardSettings>) => void;
+  resetSettings: () => void;
+}

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { CourseCreationProvider } from "@/contexts/CourseCreationContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { CourseProvider } from "@/contexts/CourseContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +17,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Falky - Educação Personalizada com IA",
-  description: "Plataforma educacional com assistente IA personalizado para diferentes tipos de aprendizagem e neurodivergência",
+  description:
+    "Plataforma educacional com assistente IA personalizado para diferentes tipos de aprendizagem e neurodivergência",
 };
 
 export default function RootLayout({
@@ -30,9 +32,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-        <CourseCreationProvider>
-          {children}
-        </CourseCreationProvider>
+          <CourseProvider>
+            <CourseCreationProvider>{children}</CourseCreationProvider>
+          </CourseProvider>
         </AuthProvider>
       </body>
     </html>
