@@ -6,6 +6,7 @@ import {
   StudyRhythmType,
   MotivationGoalType,
   CoursePreferencesCreate,
+  CoursePreferencesResponse,
 } from '@/types/api.types';
 
 // Estado do curso em criação
@@ -18,6 +19,7 @@ interface CourseCreationState {
   additionalInformation: string;
   isCompleted: boolean;
   userId: string;
+  createdCourseData: CoursePreferencesResponse | null;
 }
 
 // Ações possíveis
@@ -28,6 +30,7 @@ type CourseCreationAction =
   | { type: 'SET_GOALS_AND_MOTIVATIONS'; payload: MotivationGoalType }
   | { type: 'SET_ADDITIONAL_INFORMATION'; payload: string }
   | { type: 'SET_USER_ID'; payload: string }
+  | { type: 'SET_CREATED_COURSE_DATA'; payload: CoursePreferencesResponse }
   | { type: 'NEXT_STEP' }
   | { type: 'PREVIOUS_STEP' }
   | { type: 'COMPLETE_CREATION' }
@@ -43,6 +46,7 @@ const initialState: CourseCreationState = {
   additionalInformation: '',
   isCompleted: false,
   userId: '',
+  createdCourseData: null,
 };
 
 // Reducer
@@ -63,6 +67,8 @@ function courseCreationReducer(
       return { ...state, additionalInformation: action.payload };
     case 'SET_USER_ID':
       return { ...state, userId: action.payload };
+    case 'SET_CREATED_COURSE_DATA':
+      return { ...state, createdCourseData: action.payload };
     case 'NEXT_STEP':
       return { ...state, step: Math.min(state.step + 1, 5) };
     case 'PREVIOUS_STEP':
