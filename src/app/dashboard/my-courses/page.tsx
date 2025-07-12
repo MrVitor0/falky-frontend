@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Course } from "@/lib/types";
+import Link from "next/link";
 interface CourseCardProps {
   course: Course;
   onStatusChange: (courseId: string, newStatus: Course["status"]) => void;
@@ -95,7 +96,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 items-end min-w-[110px]">
           <select
             value={course.status}
             onChange={(e) =>
@@ -115,6 +116,13 @@ const CourseCard: React.FC<CourseCardProps> = ({
           >
             Excluir
           </button>
+          {/* Botão Ver Curso */}
+          <Link
+            href={`/dashboard/courses/${course.id}`}
+            className="mt-2 px-3 py-1 bg-[#cc6200] text-white rounded-lg text-xs hover:bg-[#ff8c00] transition whitespace-nowrap"
+          >
+            Ver Curso
+          </Link>
         </div>
       </div>
 

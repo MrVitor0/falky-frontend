@@ -12,7 +12,51 @@
     "category": "Programação",
     "difficulty": "iniciante",
     "estimatedHours": 40,
-    "tags": ["javascript", "web", "frontend"]
+    "tags": ["javascript", "web", "frontend"],
+    "modulos": [
+      {
+        "ID_MODULO": "1",
+        "NAME_MODULO": "Fundamentos",
+        "DESCRICAO_MODULO": "Introdução ao JS, variáveis, tipos, operadores.",
+        "SUBMODULOS": [
+          {
+            "ID_SUBMODULO": "1.1",
+            "NAME_SUBMODULO": "Variáveis e Tipos",
+            "DESCRICAO_SUBMODULO": "Como declarar variáveis, tipos primitivos.",
+            "ROADMAP_SUBMODULO": "",
+            "TEMPO_ESTIMADO": "2h"
+          },
+          {
+            "ID_SUBMODULO": "1.2",
+            "NAME_SUBMODULO": "Operadores",
+            "DESCRICAO_SUBMODULO": "Operadores aritméticos, lógicos e relacionais.",
+            "ROADMAP_SUBMODULO": "",
+            "TEMPO_ESTIMADO": "1h"
+          }
+        ]
+      },
+      {
+        "ID_MODULO": "2",
+        "NAME_MODULO": "Funções e Objetos",
+        "DESCRICAO_MODULO": "Funções, escopo, objetos e arrays.",
+        "SUBMODULOS": [
+          {
+            "ID_SUBMODULO": "2.1",
+            "NAME_SUBMODULO": "Funções",
+            "DESCRICAO_SUBMODULO": "Declaração, expressão e arrow functions.",
+            "ROADMAP_SUBMODULO": "",
+            "TEMPO_ESTIMADO": "1.5h"
+          },
+          {
+            "ID_SUBMODULO": "2.2",
+            "NAME_SUBMODULO": "Objetos e Arrays",
+            "DESCRICAO_SUBMODULO": "Manipulação de objetos e arrays.",
+            "ROADMAP_SUBMODULO": "",
+            "TEMPO_ESTIMADO": "2h"
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "2",
@@ -27,7 +71,51 @@
     "category": "Programação",
     "difficulty": "avancado",
     "estimatedHours": 60,
-    "tags": ["react", "frontend", "javascript"]
+    "tags": ["react", "frontend", "javascript"],
+    "modulos": [
+      {
+        "ID_MODULO": "1",
+        "NAME_MODULO": "Hooks Avançados",
+        "DESCRICAO_MODULO": "useReducer, useCallback, useMemo, custom hooks.",
+        "SUBMODULOS": [
+          {
+            "ID_SUBMODULO": "1.1",
+            "NAME_SUBMODULO": "useReducer",
+            "DESCRICAO_SUBMODULO": "Gerenciamento de estado complexo.",
+            "ROADMAP_SUBMODULO": "",
+            "TEMPO_ESTIMADO": "1.5h"
+          },
+          {
+            "ID_SUBMODULO": "1.2",
+            "NAME_SUBMODULO": "Custom Hooks",
+            "DESCRICAO_SUBMODULO": "Criando e organizando hooks personalizados.",
+            "ROADMAP_SUBMODULO": "",
+            "TEMPO_ESTIMADO": "2h"
+          }
+        ]
+      },
+      {
+        "ID_MODULO": "2",
+        "NAME_MODULO": "Context API e Patterns",
+        "DESCRICAO_MODULO": "Context, providers, patterns avançados.",
+        "SUBMODULOS": [
+          {
+            "ID_SUBMODULO": "2.1",
+            "NAME_SUBMODULO": "Context API",
+            "DESCRICAO_SUBMODULO": "Gerenciamento de contexto global.",
+            "ROADMAP_SUBMODULO": "",
+            "TEMPO_ESTIMADO": "1h"
+          },
+          {
+            "ID_SUBMODULO": "2.2",
+            "NAME_SUBMODULO": "Render Props & HOCs",
+            "DESCRICAO_SUBMODULO": "Padrões avançados de composição.",
+            "ROADMAP_SUBMODULO": "",
+            "TEMPO_ESTIMADO": "1.5h"
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "3",
@@ -57,7 +145,51 @@
     "category": "Programação",
     "difficulty": "intermediario",
     "estimatedHours": 50,
-    "tags": ["nodejs", "backend", "api"]
+    "tags": ["nodejs", "backend", "api"],
+    "modulos": [
+      {
+        "ID_MODULO": "1",
+        "NAME_MODULO": "Fundamentos do Node.js",
+        "DESCRICAO_MODULO": "Event loop, módulos, npm.",
+        "SUBMODULOS": [
+          {
+            "ID_SUBMODULO": "1.1",
+            "NAME_SUBMODULO": "Event Loop",
+            "DESCRICAO_SUBMODULO": "Como o Node lida com concorrência.",
+            "ROADMAP_SUBMODULO": "",
+            "TEMPO_ESTIMADO": "1h"
+          },
+          {
+            "ID_SUBMODULO": "1.2",
+            "NAME_SUBMODULO": "Módulos e NPM",
+            "DESCRICAO_SUBMODULO": "Gerenciamento de dependências.",
+            "ROADMAP_SUBMODULO": "",
+            "TEMPO_ESTIMADO": "1h"
+          }
+        ]
+      },
+      {
+        "ID_MODULO": "2",
+        "NAME_MODULO": "APIs com Express",
+        "DESCRICAO_MODULO": "Criação de rotas, middlewares, autenticação.",
+        "SUBMODULOS": [
+          {
+            "ID_SUBMODULO": "2.1",
+            "NAME_SUBMODULO": "Rotas e Middlewares",
+            "DESCRICAO_SUBMODULO": "Como criar rotas e middlewares.",
+            "ROADMAP_SUBMODULO": "",
+            "TEMPO_ESTIMADO": "2h"
+          },
+          {
+            "ID_SUBMODULO": "2.2",
+            "NAME_SUBMODULO": "Autenticação",
+            "DESCRICAO_SUBMODULO": "JWT, OAuth e estratégias de autenticação.",
+            "ROADMAP_SUBMODULO": "",
+            "TEMPO_ESTIMADO": "2h"
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "5",

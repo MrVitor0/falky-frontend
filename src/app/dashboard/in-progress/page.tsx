@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Course } from "@/lib/types";
+import Link from "next/link";
 
 const CourseCard: React.FC<{ course: Course }> = ({ course }) => (
   <div className="bg-white rounded-lg shadow-sm border border-[#ffddc2] p-6 hover:shadow-md transition-shadow">
@@ -29,6 +30,13 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => (
           <span>{course.estimatedHours}h estimadas</span>
           <span>Criado em {course.createdAt.toLocaleDateString()}</span>
         </div>
+        {/* Botão Ver Curso */}
+        <Link
+          href={`/dashboard/courses/${course.id}`}
+          className="mt-4 inline-block px-4 py-2 bg-[#cc6200] text-white rounded-lg text-sm hover:bg-[#ff8c00] transition"
+        >
+          Ver Curso
+        </Link>
       </div>
       <div className="flex flex-col items-end gap-2">
         <span className="text-xs text-[#593100] opacity-70">Progresso</span>
