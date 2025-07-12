@@ -1,128 +1,209 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useCourseCreation } from "@/contexts/CourseCreationContext";
+import { apiController } from "@/controllers/api.controller";
 
 export default function CreateCourseStepFive() {
-  const [progress, setProgress] = useState(0);
-  const [currentStep, setCurrentStep] = useState(1);
   const router = useRouter();
+  const { state, dispatch, getCoursePreferencesData } = useCourseCreation();
+  const [loading, setLoading] = useState(false);
+  const [additionalInfo, setAdditionalInfo] = useState(state.additionalInformation);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          // Simular redirecionamento após completar
-          setTimeout(() => {
-            // router.push("/course-ready"); // Página final
-          }, 1000);
-          return 100;
-        }
-        return prev + 1;
-      });
-    }, 50); // Atualiza a cada 50ms
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setAdditionalInfo(value);
+    dispatch({ type: 'SET_ADDITIONAL_INFORMATION', payload: value });
+  };
 
-    return () => clearInterval(interval);
-  }, [router]);
+  const handleCreateCourse = async () => {
+    setLoading(true);
+    try {
+      // Simulando um user_id (em produção, viria da autenticação)
+      const userId = "user_demo_123";
+      
+      // Obter dados formatados do context
+      const courseData = getCoursePreferencesData();
+      
+      // Adicionar user_id aos dados
+      const completeData = {
+        user_id: userId,
+        ...courseData,
+      };
 
-  useEffect(() => {
-    const stepInterval = setInterval(() => {
-      setCurrentStep((prev) => {
-        if (prev >= 10) {
-          clearInterval(stepInterval);
-          return 10;
-        }
-        return prev + 1;
-      });
-    }, 500);
+      console.log("Criando curso com dados:", completeData);
 
-    return () => clearInterval(stepInterval);
-  }, []);
+      // Criar um delay mínimo de 3 segundos para a experiência do usuário
+      const minLoadingTime = new Promise(resolve => setTimeout(resolve, 3000));
 
-  const circumference = 2 * Math.PI * 45; // raio de 45
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
+      // Chamar a API
+      const apiCall = apiController.setCoursePreferences(completeData);
+
+      // Aguardar tanto a API quanto o tempo mínimo de loading
+      const [response] = await Promise.all([apiCall, minLoadingTime]);
+
+      if (response.success) {
+        console.log("✅ Curso criado com sucesso:", response.data);
+        dispatch({ type: 'COMPLETE_CREATION' });
+        
+        // Redirecionar para página de sucesso
+        router.push("/course-created-success");
+      } else {
+        console.error("❌ Erro ao criar curso:", response.error);
+        alert("Erro ao criar curso: " + response.error);
+      }
+    } catch (error) {
+      console.error("❌ Erro ao criar curso:", error);
+      alert("Erro ao criar curso. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBack = () => {
+    dispatch({ type: 'PREVIOUS_STEP' });
+    router.push("/create-course-step-four");
+  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#fff7f0] px-4">
+    <div className="min-h-screen flex flex-col items-center justify-start bg-[#fff7f0] pt-16 px-4">
       <Link
-        href="/create-course-step-four"
-        className="absolute top-24 left-8 flex items-center gap-2 text-[#593100] hover:text-[#cc6200] transition font-medium"
+        href="/"
+        className="self-start mb-8 flex items-center gap-2 text-[#593100] hover:text-[#cc6200] transition font-medium"
       >
-        ← Voltar
+        ← Voltar ao Início
       </Link>
-
-      <div className="max-w-4xl text-center">
-        <h1 className="text-4xl md:text-5xl font-bold text-[#593100] mb-8">
-          Criando um curso que realmente te entende.
-        </h1>
-
-        <div className="bg-[#ffddc2] rounded-lg p-6 mb-12 max-w-3xl mx-auto">
-          <p className="text-lg md:text-xl text-[#593100] leading-relaxed">
-            Esta etapa é <strong>100% opcional</strong> e suas respostas são
-            confidenciais. Ao compartilhar como seu cérebro funciona, você
-            permite que nossa IA ative &ldquo;ajustes especiais&rdquo; no seu
-            curso, tornando-o muito mais eficaz e agradável para você.
-          </p>
+      
+      {/* Indicador de progresso */}
+      <div className="w-full max-w-3xl mb-8">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-[#593100]">Passo 5 de 5</span>
+          <span className="text-sm font-medium text-[#593100]">100%</span>
         </div>
+        <div className="w-full bg-[#ffddc2] rounded-full h-2">
+          <div className="bg-[#cc6200] h-2 rounded-full transition-all duration-300 ease-out" style={{ width: '100%' }}></div>
+        </div>
+      </div>
 
-        <p className="text-2xl md:text-3xl font-semibold text-[#593100] mb-12">
-          Estamos Adaptando o Curso pra você...
+      <h1 className="text-4xl md:text-5xl font-bold text-[#593100] text-center mb-6 mt-10">
+        Estamos quase lá! 🎉
+      </h1>
+      <p className="text-xl md:text-2xl text-[#593100] text-center mb-4 max-w-3xl">
+        Seu curso personalizado está pronto para ser criado!
+      </p>
+      <p className="text-lg text-[#593100] text-center mb-12 max-w-2xl opacity-80">
+        Quer nos contar mais alguma coisa? (Opcional)
+      </p>
+
+      {/* Campo de informações adicionais */}
+      <div className="w-full max-w-3xl bg-[#ffddc2] rounded-xl p-8 shadow-md mb-8">
+        <label className="block text-lg font-semibold text-[#593100] mb-4 text-center">
+          💬 Informações adicionais sobre seu aprendizado:
+        </label>
+        <textarea
+          value={additionalInfo}
+          onChange={handleInputChange}
+          placeholder="Ex: Tenho experiência com Python, prefiro exemplos práticos, gostaria de focar em projetos reais..."
+          rows={4}
+          className="w-full px-4 py-3 text-base text-[#593100] bg-[#fff7f0] border-2 border-[#cc6200] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cc6200] focus:border-transparent placeholder-[#593100] placeholder-opacity-50 resize-none"
+        />
+        <p className="text-sm text-[#593100] opacity-70 mt-2 text-center">
+          Essas informações nos ajudam a personalizar ainda mais seu curso.
         </p>
+      </div>
 
-        {/* Progress Circular */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="relative w-32 h-32 mb-4">
-            <svg
-              className="w-32 h-32 transform -rotate-90"
-              viewBox="0 0 100 100"
-            >
-              {/* Círculo de fundo */}
-              <circle
-                cx="50"
-                cy="50"
-                r="45"
-                stroke="#ffddc2"
-                strokeWidth="8"
-                fill="none"
-              />
-              {/* Círculo de progresso */}
-              <circle
-                cx="50"
-                cy="50"
-                r="45"
-                stroke="#cc6200"
-                strokeWidth="8"
-                fill="none"
-                strokeLinecap="round"
-                strokeDasharray={circumference}
-                strokeDashoffset={strokeDashoffset}
-                className="transition-all duration-100 ease-out"
-              />
-            </svg>
-            {/* Texto no centro */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-2xl font-bold text-[#593100]">
-                {currentStep}/10
-              </span>
+      {/* Resumo final do curso */}
+      <div className="w-full max-w-4xl bg-[#ffddc2] rounded-xl p-8 mb-8 border-2 border-[#cc6200]">
+        <div className="text-center mb-6">
+          <h3 className="text-2xl font-bold text-[#593100] mb-2">
+            🎯 Seu curso será criado com estas configurações:
+          </h3>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-[#fff7f0] rounded-lg p-6">
+            <h4 className="font-bold text-lg text-[#593100] mb-4 flex items-center gap-2">
+              📚 Informações do Curso
+            </h4>
+            <div className="space-y-3">
+              <div>
+                <span className="font-semibold text-[#593100]">Nome:</span>
+                <p className="text-[#593100] text-lg">{state.courseName}</p>
+              </div>
+              <div>
+                <span className="font-semibold text-[#593100]">Nível de conhecimento:</span>
+                <p className="text-[#593100]">
+                  {state.knowledgeLevel === 'novato' ? '🌱 Iniciante' :
+                   state.knowledgeLevel === 'intermediario' ? '📚 Intermediário' :
+                   state.knowledgeLevel === 'avancado' ? '🎓 Avançado' : ''}
+                </p>
+              </div>
             </div>
           </div>
-
-          {/* Porcentagem */}
-          <p className="text-lg font-medium text-[#593100]">
-            {Math.round(progress)}% concluído
-          </p>
+          
+          <div className="bg-[#fff7f0] rounded-lg p-6">
+            <h4 className="font-bold text-lg text-[#593100] mb-4 flex items-center gap-2">
+              ⚙️ Preferências de Estudo
+            </h4>
+            <div className="space-y-3">
+              <div>
+                <span className="font-semibold text-[#593100]">Ritmo de estudo:</span>
+                <p className="text-[#593100]">
+                  {state.studyPace === 'pausado' ? '🐌 Pausado e detalhado' :
+                   state.studyPace === 'moderado' ? '🚶 Moderado e equilibrado' :
+                   state.studyPace === 'rapido' ? '🏃 Rápido e dinâmico' : ''}
+                </p>
+              </div>
+              <div>
+                <span className="font-semibold text-[#593100]">Objetivo principal:</span>
+                <p className="text-[#593100]">
+                  {state.goalsAndMotivations === 'aprovacao_prova' ? '📋 Aprovação em Prova' :
+                   state.goalsAndMotivations === 'dominio_tema' ? '🎯 Domínio do Tema' :
+                   state.goalsAndMotivations === 'hobby' ? '🎨 Hobby Pessoal' : ''}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Mensagens de progresso */}
-        <div className="text-center">
-          <p className="text-lg text-[#593100] opacity-80">
-            {progress < 30 && "Analisando suas preferências..."}
-            {progress >= 30 && progress < 60 && "Personalizando conteúdo..."}
-            {progress >= 60 && progress < 90 && "Ajustando metodologia..."}
-            {progress >= 90 && "Finalizando seu curso personalizado..."}
-          </p>
-        </div>
+        {additionalInfo && (
+          <div className="mt-6 bg-[#fff7f0] rounded-lg p-6">
+            <h4 className="font-bold text-lg text-[#593100] mb-2 flex items-center gap-2">
+              💬 Informações Adicionais
+            </h4>
+            <p className="text-[#593100] leading-relaxed">{additionalInfo}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Botões de navegação */}
+      <div className="w-full max-w-3xl flex justify-between items-center mb-8">
+        <button
+          onClick={handleBack}
+          disabled={loading}
+          className="px-6 py-3 rounded-full shadow-md font-semibold text-[#593100] bg-white border-2 border-[#cc6200] hover:bg-[#ffddc2] transition disabled:opacity-50"
+        >
+          ← Voltar
+        </button>
+        
+        <button
+          onClick={handleCreateCourse}
+          disabled={loading}
+          className="px-8 py-4 rounded-full shadow-lg font-bold text-white bg-gradient-to-r from-[#cc6200] to-[#ff8c00] hover:from-[#ff8c00] hover:to-[#cc6200] transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2"
+        >
+          {loading ? (
+            <>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              Criando curso...
+            </>
+          ) : (
+            <>
+              🚀 Criar meu curso!
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

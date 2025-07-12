@@ -1,46 +1,22 @@
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Open_Sans } from "next/font/google";
+import { CourseCreationProvider } from "@/contexts/CourseCreationContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 
-const openSans = Open_Sans({
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
-  variable: "--font-open-sans",
 });
 
-export const metadata = {
-  title: "Falky - Educação personalizada por IA para todos",
-  description:
-    "Plataforma que usa inteligência artificial para criar cursos personalizados, inclusivos e acessíveis, respeitando ritmos, interesses e neurodivergências. Universalize seu acesso ao conhecimento!",
-  openGraph: {
-    title: "Falky - Educação personalizada por IA para todos",
-    description:
-      "Plataforma que usa inteligência artificial para criar cursos personalizados, inclusivos e acessíveis, respeitando ritmos, interesses e neurodivergências. Universalize seu acesso ao conhecimento!",
-    url: "https://falky.app/",
-    siteName: "Falky",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Falky - Educação personalizada por IA para todos",
-      },
-    ],
-    locale: "pt_BR",
-    type: "website",
-  },
-  keywords: [
-    "educação",
-    "inteligência artificial",
-    "cursos personalizados",
-    "inclusão",
-    "neurodivergência",
-    "acessibilidade",
-    "universalização",
-    "plataforma de cursos",
-  ],
-  authors: [{ name: "Falky" }],
-  creator: "Falky",
-  robots: "index, follow",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "Falky - Educação Personalizada com IA",
+  description: "Plataforma educacional com assistente IA personalizado para diferentes tipos de aprendizagem e neurodivergência",
 };
 
 export default function RootLayout({
@@ -49,9 +25,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${openSans.variable} antialiased`}>
-        <AuthProvider>{children}</AuthProvider>
+    <html lang="pt-BR">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <AuthProvider>
+        <CourseCreationProvider>
+          {children}
+        </CourseCreationProvider>
+        </AuthProvider>
       </body>
     </html>
   );
