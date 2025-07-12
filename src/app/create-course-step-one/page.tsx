@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRickAndMortyCharacter } from "@/hooks/useApiController";
 
 export default function CreateCourseStepOne() {
   const [courseInput, setCourseInput] = useState("");
