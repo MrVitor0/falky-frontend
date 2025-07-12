@@ -24,9 +24,11 @@ export default function CreateCourseStepOne() {
             placeholder="Ex: Inteligência Artificial, Culinária Italiana, Fotografia..."
             className="flex-1 px-4 py-2 text-lg text-[#593100] bg-[#fff7f0] border-2 border-[#cc6200] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cc6200] focus:border-transparent placeholder-[#593100] placeholder-opacity-30"
           />
-          <button className="px-6 py-2 rounded-full shadow-md font-semibold text-[#593100] bg-gradient-to-br from-[#593100] via-[#ffddc2] to-[#593100] hover:brightness-110 hover:saturate-150 transition border-none relative whitespace-nowrap">
-            Continuar
-          </button>
+          <Link href="/create-course-step-two">
+            <button className="px-6 py-2 rounded-full shadow-md font-semibold text-[#593100] bg-gradient-to-br from-[#593100] via-[#ffddc2] to-[#593100] hover:brightness-110 hover:saturate-150 transition border-none relative whitespace-nowrap">
+              Continuar
+            </button>
+          </Link>
         </div>
       </div>
 
