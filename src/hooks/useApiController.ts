@@ -3,15 +3,17 @@
  * Facilita o uso do sistema de API nos componentes React
  */
 
-import { useState, useCallback } from 'react';
-import { apiController } from '@/controllers/api.controller';
-import { RickAndMortyCharacter } from '@/types/api.types';
+import { useState, useCallback } from "react";
+import { apiController } from "@/controllers/api.controller";
+import { RickAndMortyCharacter } from "@/types/api.types";
 
 /**
  * Hook para gerenciar personagens do Rick and Morty
  */
 export const useRickAndMortyCharacter = () => {
-  const [character, setCharacter] = useState<RickAndMortyCharacter | null>(null);
+  const [character, setCharacter] = useState<RickAndMortyCharacter | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,15 +23,17 @@ export const useRickAndMortyCharacter = () => {
   const fetchRandomCharacter = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
-      const randomCharacter = await apiController.getRandomRickAndMortyCharacter();
+      const randomCharacter =
+        await apiController.getRandomRickAndMortyCharacter();
       setCharacter(randomCharacter);
-      console.log('🎭 Personagem obtido:', randomCharacter);
+      console.log("🎭 Personagem obtido:", randomCharacter);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro desconhecido";
       setError(errorMessage);
-      console.error('❌ Erro ao buscar personagem:', err);
+      console.error("❌ Erro ao buscar personagem:", err);
     } finally {
       setLoading(false);
     }
@@ -41,15 +45,17 @@ export const useRickAndMortyCharacter = () => {
   const fetchCharacterById = useCallback(async (id: number) => {
     setLoading(true);
     setError(null);
-    
+
     try {
-      const specificCharacter = await apiController.getRickAndMortyCharacterById(id);
+      const specificCharacter =
+        await apiController.getRickAndMortyCharacterById(id);
       setCharacter(specificCharacter);
-      console.log('🎭 Personagem específico obtido:', specificCharacter);
+      console.log("🎭 Personagem específico obtido:", specificCharacter);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro desconhecido";
       setError(errorMessage);
-      console.error('❌ Erro ao buscar personagem por ID:', err);
+      console.error("❌ Erro ao buscar personagem por ID:", err);
     } finally {
       setLoading(false);
     }
@@ -69,7 +75,7 @@ export const useRickAndMortyCharacter = () => {
     error,
     fetchRandomCharacter,
     fetchCharacterById,
-    clearCharacter
+    clearCharacter,
   };
 };
 
@@ -86,24 +92,25 @@ export const useApiDemo = () => {
   const testCreateCourse = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const courseData = {
-        title: 'Curso de React Avançado',
-        description: 'Aprenda React com hooks, context e performance',
-        instructor: 'João Silva',
+        title: "Curso de React Avançado",
+        description: "Aprenda React com hooks, context e performance",
+        instructor: "João Silva",
         duration: 40,
-        level: 'intermediate' as const
+        level: "intermediate" as const,
       };
 
       const result = await apiController.createCourse(courseData);
-      console.log('✅ Curso criado:', result);
-      
+      console.log("✅ Curso criado:", result);
+
       return result;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro desconhecido";
       setError(errorMessage);
-      console.error('❌ Erro ao criar curso:', err);
+      console.error("❌ Erro ao criar curso:", err);
       throw err;
     } finally {
       setLoading(false);
@@ -116,16 +123,20 @@ export const useApiDemo = () => {
   const testConnection = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const isConnected = await apiController.testConnection();
-      console.log('🔌 Status da conexão:', isConnected ? 'Conectado' : 'Desconectado');
-      
+      console.log(
+        "🔌 Status da conexão:",
+        isConnected ? "Conectado" : "Desconectado"
+      );
+
       return isConnected;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro desconhecido";
       setError(errorMessage);
-      console.error('❌ Erro ao testar conexão:', err);
+      console.error("❌ Erro ao testar conexão:", err);
       return false;
     } finally {
       setLoading(false);
@@ -136,6 +147,6 @@ export const useApiDemo = () => {
     loading,
     error,
     testCreateCourse,
-    testConnection
+    testConnection,
   };
-}; 
+};

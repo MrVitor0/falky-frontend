@@ -1,11 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRickAndMortyCharacter } from "@/hooks/useApiController";
 
 export default function CreateCourseStepOne() {
   const [courseInput, setCourseInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { character, loading, error, fetchRandomCharacter } =
+    useRickAndMortyCharacter();
+
+  // Effect para mostrar o nome do personagem quando carregado
+  useEffect(() => {
+    if (character) {
+      console.log("Nome do personagem:", character.name);
+    }
+  }, [character]);
 
   const handleContinue = async () => {
     if (!courseInput.trim()) {
@@ -21,25 +30,14 @@ export default function CreateCourseStepOne() {
     }
 
     try {
-      setIsLoading(true);
+      await fetchRandomCharacter();
 
-      const randomNumber = Math.floor(Math.random() * 1000) + 1;
-      // Chamada para a Rick and Morty API
-      const response = await fetch(
-        "https://rickandmortyapi.com/api/character/" + randomNumber
-      );
-
-      if (!response.ok) {
-        throw new Error("Erro ao buscar dados da API");
+      if (error) {
+        alert("Erro ao processar solicitação. Tente novamente.");
       }
-
-      const character = await response.json();
-      console.log("Nome do personagem:", character.name);
-    } catch (error) {
-      console.error("Erro ao fazer chamada para a API:", error);
+    } catch (err) {
+      console.error("Erro ao fazer chamada para a API:", err);
       alert("Erro ao processar solicitação. Tente novamente.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -75,10 +73,10 @@ export default function CreateCourseStepOne() {
           </button>
           <button
             onClick={handleAPITesting}
-            disabled={isLoading}
+            disabled={loading}
             className="px-6 py-2 rounded-full shadow-md font-semibold text-[#593100] bg-gradient-to-br from-[#593100] via-[#ffddc2] to-[#593100] hover:brightness-110 hover:saturate-150 transition border-none relative whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? "Carregando..." : "Testar API"}
+            {loading ? "Carregando..." : "Testar API"}
           </button>
         </div>
       </div>
