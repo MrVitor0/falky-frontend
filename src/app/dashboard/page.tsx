@@ -5,7 +5,7 @@ import { DashboardLayout } from "@/components/dashboard";
 import { useCourses } from "@/contexts/CourseContext";
 
 export default function DashboardPage() {
-  const { courses, stats, recentActivity, loading } = useCourses();
+  const { courses, recentActivity, loading } = useCourses();
 
   // Debug: Função para limpar dados e recarregar
   const handleDebugClear = () => {
@@ -63,149 +63,6 @@ export default function DashboardPage() {
   return (
     <DashboardLayout title="Dashboard" subtitle="Bem-vindo de volta!">
       <div className="space-y-6">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-[#ffddc2]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-[#593100] opacity-60">
-                  Total de Cursos
-                </p>
-                <p className="text-3xl font-bold text-[#593100]">
-                  {stats.totalCourses}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-r from-[#cc6200] to-[#ff8c00] rounded-full flex items-center justify-center">
-                <span className="text-white text-xl">📚</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-[#ffddc2]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-[#593100] opacity-60">
-                  Não Iniciados
-                </p>
-                <p className="text-3xl font-bold text-[#593100]">
-                  {stats.notStarted}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gray-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-xl">💭</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-[#ffddc2]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-[#593100] opacity-60">
-                  Em Andamento
-                </p>
-                <p className="text-3xl font-bold text-[#593100]">
-                  {stats.inProgress}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-xl">🚀</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-[#ffddc2]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-[#593100] opacity-60">Concluídos</p>
-                <p className="text-3xl font-bold text-[#593100]">
-                  {stats.completed}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-xl">✅</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-[#ffddc2]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-[#593100] opacity-60">
-                  Horas Estudadas
-                </p>
-                <p className="text-3xl font-bold text-[#593100]">
-                  {Math.round(stats.totalHoursStudied)}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-r from-[#cc6200] to-[#ff8c00] rounded-full flex items-center justify-center">
-                <span className="text-white text-xl">⏱️</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-[#ffddc2]">
-          <h2 className="text-xl font-bold text-[#593100] mb-4">
-            Ações Rápidas
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Link
-              href="/create-course-step-one"
-              className="p-4 rounded-lg bg-gradient-to-r from-[#cc6200] to-[#ff8c00] text-white hover:shadow-lg transform hover:scale-105 transition duration-200"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">➕</span>
-                <div>
-                  <h3 className="font-semibold">Novo Curso</h3>
-                  <p className="text-sm opacity-90">
-                    Criar um curso personalizado
-                  </p>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              href="/dashboard/my-courses"
-              className="p-4 rounded-lg bg-[#ffddc2] text-[#593100] hover:bg-[#cc6200] hover:text-white transition duration-200"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">📋</span>
-                <div>
-                  <h3 className="font-semibold">Meus Cursos</h3>
-                  <p className="text-sm opacity-70">Ver todos os cursos</p>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              href="/dashboard/in-progress"
-              className="p-4 rounded-lg bg-[#ffddc2] text-[#593100] hover:bg-[#cc6200] hover:text-white transition duration-200"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">📚</span>
-                <div>
-                  <h3 className="font-semibold">Continuar Estudos</h3>
-                  <p className="text-sm opacity-70">Ver cursos em andamento</p>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              href="/dashboard/library"
-              className="p-4 rounded-lg bg-[#ffddc2] text-[#593100] hover:bg-[#cc6200] hover:text-white transition duration-200"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">📖</span>
-                <div>
-                  <h3 className="font-semibold">Biblioteca</h3>
-                  <p className="text-sm opacity-70">Recursos salvos</p>
-                </div>
-              </div>
-            </Link>
-          </div>
-        </div>
-
         {/* Cursos Não Iniciados - Mostrar apenas se houver */}
         {notStartedCourses.length > 0 && (
           <div className="bg-white rounded-xl p-6 shadow-sm border border-[#ffddc2]">
@@ -223,9 +80,10 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {notStartedCourses.slice(0, 3).map((course) => (
-                <div
+                <Link
                   key={course.id}
-                  className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                  href={`/dashboard/courses/${course.id}`}
+                  className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#cc6200] hover:bg-[#fff7f0] transition-colors cursor-pointer"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-[#593100] text-sm">
@@ -242,7 +100,7 @@ export default function DashboardPage() {
                     <span>{course.totalLessons} aulas</span>
                     <span>{course.estimatedHours}h</span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -266,7 +124,11 @@ export default function DashboardPage() {
             {inProgressCourses.length > 0 ? (
               <div className="space-y-4">
                 {inProgressCourses.slice(0, 3).map((course) => (
-                  <div key={course.id} className="p-4 bg-[#fff7f0] rounded-lg">
+                  <Link
+                    key={course.id}
+                    href={`/dashboard/courses/${course.id}`}
+                    className="block p-4 bg-[#fff7f0] rounded-lg hover:bg-[#ffddc2] transition-colors cursor-pointer"
+                  >
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-semibold text-[#593100]">
                         {course.name}
@@ -284,7 +146,7 @@ export default function DashboardPage() {
                     <p className="text-sm text-[#593100] opacity-60">
                       {course.completedLessons} de {course.totalLessons} aulas
                     </p>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (

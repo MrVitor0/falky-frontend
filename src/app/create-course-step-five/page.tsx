@@ -27,7 +27,7 @@ export default function CreateCourseStepFive() {
   const handleContinue = () => {
     dispatch({ type: "SET_STEP_FIVE_ANSWER", payload: successCriteria });
     dispatch({ type: "NEXT_STEP" });
-    router.push("/create-course-loading");
+    router.push("/create-course-signup");
   };
 
   return (

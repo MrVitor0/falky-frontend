@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Course } from "@/lib/types";
 import Link from "next/link";
+import { useCourses } from "@/contexts/CourseContext";
+
 interface CourseCardProps {
   course: Course;
   onStatusChange: (courseId: string, newStatus: Course["status"]) => void;
@@ -164,6 +166,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
 };
 
 export default function MyCourses() {
+  const { courses: contextCourses } = useCourses();
   const [courses, setCourses] = useState<Course[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<Course["status"] | "all">(
@@ -175,20 +178,12 @@ export default function MyCourses() {
   >("created");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
-  // Carregar cursos do JSON
+  // Usar cursos do contexto em vez de carregar do JSON
   useEffect(() => {
-    fetch("/courses.json")
-      .then((res) => res.json())
-      .then((data) => {
-        // Converter datas para objetos Date
-        const parsed = data.map((c: Course) => ({
-          ...c,
-          createdAt: new Date(c.createdAt),
-          updatedAt: new Date(c.updatedAt),
-        }));
-        setCourses(parsed);
-      });
-  }, []);
+    if (contextCourses) {
+      setCourses(contextCourses);
+    }
+  }, [contextCourses]);
 
   // Verificar se há filtros na URL (corrigido para fallback seguro)
   useEffect(() => {
@@ -372,40 +367,6 @@ export default function MyCourses() {
                   {sortOrder === "asc" ? "↑" : "↓"}
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Estatísticas Rápidas */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg shadow-sm border border-[#ffddc2] p-4 text-center">
-            <div className="text-2xl font-bold text-[#593100]">
-              {courses.length}
-            </div>
-            <div className="text-sm text-[#593100] opacity-70">
-              Total de Cursos
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm border border-[#ffddc2] p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600">
-              {courses.filter((c) => c.status === "em_andamento").length}
-            </div>
-            <div className="text-sm text-[#593100] opacity-70">
-              Em Andamento
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm border border-[#ffddc2] p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">
-              {courses.filter((c) => c.status === "concluido").length}
-            </div>
-            <div className="text-sm text-[#593100] opacity-70">Concluídos</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm border border-[#ffddc2] p-4 text-center">
-            <div className="text-2xl font-bold text-gray-600">
-              {courses.filter((c) => c.status === "nao_iniciado").length}
-            </div>
-            <div className="text-sm text-[#593100] opacity-70">
-              Não Iniciados
             </div>
           </div>
         </div>

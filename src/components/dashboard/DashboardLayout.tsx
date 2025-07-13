@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+// import { useAuth } from "@/contexts/AuthContext"; // TEMPORÁRIO: Comentado durante desenvolvimento
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import MobileNavigation from "./MobileNavigation";
@@ -18,8 +18,11 @@ export default function DashboardLayout({
 }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user } = useAuth();
+  // const { user } = useAuth(); // TEMPORÁRIO: Comentado durante desenvolvimento
 
+  // TEMPORÁRIO: Comentando verificação de autenticação durante desenvolvimento
+  // TODO: Reativar quando o fluxo de autenticação estiver completo
+  /*
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fff7f0]">
@@ -30,6 +33,7 @@ export default function DashboardLayout({
       </div>
     );
   }
+  */
 
   return (
     <div className="min-h-screen bg-[#fff7f0] flex">

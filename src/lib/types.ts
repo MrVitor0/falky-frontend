@@ -42,6 +42,75 @@ export interface AuthContextType {
   hasPreferences: () => boolean;
 }
 
+// Interfaces para módulos de curso (formato original)
+export interface CourseSubmodule {
+  ID_SUBMODULO: string;
+  NAME_SUBMODULO: string;
+  DESCRICAO_SUBMODULO: string;
+  ROADMAP_SUBMODULO: string;
+  TEMPO_ESTIMADO: string;
+  // Novos campos para geração de conteúdo
+  content_generated?: boolean;
+  generated_at?: string;
+  content_url?: string;
+}
+
+export interface CourseModule {
+  ID_MODULO: string;
+  NAME_MODULO: string;
+  DESCRICAO_MODULO: string;
+  SUBMODULOS: CourseSubmodule[];
+  // Novos campos para currículo personalizado
+  ROADMAP_MODULO?: string;
+  NIVEL_DIFICULDADE?: string;
+  TEMPO_ESTIMADO?: string;
+  ADAPTACOES_NEURO?: string;
+  JUSTIFICATIVA?: string;
+}
+
+// Tipos para currículo personalizado
+export interface PersonalizedCurriculumModule {
+  ID_MODULO: string;
+  NAME_MODULO: string;
+  DESCRICAO_MODULO: string;
+  ROADMAP_MODULO: string;
+  NIVEL_DIFICULDADE: string;
+  TEMPO_ESTIMADO: string;
+  ADAPTACOES_NEURO: string;
+  JUSTIFICATIVA: string;
+  SUBMODULOS: PersonalizedCurriculumSubmodule[];
+}
+
+export interface PersonalizedCurriculumSubmodule {
+  ID_SUBMODULO: string;
+  NAME_SUBMODULO: string;
+  DESCRICAO_SUBMODULO: string;
+  ROADMAP_SUBMODULO: string;
+  TEMPO_ESTIMADO: string;
+  // Novos campos para geração de conteúdo
+  content_generated?: boolean;
+  generated_at?: string;
+  content_url?: string;
+}
+
+export interface PersonalizedCurriculum {
+  nivel_identificado: string;
+  personalidade_aplicada: string;
+  adaptacoes_personalizadas: string;
+  adaptacoes_neurodivergencia: string;
+  justificativa_personalizacao: string;
+  modulos: PersonalizedCurriculumModule[];
+}
+
+export interface CourseGenerationData {
+  user_id: string;
+  timestamp: string;
+  thread_id: string;
+  course_topic: string;
+  user_config: Record<string, unknown>;
+  personalized_curriculum: PersonalizedCurriculum;
+}
+
 // Interfaces para o sistema de cursos
 export interface Course {
   id: string;
@@ -57,6 +126,14 @@ export interface Course {
   difficulty: "iniciante" | "intermediario" | "avancado";
   estimatedHours: number;
   tags: string[];
+  modulos?: CourseModule[]; // Formato original (compatibilidade)
+  // Novos campos para currículo personalizado
+  user_id?: string;
+  thread_id?: string;
+  course_topic?: string;
+  user_config?: Record<string, unknown>;
+  personalized_curriculum?: PersonalizedCurriculum;
+  timestamp?: string;
 }
 
 export interface CourseStats {
@@ -85,7 +162,8 @@ export interface CourseActivity {
     | "course_started"
     | "course_completed"
     | "course_paused"
-    | "course_resumed";
+    | "course_resumed"
+    | "content_generated";
   timestamp: Date;
   description: string;
 }
@@ -102,15 +180,25 @@ export interface CourseContextType {
   getCourseById: (id: string) => Course | undefined;
   getCoursesByStatus: (status: Course["status"]) => Course[];
   refreshData: () => void;
+  // Novas funções para geração de conteúdo
+  generateSubmoduleContent: (
+    courseId: string,
+    moduleId: string,
+    submoduleId: string
+  ) => Promise<boolean>;
+  isSubmoduleContentGenerated: (
+    courseId: string,
+    moduleId: string,
+    submoduleId: string
+  ) => boolean;
 }
 
-// Configurações de layout do dashboard
+// Tipos para configurações do dashboard
 export interface DashboardSettings {
-  layoutType: "sidebar" | "cards";
-  sidebarCollapsed: boolean;
-  theme: "light" | "dark";
-  showStats: boolean;
-  itemsPerPage: number;
+  theme: "light" | "dark" | "system";
+  notifications: boolean;
+  autoplay: boolean;
+  language: "pt" | "en" | "es";
 }
 
 export interface DashboardContextType {

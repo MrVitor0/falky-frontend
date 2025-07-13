@@ -58,7 +58,7 @@ export default function CreateCourseInterview() {
     } else {
       // Última pergunta - finalizar entrevista
       dispatch({ type: "COMPLETE_INTERVIEW" });
-      router.push("/create-course-teacher-loading");
+      router.push("/create-course-teacher-style");
     }
   };
 
@@ -70,7 +70,7 @@ export default function CreateCourseInterview() {
 
   const handleSkip = () => {
     dispatch({ type: "SKIP_INTERVIEW" });
-    router.push("/create-course-loading-teacher");
+    router.push("/create-course-teacher-style");
   };
 
   if (loading) {
@@ -170,7 +170,7 @@ export default function CreateCourseInterview() {
               disabled={!canProceed}
               className="px-8 py-3 rounded-full shadow-lg font-bold text-white bg-gradient-to-r from-[#cc6200] to-[#ff8c00] hover:from-[#ff8c00] hover:to-[#cc6200] transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {isLastQuestion ? "🎯 Finalizar" : "Próxima →"}
+              {isLastQuestion ? "🎯 Continuar" : "Próxima →"}
             </button>
           </div>
         </div>

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { CourseCreationProvider } from "@/contexts/CourseCreationContext";
-// import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { CourseProvider } from "@/contexts/CourseContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,11 +31,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* <AuthProvider> */}
-        {/* <CourseProvider> */}
-        <CourseCreationProvider>{children}</CourseCreationProvider>
-        {/* </CourseProvider> */}
-        {/* </AuthProvider> */}
+        <AuthProvider>
+          <CourseProvider>
+            <CourseCreationProvider>{children}</CourseCreationProvider>
+          </CourseProvider>
+        </AuthProvider>
       </body>
     </html>
   );
