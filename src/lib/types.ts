@@ -118,3 +118,85 @@ export interface DashboardContextType {
   updateSettings: (updates: Partial<DashboardSettings>) => void;
   resetSettings: () => void;
 }
+
+// Novos tipos para o sistema de criação de cursos
+
+export enum CourseStep {
+  TOPIC = "topic",
+  MOTIVATION = "motivation", 
+  OBJECTIVES = "objectives",
+  KNOWLEDGE = "knowledge",
+  SUCCESS = "success"
+}
+
+export interface CourseTopicRequest {
+  topic: string;
+}
+
+export interface CourseStepRequest {
+  course_id: string;
+  step: CourseStep;
+  answer?: string;
+}
+
+export interface CourseStepResponse {
+  course_id: string;
+  step: CourseStep;
+  question: string;
+  next_step?: CourseStep;
+  progress: number;
+  metadata?: {
+    [key: string]: string | number | boolean;
+  };
+}
+
+export interface CourseSessionResponse {
+  course_id: string;
+  topic: string;
+  current_step: CourseStep;
+  progress: number;
+  questions_answered: number;
+  total_questions: number;
+}
+
+export interface ResearchRequest {
+  course_id: string;
+  generate_content?: boolean;
+}
+
+export enum ResearchStatus {
+  PENDING = "pending",
+  RESEARCHING = "researching", 
+  ANALYZING = "analyzing",
+  COMPLETED = "completed",
+  FAILED = "failed"
+}
+
+export interface ResearchResponse {
+  course_id: string;
+  status: ResearchStatus;
+  progress: number;
+  message: string;
+  estimated_time?: number;
+}
+
+export interface CourseContentResponse {
+  course_id: string;
+  topic: string;
+  student_profile: {
+    [key: string]: string;
+  };
+  research_summary: string;
+  quiz_questions: string[];
+  final_document: string;
+  files_generated: string[];
+  created_at: string;
+}
+
+// Resposta base da API
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  message: string;
+  data?: T;
+  timestamp?: string;
+}

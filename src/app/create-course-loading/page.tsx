@@ -6,7 +6,7 @@ import { useCourseCreation } from "@/contexts/CourseCreationContext";
 
 export default function CreateCourseLoading() {
   const router = useRouter();
-  const { state, dispatch, getCoursePreferencesData } = useCourseCreation();
+  const { state, dispatch, checkResearchStatus } = useCourseCreation();
   const [loadingMessage, setLoadingMessage] = useState(
     "Preparando seu curso personalizado..."
   );
@@ -14,6 +14,7 @@ export default function CreateCourseLoading() {
   const [currentStep, setCurrentStep] = useState(1);
 
   const isProcessing = useRef(false);
+  const statusCheckInterval = useRef<NodeJS.Timeout | null>(null);
   const totalSteps = 10;
   const [researchSteps, setResearchSteps] = useState<string[]>([]);
   const [visibleResearchCount, setVisibleResearchCount] = useState(0);
@@ -50,96 +51,113 @@ export default function CreateCourseLoading() {
       return;
     }
 
-    const createCourse = async () => {
+    // Se não temos courseId, redirecionar para step-one
+    if (!state.courseId) {
+      router.push("/create-course-step-one");
+      return;
+    }
+
+    const monitorResearch = async () => {
       try {
-        // Simulando um user_id (em produção, viria da autenticação)
-        const userId = "user_demo_123";
+        isProcessing.current = true;
 
-        // Obter dados formatados do context
-        console.log("📊 Estado atual do contexto:", {
-          courseName: state.courseName,
-          stepTwoAnswer: state.stepTwoAnswer,
-          stepThreeAnswer: state.stepThreeAnswer,
-          stepFourAnswer: state.stepFourAnswer,
-          stepFiveAnswer: state.stepFiveAnswer,
-        });
+        console.log("📊 Monitorando pesquisa para curso:", state.courseId);
 
-        const courseData = getCoursePreferencesData();
+        // Inicializar progresso com status do contexto
+        setProgress(state.researchProgress || 0);
+        setLoadingMessage(state.researchMessage || "Preparando pesquisa...");
 
-        // Adicionar user_id aos dados
-        const completeData = {
-          user_id: userId,
-          ...courseData,
+        // Função para mapear status para mensagens amigáveis
+        const getStatusMessage = (status: string, progress: number) => {
+          switch (status) {
+            case "pending":
+              return "Preparando pesquisa...";
+            case "researching":
+              if (progress <= 30) return "Gerando domínios e queries de pesquisa...";
+              if (progress <= 60) return "Executando pesquisas em fontes confiáveis...";
+              return "Compilando resultados das pesquisas...";
+            case "analyzing":
+              if (progress <= 80) return "Analisando e compilando informações...";
+              if (progress <= 90) return "Gerando questões personalizadas...";
+              return "Criando documento final do curso...";
+            case "completed":
+              return "Pesquisa concluída com sucesso! 🎉";
+            case "failed":
+              return "Erro na pesquisa. Tente novamente.";
+            default:
+              return "Processando...";
+          }
         };
 
-        console.log("🚀 Criando curso com dados:", completeData);
-
-        // Simular progresso de criação com steps mais detalhados
-        const progressSteps = [
-          { message: "Iniciando criação do curso...", progress: 10, step: 1 },
-          { message: "Analisando suas preferências...", progress: 20, step: 2 },
-          {
-            message: "Configurando nível de dificuldade...",
-            progress: 30,
-            step: 3,
-          },
-          { message: "Personalizando conteúdo...", progress: 40, step: 4 },
-          { message: "Estruturando módulos...", progress: 50, step: 5 },
-          { message: "Criando exercícios práticos...", progress: 60, step: 6 },
-          { message: "Definindo cronograma...", progress: 70, step: 7 },
-          { message: "Ajustando metodologia...", progress: 80, step: 8 },
-          { message: "Finalizando detalhes...", progress: 90, step: 9 },
-          { message: "Curso quase pronto!", progress: 100, step: 10 },
-        ];
-
-        // Criar um delay mínimo de 3 segundos para a experiência do usuário
-        const minLoadingTime = new Promise(
-          (resolve) => setTimeout(resolve, 5000) // Mudado de 3000ms para 5000ms
-        );
-
-        // Chamar a API
-        // const apiCall = apiController.setCoursePreferences(completeData);
-        const apiCall = new Promise<{
-          success: boolean;
-          data?: object;
-          error?: string;
-        }>((resolve) =>
-          setTimeout(() => resolve({ success: true, data: {} }), 1000)
-        );
-
-        // Simular progresso enquanto aguarda
-        const progressInterval = setInterval(() => {
-          setProgress((prev) => {
-            const nextStep = progressSteps.find((step) => step.progress > prev);
-            if (nextStep) {
-              setLoadingMessage(nextStep.message);
-              setCurrentStep(nextStep.step);
-              return nextStep.progress;
-            }
-            return prev;
+        // Função para atualizar o progresso baseado no status
+        const updateProgressFromStatus = () => {
+          const currentProgress = state.researchProgress || 0;
+          const currentStatus = state.researchStatus || "pending";
+          const message = state.researchMessage || getStatusMessage(currentStatus, currentProgress);
+          
+          console.log("🔧 [DEBUG] Loading - Atualizando progresso:", {
+            status: currentStatus,
+            progress: currentProgress,
+            message: message
           });
-        }, 500); // Mudado de 300ms para 500ms para cobrir 10 steps em 5 segundos
+          
+          setProgress(currentProgress);
+          setLoadingMessage(message);
+          
+          // Mapear progresso para steps visuais (0-100% → 1-10 steps)
+          const calculatedStep = Math.min(Math.max(Math.floor(currentProgress / 10) + 1, 1), 10);
+          setCurrentStep(calculatedStep);
+        };
 
-        // Aguardar tanto a API quanto o tempo mínimo de loading
-        const [response] = await Promise.all([apiCall, minLoadingTime]);
+        // Atualizar uma vez imediatamente
+        updateProgressFromStatus();
 
-        clearInterval(progressInterval);
-
-        if (response.success) {
-          console.log("✅ Curso criado com sucesso:", response.data);
-
-          // Marcar como completo
-          dispatch({ type: "COMPLETE_CREATION" });
-
-          // Pequeno delay para mostrar 100% antes de redirecionar
-          setTimeout(() => {
-            router.push("/create-course-interview");
-          }, 500);
-        } else {
-          console.error("❌ Erro ao criar curso:", response.error);
-          alert("Erro ao criar curso: " + response.error);
-          router.push("/create-course-step-five");
-        }
+        // Iniciar monitoramento periódico
+        statusCheckInterval.current = setInterval(async () => {
+          try {
+            console.log("🔧 [DEBUG] Loading - Verificando status da pesquisa...");
+            await checkResearchStatus();
+            
+            // Atualizar UI com novos dados
+            updateProgressFromStatus();
+            
+            // Se pesquisa completa (status = completed E progress = 100), redirecionar
+            if (state.researchStatus === "completed" && state.researchProgress >= 100) {
+              if (statusCheckInterval.current) {
+                clearInterval(statusCheckInterval.current);
+              }
+              
+              console.log("✅ Pesquisa concluída com sucesso!");
+              setProgress(100);
+              setLoadingMessage("Curso criado com sucesso! Redirecionando...");
+              
+              // Marcar como completo
+              dispatch({ type: "COMPLETE_CREATION" });
+              
+              // Delay para mostrar 100% antes de redirecionar
+              setTimeout(() => {
+                router.push("/course-created-success");
+              }, 1500);
+              return;
+            }
+            
+            // Se pesquisa falhou, parar e mostrar erro
+            if (state.researchStatus === "failed") {
+              if (statusCheckInterval.current) {
+                clearInterval(statusCheckInterval.current);
+              }
+              
+              console.error("❌ Erro na pesquisa");
+              setLoadingMessage("Erro na pesquisa. Redirecionando...");
+              setTimeout(() => {
+                router.push("/create-course-step-five");
+              }, 2000);
+              return;
+            }
+          } catch (error) {
+            console.error("🔧 [DEBUG] Loading - Erro ao verificar status:", error);
+          }
+        }, 1500); // Verificar a cada 1.5 segundos para melhor responsividade
       } catch (error) {
         // Limpeza em caso de erro (progressInterval is handled by finally block)
 
@@ -154,19 +172,29 @@ export default function CreateCourseLoading() {
         }, 2000);
       } finally {
         isProcessing.current = false;
+        // Limpar interval se ainda estiver rodando
+        if (statusCheckInterval.current) {
+          clearInterval(statusCheckInterval.current);
+        }
       }
     };
 
-    createCourse();
+    monitorResearch();
+
+    // Cleanup function para limpar interval quando componente desmontar
+    return () => {
+      if (statusCheckInterval.current) {
+        clearInterval(statusCheckInterval.current);
+      }
+    };
   }, [
     router,
     dispatch,
-    getCoursePreferencesData,
-    state.courseName,
-    state.stepTwoAnswer,
-    state.stepThreeAnswer,
-    state.stepFourAnswer,
-    state.stepFiveAnswer,
+    state.courseId,
+    checkResearchStatus,
+    state.researchProgress,
+    state.researchMessage,
+    state.researchStatus,
   ]);
 
   return (
@@ -180,8 +208,24 @@ export default function CreateCourseLoading() {
         </div>
         {/* Título */}
         <h1 className="text-3xl md:text-4xl font-bold text-[#593100] mb-4">
-          Criando seu curso personalizado
+          {state.researchStatus === "completed" ? "Curso criado com sucesso!" : "Criando seu curso personalizado"}
         </h1>
+        
+        {/* Status da pesquisa */}
+        {state.researchStatus && (
+          <div className="mb-4">
+            <span className={`inline-block px-3 py-1 text-white rounded-full text-sm font-medium ${
+              state.researchStatus === "completed" ? "bg-green-500" :
+              state.researchStatus === "failed" ? "bg-red-500" :
+              "bg-[#cc6200]"
+            }`}>
+              Status: {state.researchStatus === "researching" ? "Pesquisando" : 
+                      state.researchStatus === "analyzing" ? "Analisando" :
+                      state.researchStatus === "completed" ? "Concluído" :
+                      state.researchStatus === "failed" ? "Erro" : "Preparando"}
+            </span>
+          </div>
+        )}
         {/* Indicador de step */}
         <div className="mb-6">
           <div className="flex items-center justify-center gap-4 mb-2">
@@ -202,11 +246,17 @@ export default function CreateCourseLoading() {
           {loadingMessage}
         </p>
         {/* Barra de progresso */}
-        <div className="w-full bg-[#ffddc2] rounded-full h-4 mb-8 overflow-hidden">
-          <div
-            className="bg-gradient-to-r from-[#cc6200] to-[#ff8c00] h-4 rounded-full transition-all duration-300 ease-out"
-            style={{ width: `${progress}%` }}
-          ></div>
+        <div className="w-full mb-8">
+          <div className="flex justify-between text-sm text-[#593100] mb-2">
+            <span>Progresso</span>
+            <span>{Math.round(progress)}%</span>
+          </div>
+          <div className="w-full bg-[#ffddc2] rounded-full h-4 overflow-hidden">
+            <div
+              className="bg-gradient-to-r from-[#cc6200] to-[#ff8c00] h-4 rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
         </div>
         {/* Etapas de pesquisa da IA */}
         <div className="bg-[#fff] border border-[#ffddc2] rounded-xl p-4 mb-8 text-left shadow-sm min-h-[120px]">
