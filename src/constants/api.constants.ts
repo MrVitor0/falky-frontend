@@ -22,31 +22,36 @@ export const API_ENDPOINTS = {
   COURSE_BY_ID: (courseId: string) => `/courses/${courseId}`,
   COURSE_GENERATE: "/courses/generate",
   COURSE_LIST: (userId: string) => `/courses/list/${userId}`,
-  COURSE_DETAILS: (userId: string, filename: string) => `/courses/details/${userId}/${filename}`,
-  COURSE_DELETE: (userId: string, filename: string) => `/courses/delete/${userId}/${filename}`,
-  
+  COURSE_DETAILS: (userId: string, filename: string) =>
+    `/courses/details/${userId}/${filename}`,
+  COURSE_DELETE: (userId: string, filename: string) =>
+    `/courses/delete/${userId}/${filename}`,
+
   // Novos endpoints de criação de curso
   COURSE_CREATE: "/course/create",
   COURSE_STEP: "/course/step",
   COURSE_SESSION: (courseId: string) => `/course/session/${courseId}`,
   COURSE_RESEARCH: "/course/research",
-  COURSE_RESEARCH_STATUS: (courseId: string) => `/course/research/${courseId}/status`,
+  COURSE_RESEARCH_STATUS: (courseId: string) =>
+    `/course/research/${courseId}/status`,
   COURSE_SESSION_DELETE: (courseId: string) => `/course/session/${courseId}`,
-  
+
   // Endpoints de estrutura do curso
   COURSE_STRUCTURE: (courseId: string) => `/course/structure/${courseId}`,
-  
+
   // Endpoints de materiais
   MATERIAL_GENERATE: "/material/generate",
   MATERIAL_STATUS: (courseId: string) => `/material/status/${courseId}`,
   MATERIAL_LIST: (courseId: string) => `/material/list/${courseId}`,
-  MATERIAL_CONTENT: (courseId: string, materialId: string) => `/material/content/${courseId}/${materialId}`,
+  MATERIAL_CONTENT: (courseId: string, materialId: string) =>
+    `/material/content/${courseId}/${materialId}`,
   MATERIAL_REWRITE: "/material/rewrite",
-  
+
   // Preferências de Curso
   COURSE_PREFERENCES: "/config/course-preferences",
-  COURSE_PREFERENCES_BY_IDS: (userId: string, courseId: string) => `/config/course-preferences/${userId}/${courseId}`,
-  
+  COURSE_PREFERENCES_BY_IDS: (userId: string, courseId: string) =>
+    `/config/course-preferences/${userId}/${courseId}`,
+
   // Configurações adicionais
   CONFIG_PERSONALITIES: "/config/personalities",
   CONFIG_NEURODIVERGENCES: "/config/neurodivergences",
@@ -102,13 +107,18 @@ export const DEFAULT_HEADERS = {
  * Função para gerar user_id compatível com o backend
  * Usa o mesmo algoritmo: SHA256 dos dados concatenados
  */
-async function generateUserId(userName: string, birthDate: string): Promise<string> {
+async function generateUserId(
+  userName: string,
+  birthDate: string
+): Promise<string> {
   const dataString = `${userName.toLowerCase()}${birthDate}`;
   const encoder = new TextEncoder();
   const data = encoder.encode(dataString);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  const hashHex = hashArray
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
   return hashHex.substring(0, 16); // Primeiros 16 caracteres como no backend
 }
 

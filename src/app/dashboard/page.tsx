@@ -106,7 +106,64 @@ export default function DashboardPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Cursos Não Iniciados */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-[#ffddc2]">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-[#593100]">
+                Cursos para Começar
+              </h2>
+              <Link
+                href="/dashboard/my-courses"
+                className="text-[#cc6200] hover:text-[#ff8c00] text-sm font-medium"
+              >
+                Ver todos
+              </Link>
+            </div>
+
+            {notStartedCourses.length > 0 ? (
+              <div className="space-y-4">
+                {notStartedCourses.slice(0, 3).map((course) => (
+                  <Link
+                    key={course.id}
+                    href={`/dashboard/courses/${course.id}`}
+                    className="block p-4 bg-[#fff7f0] rounded-lg hover:bg-[#ffddc2] transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-semibold text-[#593100]">
+                        {course.name}
+                      </h3>
+                      <span className="text-sm text-[#593100] opacity-60 bg-[#ffddc2] px-2 py-1 rounded-full">
+                        Novo
+                      </span>
+                    </div>
+                    <p className="text-sm text-[#593100] opacity-60 mb-2">
+                      {course.description}
+                    </p>
+                    <div className="flex items-center gap-2 text-xs text-[#593100] opacity-60">
+                      <span>📚 {course.totalLessons} aulas</span>
+                      <span>⏱️ {course.estimatedHours}h</span>
+                      <span className="capitalize">{course.difficulty}</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <span className="text-6xl opacity-20">🚀</span>
+                <p className="text-[#593100] opacity-60 mt-2">
+                  Nenhum curso para começar
+                </p>
+                <Link
+                  href="/create-course-step-one"
+                  className="text-[#cc6200] hover:text-[#ff8c00] text-sm font-medium mt-2 inline-block"
+                >
+                  Criar primeiro curso
+                </Link>
+              </div>
+            )}
+          </div>
+
           {/* Cursos em Andamento */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-[#ffddc2]">
             <div className="flex items-center justify-between mb-4">

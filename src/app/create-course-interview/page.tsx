@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCourseCreation } from "@/contexts/CourseCreationContext";
+import { apiController } from "@/controllers/api.controller";
 
 export default function CreateCourseInterview() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function CreateCourseInterview() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentAnswer, setCurrentAnswer] = useState("");
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     // Buscar perguntas do interview-questions.json
@@ -52,13 +54,82 @@ export default function CreateCourseInterview() {
     });
   };
 
-  const handleNext = () => {
+  // Função para salvar as preferências do usuário baseadas nas respostas da entrevista
+  const saveUserPreferences = async () => {
+    try {
+      setSubmitting(true);
+
+      // Criar objeto de preferências baseado nas respostas da entrevista
+      const preferences = {
+        interview_responses: state.interviewAnswers.filter(
+          (answer) => answer.trim() !== ""
+        ),
+        feedback_preference: state.interviewAnswers[0] || "",
+        study_schedule: state.interviewAnswers[1] || "",
+        learning_style: state.interviewAnswers[2] || "",
+        difficulty_handling: state.interviewAnswers[3] || "",
+        success_indicators: state.interviewAnswers[4] || "",
+        course_topic: state.courseName,
+        completed_at: new Date().toISOString(),
+        optional_completed: true, // Flag indicando que foi completada opcionalmente
+      };
+
+      console.log(
+        "💾 Salvando preferências do usuário (opcional):",
+        preferences
+      );
+
+      // Usar o método do controller para salvar
+      const response = await apiController.saveInterviewPreferences(
+        preferences
+      );
+
+      if (response.success) {
+        console.log(
+          "✅ Preferências opcionais salvas com sucesso!",
+          response.data
+        );
+        return true;
+      } else {
+        console.warn(
+          "⚠️ Erro ao salvar preferências opcionais:",
+          response.message
+        );
+        // Como é opcional, não bloqueamos o fluxo
+        return true;
+      }
+    } catch (error) {
+      console.warn(
+        "⚠️ Erro ao salvar preferências opcionais (não crítico):",
+        error
+      );
+      // Como é opcional, sempre retornamos true para não bloquear
+      return true;
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleNext = async () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       // Última pergunta - finalizar entrevista
       dispatch({ type: "COMPLETE_INTERVIEW" });
-      router.push("/create-course-teacher-style");
+
+      // Salvar preferências (sem bloquear o fluxo)
+      await saveUserPreferences();
+
+      // Redirecionar para a página específica do curso criado
+      if (state.courseId) {
+        console.log("🎯 Redirecionando para o curso criado:", state.courseId);
+        router.push(`/dashboard/courses/${state.courseId}`);
+      } else {
+        console.log(
+          "⚠️ ID do curso não encontrado, redirecionando para dashboard geral"
+        );
+        router.push("/dashboard");
+      }
     }
   };
 
@@ -68,9 +139,64 @@ export default function CreateCourseInterview() {
     }
   };
 
-  const handleSkip = () => {
-    dispatch({ type: "SKIP_INTERVIEW" });
-    router.push("/create-course-teacher-style");
+  const handleSkip = async () => {
+    try {
+      setSubmitting(true);
+
+      // Marcar entrevista como pulada
+      dispatch({ type: "SKIP_INTERVIEW" });
+
+      console.log("⏭️ Usuário pulou a entrevista (100% opcional)");
+
+      // Salvar informação de que a entrevista foi pulada (opcional)
+      const skipData = {
+        course_topic: state.courseName,
+        interview_skipped: true,
+        skipped_at: new Date().toISOString(),
+        optional_skipped: true, // Flag indicando que foi pulada opcionalmente
+      };
+
+      console.log("💾 Registrando skip opcional:", skipData);
+
+      try {
+        // Usar o método do controller para salvar o skip
+        const response = await apiController.saveInterviewSkip(skipData);
+
+        if (response.success) {
+          console.log("✅ Skip opcional registrado:", response.data);
+        } else {
+          console.warn(
+            "⚠️ Erro ao registrar skip (não crítico):",
+            response.message
+          );
+        }
+      } catch (skipError) {
+        console.warn(
+          "⚠️ Erro ao registrar skip opcional (não crítico):",
+          skipError
+        );
+      }
+
+      // Redirecionar para a página específica do curso criado
+      if (state.courseId) {
+        console.log(
+          "🎯 Redirecionando para o curso criado após skip:",
+          state.courseId
+        );
+        router.push(`/dashboard/courses/${state.courseId}`);
+      } else {
+        console.log(
+          "⚠️ ID do curso não encontrado, redirecionando para dashboard geral"
+        );
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.warn("⚠️ Erro no processo de skip (não crítico):", error);
+      // Sempre continuar o fluxo para o dashboard
+      router.push("/dashboard");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -79,6 +205,24 @@ export default function CreateCourseInterview() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#cc6200] mx-auto mb-4"></div>
           <p className="text-[#593100]">Preparando entrevista...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (submitting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#fff7f0]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#cc6200] mx-auto mb-4"></div>
+          <p className="text-[#593100] text-lg font-semibold">
+            {state.interviewSkipped
+              ? "Finalizando..."
+              : "Salvando suas preferências..."}
+          </p>
+          <p className="text-[#593100] opacity-60 mt-2">
+            Aguarde enquanto processamos suas informações
+          </p>
         </div>
       </div>
     );
@@ -94,15 +238,24 @@ export default function CreateCourseInterview() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-[#593100] mb-4">
-            Entrevista Personalizada
+            Entrevista Opcional de Personalização
           </h1>
           <p className="text-lg text-[#593100] opacity-80">
-            Responda algumas perguntas para tornar seu curso ainda mais
-            personalizado
+            Responda algumas perguntas para personalizar ainda mais seu curso.
+            <br />
+            <strong>Totalmente opcional</strong> - você já tem acesso completo
+            ao conteúdo!
           </p>
           <p className="text-sm text-[#593100] opacity-60 mt-2">
-            Esta etapa é opcional - você pode pular se preferir
+            Pule se preferir explorar o curso diretamente
           </p>
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4 text-left">
+            <p className="text-green-800 text-sm">
+              ✅ <strong>Seu curso já está pronto!</strong> Esta entrevista
+              apenas ajuda a personalizar a experiência. Você pode acessar todo
+              o conteúdo do curso independentemente de completar esta etapa.
+            </p>
+          </div>
         </div>
 
         {/* Indicador de progresso */}
@@ -149,9 +302,10 @@ export default function CreateCourseInterview() {
           {/* Botão Pular (sempre visível) */}
           <button
             onClick={handleSkip}
-            className="px-6 py-3 rounded-full shadow-md font-medium text-[#593100] bg-white border-2 border-[#ffddc2] hover:bg-[#ffddc2] transition order-3 md:order-1"
+            disabled={submitting}
+            className="px-6 py-3 rounded-full shadow-md font-medium text-[#593100] bg-white border-2 border-[#ffddc2] hover:bg-[#ffddc2] transition order-3 md:order-1 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            ⏭️ Pular Entrevista
+            🚀 Ir Direto ao Curso
           </button>
 
           {/* Navegação */}
@@ -159,7 +313,8 @@ export default function CreateCourseInterview() {
             {currentQuestionIndex > 0 && (
               <button
                 onClick={handlePrevious}
-                className="px-6 py-3 rounded-full shadow-md font-semibold text-[#593100] bg-[#ffddc2] border-2 border-[#cc6200] hover:bg-[#fff7f0] transition"
+                disabled={submitting}
+                className="px-6 py-3 rounded-full shadow-md font-semibold text-[#593100] bg-[#ffddc2] border-2 border-[#cc6200] hover:bg-[#fff7f0] transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 ← Anterior
               </button>
@@ -167,10 +322,19 @@ export default function CreateCourseInterview() {
 
             <button
               onClick={handleNext}
-              disabled={!canProceed}
+              disabled={!canProceed || submitting}
               className="px-8 py-3 rounded-full shadow-lg font-bold text-white bg-gradient-to-r from-[#cc6200] to-[#ff8c00] hover:from-[#ff8c00] hover:to-[#cc6200] transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {isLastQuestion ? "🎯 Continuar" : "Próxima →"}
+              {submitting ? (
+                <span className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  {isLastQuestion ? "Finalizando..." : "Processando..."}
+                </span>
+              ) : isLastQuestion ? (
+                "🎯 Finalizar"
+              ) : (
+                "Próxima →"
+              )}
             </button>
           </div>
         </div>
