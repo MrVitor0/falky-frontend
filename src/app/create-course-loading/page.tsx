@@ -51,19 +51,60 @@ export default function CreateCourseLoading() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Função para extrair ou determinar o ícone correto da mensagem
+  const getMessageIcon = (message: string, type: 'generic' | 'websocket' | 'step') => {
+    // Se a mensagem já tem um emoji no início, extraí-lo
+    const emojiMatch = message.match(/^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u);
+    if (emojiMatch) {
+      return emojiMatch[0];
+    }
+    
+    // Fallback baseado no tipo e conteúdo
+    switch (type) {
+      case 'websocket':
+        if (message.includes('Fonte encontrada')) return '📚';
+        if (message.includes('pesquisa')) return '🔍';
+        if (message.includes('domínios')) return '🌐';
+        if (message.includes('análise') || message.includes('analisando')) return '🧠';
+        if (message.includes('questões')) return '❓';
+        if (message.includes('documento')) return '📄';
+        return '🔍';
+      case 'step':
+        if (message.includes('sucesso') || message.includes('concluída')) return '🎉';
+        if (message.includes('preparando')) return '🔍';
+        if (message.includes('gerando')) return '⚙️';
+        if (message.includes('executando')) return '📊';
+        if (message.includes('analisando')) return '🧠';
+        return '🤖';
+      case 'generic':
+        if (message.includes('pesquisa')) return '🔍';
+        if (message.includes('domínios')) return '🌐';
+        if (message.includes('análise')) return '📊';
+        return '🚀';
+      default:
+        return '🤖';
+    }
+  };
+
+  // Função para limpar mensagem (remover emoji do início se existir)
+  const cleanMessage = (message: string) => {
+    return message.replace(/^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)\s*/u, '');
+  };
+
   // Função para adicionar mensagem
   const addMessage = (message: string, type: 'generic' | 'websocket' | 'step') => {
     setStepMessages(prev => {
       // Verificar se a mensagem já existe para evitar duplicatas
-      const messageExists = prev.some(msg => msg.message === message && msg.type === type);
+      const cleanedMessage = cleanMessage(message);
+      const messageExists = prev.some(msg => cleanMessage(msg.message) === cleanedMessage && msg.type === type);
       
       if (messageExists) {
         return prev; // Não adicionar se já existe
       }
       
       const newMessage: StepMessage = {
-        id: `${type}-${message.slice(0, 10).replace(/[^a-zA-Z0-9]/g, '')}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`, // ID único e seguro
-        message,
+        id: `${type}-${cleanedMessage.slice(0, 10).replace(/[^a-zA-Z0-9]/g, '')}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`, // ID único e seguro
+        message: cleanedMessage, // Armazenar mensagem limpa
         timestamp: Date.now(),
         type
       };
@@ -87,9 +128,9 @@ export default function CreateCourseLoading() {
     // Carregar algumas etapas genéricas iniciais apenas uma vez
     if (!genericMessagesLoaded) {
       const genericSteps = [
-        "🔍 Iniciando pesquisa personalizada...",
-        "🌐 Configurando domínios de busca...",
-        "📊 Preparando análise de conteúdo..."
+        "Iniciando pesquisa personalizada...",
+        "Configurando domínios de busca...",
+        "Preparando análise de conteúdo..."
       ];
       
       // Adicionar mensagens genéricas com delay
@@ -137,20 +178,20 @@ export default function CreateCourseLoading() {
       // Atualizar mensagem em tempo real
       if (update.message) {
         setCurrentWebSocketMessage(update.message);
-        addMessage(`🔍 ${update.message}`, 'websocket');
+        addMessage(update.message, 'websocket');
       }
       
       // Mapear steps do WebSocket para mensagens amigáveis
       if (update.current_step) {
         const stepMessages = {
-          "preparation": "🔍 Preparando pesquisa...",
-          "generating_domains": "🌐 Gerando domínios de pesquisa...",
-          "generating_queries": "🔍 Criando queries de pesquisa...",
-          "executing_searches": "📊 Executando pesquisas...",
-          "analyzing_results": "🧠 Analisando resultados...",
-          "generating_quiz": "❓ Gerando questões...",
-          "creating_document": "📄 Criando documento final...",
-          "completed": "✅ Pesquisa concluída!"
+          "preparation": "Preparando pesquisa...",
+          "generating_domains": "Gerando domínios de pesquisa...",
+          "generating_queries": "Criando queries de pesquisa...",
+          "executing_searches": "Executando pesquisas...",
+          "analyzing_results": "Analisando resultados...",
+          "generating_quiz": "Gerando questões...",
+          "creating_document": "Criando documento final...",
+          "completed": "Pesquisa concluída!"
         };
         
         const stepMessage = stepMessages[update.current_step as keyof typeof stepMessages];
@@ -194,7 +235,7 @@ export default function CreateCourseLoading() {
       });
       
       // Adicionar fonte encontrada às mensagens
-      addMessage(`📚 Fonte encontrada: ${source.source.title}`, 'websocket');
+      addMessage(`Fonte encontrada: ${source.source.title}`, 'websocket');
     });
 
     websocketService.setOnResearchCompleted((completed) => {
@@ -212,7 +253,7 @@ export default function CreateCourseLoading() {
       setHasWebSocketUpdate(true);
       
       // Adicionar mensagem final
-      addMessage("🎉 Curso criado com sucesso!", 'step');
+      addMessage("Curso criado com sucesso!", 'step');
       
       // Redirecionar para próxima tela após um pequeno delay
       setTimeout(() => {
@@ -476,9 +517,7 @@ export default function CreateCourseLoading() {
                   }}
                 >
                   <span className="text-[#cc6200] mt-0.5 flex-shrink-0">
-                    {msg.message.includes("🔍") ? "🔍" : 
-                     msg.message.includes("📚") ? "📚" : 
-                     msg.message.includes("🎉") ? "🎉" : "🤖"}
+                    {getMessageIcon(msg.message, msg.type)}
                   </span>
                   <span className="text-[#593100] text-sm leading-relaxed">
                     {msg.message}
