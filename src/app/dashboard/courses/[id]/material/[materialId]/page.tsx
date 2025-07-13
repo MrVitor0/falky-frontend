@@ -62,6 +62,9 @@ interface Section {
   resources?: string[];
   questions?: Question[];
   todo?: string[];
+  // Campos para indicar se a seção foi explicada
+  explanation_generated?: boolean;
+  last_updated?: string;
 }
 
 interface ModuleJsonContent {
@@ -103,6 +106,9 @@ export default function MaterialPage({
   }>({});
   const [selectedAnswers, setSelectedAnswers] = useState<{
     [sectionIndex: number]: { [questionIndex: number]: string };
+  }>({});
+  const [updatedSections, setUpdatedSections] = useState<{
+    [key: number]: boolean;
   }>({});
 
   // Unwrap params usando React.use()
@@ -156,26 +162,40 @@ export default function MaterialPage({
 
     try {
       // Fazer chamada para a API que processará com GPT-4o-mini
-      const response = await apiController.rewriteMaterialSection(
+      const response = await apiController.explainMaterialSection(
         resolvedParams.id,
         resolvedParams.materialId,
         sectionIndex.toString(),
         question
       );
 
-      if (response.success) {
-        // Simular por enquanto a atualização da seção
-        // Na implementação real, a API deveria retornar a seção atualizada
-        alert("Sua dúvida foi processada! A seção será atualizada em breve.");
+      if (response.success && response.data.data) {
+        // Atualizar a seção específica no material local
+        if (material.json_content?.sections) {
+          const updatedSections = [...material.json_content.sections];
+          updatedSections[sectionIndex] = response.data.data
+            .updated_section as Section;
+
+          setMaterial((prev) => ({
+            ...prev!,
+            json_content: {
+              ...prev!.json_content!,
+              sections: updatedSections,
+            },
+          }));
+
+          // Marcar a seção como atualizada para destacar visualmente
+          setUpdatedSections((prev) => ({ ...prev, [sectionIndex]: true }));
+          
+          console.log("✅ Seção atualizada com sucesso!", {
+            sectionIndex,
+            updatedSection: response.data.updated_section
+          });
+        }
 
         // Fechar o input e limpar
         setActiveQuestionSection(null);
         setQuestionInputs((prev) => ({ ...prev, [sectionIndex]: "" }));
-
-        // Recarregar o material para ver as mudanças
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
       } else {
         alert("Erro ao processar sua dúvida. Tente novamente.");
       }
@@ -283,6 +303,19 @@ export default function MaterialPage({
                 rows={3}
                 disabled={submittingSections[sectionIndex]}
               />
+              {submittingSections[sectionIndex] && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center gap-3">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                  <div className="text-blue-800 text-sm">
+                    <strong>🤖 Processando sua dúvida...</strong>
+                    <br />
+                    <span className="text-blue-600">
+                      Estamos melhorando esta seção para ficar mais clara para
+                      você. Isso pode levar alguns segundos.
+                    </span>
+                  </div>
+                </div>
+              )}
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => {
@@ -342,14 +375,31 @@ export default function MaterialPage({
     const sectionClasses =
       "bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6";
 
-    switch (section.type) {
+    // Verificar se a seção foi explicada/atualizada
+    const wasExplained =
+      section?.explanation_generated ||
+      section?.last_updated ||
+      updatedSections[index];
+    const finalSectionClasses = wasExplained
+      ? `${sectionClasses} border-l-4 border-l-green-500 bg-green-50`
+      : sectionClasses;
+
+    switch (section?.type) {
       case "positioning":
         return (
-          <div key={index} className={sectionClasses}>
+          <div key={index} className={finalSectionClasses}>
+            {wasExplained && (
+              <div className="mb-3 flex items-center gap-2 text-green-700 text-sm">
+                <span>✅</span>
+                <span className="font-medium">
+                  Esta seção foi melhorada baseada na sua dúvida
+                </span>
+              </div>
+            )}
             <h3 className="text-xl font-semibold text-[#593100] mb-3 flex items-center">
-              📍 {section.title}
+              📍 {section?.title}
             </h3>
-            <p className="text-gray-700 leading-relaxed">{section.content}</p>
+            <p className="text-gray-700 leading-relaxed">{section?.content}</p>
             {renderQuestionButton(index, section)}
           </div>
         );
@@ -358,7 +408,7 @@ export default function MaterialPage({
         return (
           <div key={index} className={sectionClasses}>
             <h3 className="text-xl font-semibold text-[#593100] mb-3 flex items-center">
-              🎯 {section.title}
+              🎯 {section?.title}
             </h3>
             <ul className="space-y-2">
               {section.objectives?.map((objective, idx) => (
@@ -374,12 +424,20 @@ export default function MaterialPage({
 
       case "theory":
         return (
-          <div key={index} className={sectionClasses}>
+          <div key={index} className={finalSectionClasses}>
+            {wasExplained && (
+              <div className="mb-3 flex items-center gap-2 text-green-700 text-sm">
+                <span>✅</span>
+                <span className="font-medium">
+                  Esta seção foi melhorada baseada na sua dúvida
+                </span>
+              </div>
+            )}
             <h3 className="text-xl font-semibold text-[#593100] mb-3 flex items-center">
-              📚 {section.title}
+              📚 {section?.title}
             </h3>
             <div className="space-y-6">
-              {section.subsections?.map((subsection, idx) => (
+              {section?.subsections?.map((subsection, idx) => (
                 <div
                   key={idx}
                   className="border-l-4 border-[#cc6200] pl-6 py-2 bg-gradient-to-r from-[#fff7f0] to-transparent rounded-r-lg"
@@ -388,10 +446,10 @@ export default function MaterialPage({
                     <span className="bg-[#cc6200] text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">
                       {idx + 1}
                     </span>
-                    {subsection.title}
+                    {subsection?.title}
                   </h4>
                   <div className="text-gray-700 leading-relaxed prose prose-orange max-w-none">
-                    <ReactMarkdown>{subsection.content}</ReactMarkdown>
+                    <ReactMarkdown>{subsection?.content}</ReactMarkdown>
                   </div>
                 </div>
               ))}
@@ -404,7 +462,7 @@ export default function MaterialPage({
         return (
           <div key={index} className={sectionClasses}>
             <h3 className="text-xl font-semibold text-[#593100] mb-3 flex items-center">
-              🔧 {section.title}
+              🔧 {section?.title}
             </h3>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
               <p className="text-blue-800 text-sm">
@@ -713,7 +771,7 @@ export default function MaterialPage({
     );
   }
 
-  const jsonContent = material.json_content;
+  const jsonContent = material?.json_content;
 
   return (
     <DashboardLayout
@@ -773,7 +831,7 @@ export default function MaterialPage({
           <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 text-center">
             <div className="text-2xl font-bold text-[#cc6200] mb-1">
               {jsonContent?.sections
-                ?.filter((s) => s.type === "questions")
+                ?.filter((s) => s?.type === "questions")
                 .reduce((acc, s) => acc + (s.questions?.length || 0), 0) || 0}
             </div>
             <div className="text-sm text-gray-600">Questões</div>
@@ -781,7 +839,7 @@ export default function MaterialPage({
           <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 text-center">
             <div className="text-2xl font-bold text-[#cc6200] mb-1">
               {jsonContent?.sections
-                ?.filter((s) => s.type === "tutorial")
+                ?.filter((s) => s?.type === "tutorial")
                 .reduce((acc, s) => acc + (s.steps?.length || 0), 0) || 0}
             </div>
             <div className="text-sm text-gray-600">Tutoriais</div>

@@ -46,6 +46,7 @@ export const API_ENDPOINTS = {
   MATERIAL_CONTENT: (courseId: string, materialId: string) =>
     `/material/content/${courseId}/${materialId}`,
   MATERIAL_REWRITE: "/material/rewrite",
+  MATERIAL_EXPLAIN_SECTION: "/material/explain-section",
 
   // Preferências de Curso
   COURSE_PREFERENCES: "/config/course-preferences",
