@@ -102,7 +102,7 @@ export default function CreateCourseTeacherStyle() {
       console.log("Estilo selecionado:", selectedStyle);
 
       // Redirecionar para pesquisa de professor
-      router.push("/create-course-teacher-loading");
+      router.push("/create-course-finishing");
     }
   };
 
@@ -205,7 +205,7 @@ export default function CreateCourseTeacherStyle() {
             disabled={!selectedStyle}
             className="px-8 py-3 rounded-full shadow-lg font-bold text-white bg-gradient-to-r from-[#cc6200] to-[#ff8c00] hover:from-[#ff8c00] hover:to-[#cc6200] transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
-            {selectedStyle ? "🔍 Buscar Professor" : "Selecione um Estilo"}
+            {selectedStyle ? "🚀 Finalizar Criação" : "Selecione um Estilo"}
           </button>
         </div>
       </div>

@@ -157,7 +157,7 @@ export default function CourseCreatedSuccess() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#fff7f0] px-4">
       <div className="max-w-4xl text-center">
         {/* Animação de sucesso */}
-        <div className="mb-8">
+        <div className="m-8 ">
           <div className="w-32 h-32 bg-gradient-to-r from-[#cc6200] to-[#ff8c00] rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
             <span className="text-6xl">🎉</span>
           </div>
@@ -229,7 +229,7 @@ export default function CourseCreatedSuccess() {
         </div>
 
         {/* Mensagem adicional */}
-        <div className="mt-12 text-center">
+        <div className="mt-12 text-center mb-8">
           <p className="text-lg text-[#593100] opacity-80">
             Obrigado por escolher o Falky! 💜
           </p>
