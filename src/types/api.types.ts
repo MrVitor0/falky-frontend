@@ -197,6 +197,111 @@ export interface CoursePreferencesUpdate {
 }
 
 /**
+ * Interfaces para geração de cursos
+ */
+export interface CourseGenerationRequest {
+  user_id: string;
+  course_topic: string;
+}
+
+export interface CourseGenerationResponse {
+  success: boolean;
+  message: string;
+  course_id?: string;
+  thread_id?: string;
+  file_path?: string;
+  error?: string;
+}
+
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  type: string;
+  options?: string[];
+  difficulty: string;
+  topic: string;
+}
+
+export interface CourseGenerationStatus {
+  success: boolean;
+  status: string;
+  message: string;
+  course_id?: string;
+  quiz_id?: string;
+  questions?: QuizQuestion[];
+}
+
+export interface CourseModuleSchema {
+  ID_MODULO: string;
+  NAME_MODULO: string;
+  DESCRICAO_MODULO: string;
+  ROADMAP_MODULO: string;
+  NIVEL_DIFICULDADE: string;
+  TEMPO_ESTIMADO: string;
+  SUBMODULOS: CourseSubmoduleSchema[];
+}
+
+export interface CourseSubmoduleSchema {
+  ID_SUBMODULO: string;
+  NAME_SUBMODULO: string;
+  DESCRICAO_SUBMODULO: string;
+  ROADMAP_SUBMODULO: string;
+  TEMPO_ESTIMADO: string;
+}
+
+export interface PersonalizedCurriculumSchema {
+  nivel_identificado: string;
+  personalidade_aplicada: string;
+  adaptacoes_personalizadas: string;
+  observacao: string;
+  modulos: CourseModuleSchema[];
+}
+
+export interface CourseDetailsSchema {
+  user_id: string;
+  course_id: string;
+  timestamp: string;
+  thread_id: string;
+  course_topic: string;
+  user_config: Record<string, unknown>;
+  course_config: Record<string, unknown>;
+  personalized_curriculum: PersonalizedCurriculumSchema;
+}
+
+export interface CourseListItem {
+  filename: string;
+  course_topic: string;
+  timestamp: string;
+  thread_id: string;
+  modules_count: number;
+  file_path: string;
+}
+
+export interface CourseListResponse {
+  user_id: string;
+  courses: CourseListItem[];
+  total_courses: number;
+}
+
+export interface CourseDetailsResponse {
+  success: boolean;
+  course_data: CourseDetailsSchema;
+  file_info: Record<string, unknown>;
+}
+
+export interface CourseDeleteResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface CourseStatus {
+  status: string;
+  progress: number;
+  current_step: string;
+  estimated_time: string;
+}
+
+/**
  * Tipos para métodos HTTP
  */
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';

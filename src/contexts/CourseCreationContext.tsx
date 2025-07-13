@@ -166,7 +166,7 @@ export function CourseCreationProvider({
       step_four_answer: state.stepFourAnswer,
       step_five_answer: state.stepFiveAnswer,
     };
-  };
+  }, [state.courseName, state.knowledgeLevel, state.studyPace, state.goalsAndMotivations, state.additionalInformation]);
 
   const value: CourseCreationContextValue = {
     state,

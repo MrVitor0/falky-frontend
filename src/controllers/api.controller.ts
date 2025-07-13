@@ -14,6 +14,11 @@ import {
   CoursePreferencesCreate,
   CoursePreferencesResponse,
   CoursePreferencesUpdate,
+  CourseGenerationRequest,
+  CourseGenerationStatus,
+  CourseListResponse,
+  CourseDetailsResponse,
+  CourseDeleteResponse,
 } from "@/types/api.types";
 import { AxiosResponse } from "axios";
 
@@ -286,6 +291,96 @@ export class ApiController {
       return response.data;
     } catch (error) {
       console.error("Erro ao remover curso:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Métodos para geração de cursos
+   */
+
+  /**
+   * Gera um novo curso personalizado
+   * @param request - Dados da requisição de geração
+   * @returns Promessa com resposta da geração
+   */
+  public async generateCourse(
+    request: CourseGenerationRequest
+  ): Promise<ApiResponse<CourseGenerationStatus>> {
+    try {
+      const response: AxiosResponse<ApiResponse<CourseGenerationStatus>> = await api.post(
+        API_ENDPOINTS.COURSE_GENERATE,
+        request
+      );
+
+      console.log("✅ Curso gerado com sucesso:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Erro ao gerar curso:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Lista cursos gerados para um usuário
+   * @param userId - ID do usuário
+   * @returns Promessa com lista de cursos
+   */
+  public async listGeneratedCourses(
+    userId: string
+  ): Promise<ApiResponse<CourseListResponse>> {
+    try {
+      const response: AxiosResponse<ApiResponse<CourseListResponse>> = await api.get(
+        API_ENDPOINTS.COURSE_LIST(userId)
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("❌ Erro ao listar cursos:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtém detalhes de um curso específico
+   * @param userId - ID do usuário
+   * @param filename - Nome do arquivo do curso
+   * @returns Promessa com detalhes do curso
+   */
+  public async getCourseDetails(
+    userId: string,
+    filename: string
+  ): Promise<ApiResponse<CourseDetailsResponse>> {
+    try {
+      const response: AxiosResponse<ApiResponse<CourseDetailsResponse>> = await api.get(
+        API_ENDPOINTS.COURSE_DETAILS(userId, filename)
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("❌ Erro ao obter detalhes do curso:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Remove um curso específico
+   * @param userId - ID do usuário
+   * @param filename - Nome do arquivo do curso
+   * @returns Promessa com confirmação da remoção
+   */
+  public async deleteGeneratedCourse(
+    userId: string,
+    filename: string
+  ): Promise<ApiResponse<CourseDeleteResponse>> {
+    try {
+      const response: AxiosResponse<ApiResponse<CourseDeleteResponse>> = await api.delete(
+        API_ENDPOINTS.COURSE_DELETE(userId, filename)
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("❌ Erro ao remover curso:", error);
       throw error;
     }
   }

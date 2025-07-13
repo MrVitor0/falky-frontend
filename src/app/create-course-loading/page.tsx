@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useCourseCreation } from "@/contexts/CourseCreationContext";
 
@@ -12,6 +12,8 @@ export default function CreateCourseLoading() {
   );
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState(1);
+  const [error, setError] = useState<string | null>(null);
+  const isProcessing = useRef(false);
   const totalSteps = 10;
   const [researchSteps, setResearchSteps] = useState<string[]>([]);
   const [visibleResearchCount, setVisibleResearchCount] = useState(0);
@@ -43,12 +45,25 @@ export default function CreateCourseLoading() {
   }, [researchSteps]);
 
   useEffect(() => {
+    // Evitar múltiplas execuções
+    if (isProcessing.current) {
+      return;
+    }
+
     const createCourse = async () => {
       try {
         // Simulando um user_id (em produção, viria da autenticação)
         const userId = "user_demo_123";
 
         // Obter dados formatados do context
+        console.log("📊 Estado atual do contexto:", {
+          courseName: state.courseName,
+          knowledgeLevel: state.knowledgeLevel,
+          studyPace: state.studyPace,
+          goalsAndMotivations: state.goalsAndMotivations,
+          additionalInformation: state.additionalInformation,
+        });
+
         const courseData = getCoursePreferencesData();
 
         // Adicionar user_id aos dados
@@ -57,7 +72,7 @@ export default function CreateCourseLoading() {
           ...courseData,
         };
 
-        console.log("Criando curso com dados:", completeData);
+        console.log("🚀 Criando curso com dados:", completeData);
 
         // Simular progresso de criação com steps mais detalhados
         const progressSteps = [
@@ -126,14 +141,30 @@ export default function CreateCourseLoading() {
           router.push("/create-course-step-five");
         }
       } catch (error) {
-        console.error("❌ Erro ao criar curso:", error);
-        alert("Erro ao criar curso. Tente novamente.");
-        router.push("/create-course-step-five");
+        // Limpeza em caso de erro
+        if (progressInterval) {
+          clearInterval(progressInterval);
+        }
+
+        const errorMessage =
+          error instanceof Error ? error.message : "Erro desconhecido";
+        console.error("❌ Erro durante o processo:", error);
+
+        setError(errorMessage);
+        setLoadingMessage("Erro ao criar curso");
+        setProgress(0);
+
+        // Aguardar um pouco antes de redirecionar para mostrar a mensagem de erro
+        setTimeout(() => {
+          router.push("/create-course-step-five");
+        }, 2000);
+      } finally {
+        isProcessing.current = false;
       }
     };
 
     createCourse();
-  }, [router, dispatch, getCoursePreferencesData]);
+  }, [router, dispatch, getCoursePreferencesData, state.courseName]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#fff7f0] px-4">
