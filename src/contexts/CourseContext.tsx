@@ -47,32 +47,34 @@ export const CourseProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const loadData = async () => {
     try {
+      console.log("🔄 Iniciando carregamento dos dados...");
       setLoading(true);
-      console.log("Iniciando carregamento dos dados...");
 
       // Timeout de segurança para evitar loading infinito
       const timeoutId = setTimeout(() => {
-        console.warn("Timeout atingido, forçando fim do loading");
+        console.warn("⏰ Timeout atingido, forçando fim do loading");
         setLoading(false);
-      }, 3000);
+      }, 5000);
 
-      // Verificar se há dados, se não houver, inicializar com mock
-      if (!mockCourseDB.hasAnyCourses()) {
-        console.log("Nenhum curso encontrado, inicializando dados mock...");
-        mockCourseDB.initializeMockData();
-      }
+      // Forçar inicialização dos dados mock para garantir que há dados
+      console.log("📦 Inicializando dados mock...");
+      mockCourseDB.initializeMockData();
+
+      // Aguardar um pouco para garantir que os dados foram salvos
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const dashboardData = mockCourseDB.getDashboardData();
-      console.log("Dados carregados:", dashboardData);
+      console.log("📊 Dados carregados:", dashboardData);
 
       // Verificar se os dados são válidos
       if (dashboardData && dashboardData.courses && dashboardData.stats) {
+        console.log("✅ Dados válidos, atualizando estado...");
         setCourses(dashboardData.courses);
         setStats(dashboardData.stats);
         setRecentActivity(dashboardData.recentActivity || []);
-        console.log("Estado atualizado com sucesso");
+        console.log("🎉 Estado atualizado com sucesso");
       } else {
-        console.error("Dados inválidos recebidos:", dashboardData);
+        console.error("❌ Dados inválidos recebidos:", dashboardData);
         // Definir dados padrão em caso de erro
         setCourses([]);
         setStats({
@@ -89,7 +91,7 @@ export const CourseProvider: React.FC<{ children: React.ReactNode }> = ({
 
       clearTimeout(timeoutId);
     } catch (error) {
-      console.error("Erro ao carregar dados dos cursos:", error);
+      console.error("💥 Erro ao carregar dados dos cursos:", error);
       // Definir dados padrão em caso de erro
       setCourses([]);
       setStats({
@@ -104,7 +106,7 @@ export const CourseProvider: React.FC<{ children: React.ReactNode }> = ({
       setRecentActivity([]);
     } finally {
       setLoading(false);
-      console.log("Loading finalizado");
+      console.log("🏁 Loading finalizado");
     }
   };
 
@@ -187,6 +189,53 @@ export const CourseProvider: React.FC<{ children: React.ReactNode }> = ({
     setRecentActivity(activities);
   };
 
+  // Funções para geração de conteúdo
+  const generateSubmoduleContent = async (
+    courseId: string,
+    moduleId: string,
+    submoduleId: string
+  ): Promise<boolean> => {
+    try {
+      const success = await mockCourseDB.generateSubmoduleContent(
+        courseId,
+        moduleId,
+        submoduleId
+      );
+
+      if (success) {
+        // Atualizar o curso no estado local
+        const updatedCourse = mockCourseDB.getCourseById(courseId);
+        if (updatedCourse) {
+          setCourses((prev) =>
+            prev.map((course) =>
+              course.id === courseId ? updatedCourse : course
+            )
+          );
+        }
+
+        // Atualizar atividades
+        refreshActivity();
+      }
+
+      return success;
+    } catch (error) {
+      console.error("Erro ao gerar conteúdo:", error);
+      return false;
+    }
+  };
+
+  const isSubmoduleContentGenerated = (
+    courseId: string,
+    moduleId: string,
+    submoduleId: string
+  ): boolean => {
+    return mockCourseDB.isSubmoduleContentGenerated(
+      courseId,
+      moduleId,
+      submoduleId
+    );
+  };
+
   const value: CourseContextType = {
     courses,
     stats,
@@ -198,6 +247,8 @@ export const CourseProvider: React.FC<{ children: React.ReactNode }> = ({
     getCourseById,
     getCoursesByStatus,
     refreshData,
+    generateSubmoduleContent,
+    isSubmoduleContentGenerated,
   };
 
   return (

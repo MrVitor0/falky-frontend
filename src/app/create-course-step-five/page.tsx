@@ -5,11 +5,14 @@ import { useCourseCreation } from "@/contexts/CourseCreationContext";
 
 export default function CreateCourseStepFive() {
   const router = useRouter();
-  const { state, dispatch, processCourseStep, clearError, startResearch } = useCourseCreation();
+  const { state, dispatch, processCourseStep, clearError, startResearch } =
+    useCourseCreation();
   const [successCriteria, setSuccessCriteria] = useState("");
 
   // Usar a pergunta do contexto que veio da API
-  const question = state.currentQuestion || "Qual o seu critério de sucesso? O que você considera que foi um sucesso ao final do aprendizado?";
+  const question =
+    state.currentQuestion ||
+    "Qual o seu critério de sucesso? O que você considera que foi um sucesso ao final do aprendizado?";
   const loading = state.loading;
 
   useEffect(() => {
@@ -18,7 +21,7 @@ export default function CreateCourseStepFive() {
       router.push("/create-course-step-one");
       return;
     }
-    
+
     // Limpar erro quando entrar na página
     if (state.apiError) {
       clearError();
@@ -30,13 +33,13 @@ export default function CreateCourseStepFive() {
       try {
         // Salvar localmente
         dispatch({ type: "SET_STEP_FIVE_ANSWER", payload: successCriteria });
-        
+
         // Processar step no backend (último step)
         await processCourseStep(successCriteria);
-        
+
         // Iniciar pesquisa
         await startResearch();
-        
+
         // Se chegou até aqui, foi sucesso
         dispatch({ type: "NEXT_STEP" });
         router.push("/create-course-loading");

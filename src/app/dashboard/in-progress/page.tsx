@@ -1,6 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import React, { useState, useEffect } from "react";
+import { DashboardLayout } from "@/components/dashboard";
+import { useCourses } from "@/contexts/CourseContext";
 import { Course } from "@/lib/types";
 import Link from "next/link";
 
@@ -65,20 +66,16 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => (
 );
 
 export default function InProgressCourses() {
+  const { courses: contextCourses } = useCourses();
   const [courses, setCourses] = useState<Course[]>([]);
 
   useEffect(() => {
-    fetch("/courses.json")
-      .then((res) => res.json())
-      .then((data) => {
-        const parsed = data.map((c: Course) => ({
-          ...c,
-          createdAt: new Date(c.createdAt),
-          updatedAt: new Date(c.updatedAt),
-        }));
-        setCourses(parsed.filter((c: Course) => c.status === "em_andamento"));
-      });
-  }, []);
+    if (contextCourses) {
+      setCourses(
+        contextCourses.filter((c: Course) => c.status === "em_andamento")
+      );
+    }
+  }, [contextCourses]);
 
   return (
     <DashboardLayout

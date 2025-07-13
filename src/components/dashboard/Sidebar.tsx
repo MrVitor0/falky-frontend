@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
+// import { useAuth } from "@/contexts/AuthContext"; // TEMPORÁRIO: Comentado durante desenvolvimento
 
 interface SidebarProps {
   collapsed: boolean;
@@ -81,10 +81,17 @@ const menuItems: MenuItem[] = [
 
 export default function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
-  const { user, signOut } = useAuth();
+  // const { user, signOut } = useAuth(); // TEMPORÁRIO: Comentado durante desenvolvimento
+
+  // TEMPORÁRIO: Dados mock para desenvolvimento
+  const user = {
+    user_metadata: { name: "Usuário Demo" },
+    email: "demo@falky.com",
+  };
 
   const handleSignOut = async () => {
-    await signOut();
+    // await signOut(); // TEMPORÁRIO: Comentado durante desenvolvimento
+    console.log("SignOut desabilitado durante desenvolvimento");
   };
 
   const isActive = (href: string) => {
