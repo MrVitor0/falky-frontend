@@ -101,6 +101,9 @@ export default function MaterialPage({
   const [submittingSections, setSubmittingSections] = useState<{
     [key: number]: boolean;
   }>({});
+  const [selectedAnswers, setSelectedAnswers] = useState<{
+    [sectionIndex: number]: { [questionIndex: number]: string };
+  }>({});
 
   // Unwrap params usando React.use()
   const resolvedParams = use(params);
@@ -252,6 +255,21 @@ export default function MaterialPage({
       console.error("❌ Erro ao adicionar aos favoritos:", error);
       alert("❌ Erro ao adicionar aos favoritos. Tente novamente.");
     }
+  };
+
+  // Função para lidar com seleção de respostas nos exercícios
+  const handleAnswerSelect = (
+    sectionIndex: number,
+    questionIndex: number,
+    selectedOption: string
+  ) => {
+    setSelectedAnswers((prev) => ({
+      ...prev,
+      [sectionIndex]: {
+        ...prev[sectionIndex],
+        [questionIndex]: selectedOption,
+      },
+    }));
   };
 
   // Função para renderizar o botão "Não Entendi"
@@ -585,26 +603,55 @@ export default function MaterialPage({
               ❓ {section.title}
             </h3>
             <div className="space-y-4">
-              {section.questions?.map((question, idx) => (
-                <div key={idx} className="border rounded-lg p-4 bg-yellow-50">
-                  <h4 className="font-semibold text-[#593100] mb-2">
-                    {question.question}
-                  </h4>
-                  <ul className="space-y-1">
-                    {question.options.map((option, optIdx) => (
-                      <li key={optIdx} className="flex items-start">
-                        <span className="text-[#cc6200] mr-2">
-                          {String.fromCharCode(65 + optIdx)})
-                        </span>
-                        <span className="text-gray-700 text-sm">{option}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-2 text-sm text-green-600 font-medium">
-                    Resposta: {question.answer}
+              {section.questions?.map((question, idx) => {
+                const selectedAnswer = selectedAnswers[index]?.[idx];
+                const isCorrect = selectedAnswer === question.answer;
+                const hasAnswered = selectedAnswer !== undefined;
+
+                return (
+                  <div key={idx} className="border rounded-lg p-4 bg-yellow-50">
+                    <h4 className="font-semibold text-[#593100] mb-3">
+                      {question.question}
+                    </h4>
+                    <ul className="space-y-2">
+                      {question.options.map((option, optIdx) => (
+                        <li key={optIdx}>
+                          <button
+                            onClick={() =>
+                              handleAnswerSelect(index, idx, option)
+                            }
+                            className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                              selectedAnswer === option
+                                ? "border-[#cc6200] bg-[#fff7f0] text-[#593100]"
+                                : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                            }`}
+                          >
+                            <span className="text-[#cc6200] mr-2 font-medium">
+                              {String.fromCharCode(65 + optIdx)})
+                            </span>
+                            <span className="text-gray-700 text-sm">
+                              {option}
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                    {hasAnswered && (
+                      <div
+                        className={`mt-3 p-3 rounded-lg text-sm font-medium ${
+                          isCorrect
+                            ? "bg-green-100 text-green-800 border border-green-200"
+                            : "bg-red-100 text-red-800 border border-red-200"
+                        }`}
+                      >
+                        {isCorrect
+                          ? "✅ Parabéns! Você acertou a questão!"
+                          : "❌ Resposta incorreta. Tente novamente!"}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         );
