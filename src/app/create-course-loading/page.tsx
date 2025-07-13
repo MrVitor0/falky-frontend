@@ -6,13 +6,13 @@ import { useCourseCreation } from "@/contexts/CourseCreationContext";
 
 export default function CreateCourseLoading() {
   const router = useRouter();
-  const { dispatch, getCoursePreferencesData } = useCourseCreation();
+  const { state, dispatch, getCoursePreferencesData } = useCourseCreation();
   const [loadingMessage, setLoadingMessage] = useState(
     "Preparando seu curso personalizado..."
   );
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState(1);
-  const [error, setError] = useState<string | null>(null);
+
   const isProcessing = useRef(false);
   const totalSteps = 10;
   const [researchSteps, setResearchSteps] = useState<string[]>([]);
@@ -58,10 +58,10 @@ export default function CreateCourseLoading() {
         // Obter dados formatados do context
         console.log("📊 Estado atual do contexto:", {
           courseName: state.courseName,
-          knowledgeLevel: state.knowledgeLevel,
-          studyPace: state.studyPace,
-          goalsAndMotivations: state.goalsAndMotivations,
-          additionalInformation: state.additionalInformation,
+          stepTwoAnswer: state.stepTwoAnswer,
+          stepThreeAnswer: state.stepThreeAnswer,
+          stepFourAnswer: state.stepFourAnswer,
+          stepFiveAnswer: state.stepFiveAnswer,
         });
 
         const courseData = getCoursePreferencesData();
@@ -141,16 +141,10 @@ export default function CreateCourseLoading() {
           router.push("/create-course-step-five");
         }
       } catch (error) {
-        // Limpeza em caso de erro
-        if (progressInterval) {
-          clearInterval(progressInterval);
-        }
+        // Limpeza em caso de erro (progressInterval is handled by finally block)
 
-        const errorMessage =
-          error instanceof Error ? error.message : "Erro desconhecido";
         console.error("❌ Erro durante o processo:", error);
 
-        setError(errorMessage);
         setLoadingMessage("Erro ao criar curso");
         setProgress(0);
 
@@ -164,7 +158,16 @@ export default function CreateCourseLoading() {
     };
 
     createCourse();
-  }, [router, dispatch, getCoursePreferencesData, state.courseName]);
+  }, [
+    router,
+    dispatch,
+    getCoursePreferencesData,
+    state.courseName,
+    state.stepTwoAnswer,
+    state.stepThreeAnswer,
+    state.stepFourAnswer,
+    state.stepFiveAnswer,
+  ]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#fff7f0] px-4">
