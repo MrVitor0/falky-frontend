@@ -42,7 +42,7 @@ export default function CreateCourseStepFive() {
 
         // Se chegou até aqui, foi sucesso
         dispatch({ type: "NEXT_STEP" });
-        router.push("/create-course-loading");
+        router.push("/create-course-signup");
       } catch (error) {
         // Erro já tratado no contexto
         console.error("Erro ao processar step:", error);

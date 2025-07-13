@@ -120,16 +120,8 @@ export default function CreateCourseInterview() {
       // Salvar preferências (sem bloquear o fluxo)
       await saveUserPreferences();
 
-      // Redirecionar para a página específica do curso criado
-      if (state.courseId) {
-        console.log("🎯 Redirecionando para o curso criado:", state.courseId);
-        router.push(`/dashboard/courses/${state.courseId}`);
-      } else {
-        console.log(
-          "⚠️ ID do curso não encontrado, redirecionando para dashboard geral"
-        );
-        router.push("/dashboard");
-      }
+      // Redirecionar para a seleção de estilo do professor
+      router.push("/create-course-teacher-style");
     }
   };
 
@@ -177,23 +169,12 @@ export default function CreateCourseInterview() {
         );
       }
 
-      // Redirecionar para a página específica do curso criado
-      if (state.courseId) {
-        console.log(
-          "🎯 Redirecionando para o curso criado após skip:",
-          state.courseId
-        );
-        router.push(`/dashboard/courses/${state.courseId}`);
-      } else {
-        console.log(
-          "⚠️ ID do curso não encontrado, redirecionando para dashboard geral"
-        );
-        router.push("/dashboard");
-      }
+      // Redirecionar para a seleção de estilo do professor
+      router.push("/create-course-teacher-style");
     } catch (error) {
       console.warn("⚠️ Erro no processo de skip (não crítico):", error);
-      // Sempre continuar o fluxo para o dashboard
-      router.push("/dashboard");
+      // Sempre continuar o fluxo para o próximo passo
+      router.push("/create-course-teacher-style");
     } finally {
       setSubmitting(false);
     }
