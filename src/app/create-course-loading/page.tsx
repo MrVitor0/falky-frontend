@@ -3,6 +3,24 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useCourseCreation } from "@/contexts/CourseCreationContext";
+import { websocketService } from "@/services/websocket.service";
+import { ResearchStatus } from "@/lib/types";
+
+interface SourceWithId {
+  id: string;
+  title: string;
+  url: string;
+  domain: string;
+  timestamp: number;
+  isLeaving?: boolean;
+}
+
+interface StepMessage {
+  id: string;
+  message: string;
+  timestamp: number;
+  type: 'generic' | 'websocket' | 'step';
+}
 
 export default function CreateCourseLoading() {
   const router = useRouter();
@@ -16,34 +34,229 @@ export default function CreateCourseLoading() {
   const isProcessing = useRef(false);
   const statusCheckInterval = useRef<NodeJS.Timeout | null>(null);
   const totalSteps = 10;
-  const [researchSteps, setResearchSteps] = useState<string[]>([]);
-  const [visibleResearchCount, setVisibleResearchCount] = useState(0);
+  const [stepMessages, setStepMessages] = useState<StepMessage[]>([]);
+  const [sourcesFound, setSourcesFound] = useState<SourceWithId[]>([]);
+  const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
+  const [currentWebSocketMessage, setCurrentWebSocketMessage] = useState<string>("");
+  const [webSocketProgress, setWebSocketProgress] = useState(0);
+  const [hasWebSocketUpdate, setHasWebSocketUpdate] = useState(false);
+  const [genericMessagesLoaded, setGenericMessagesLoaded] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  const MAX_SOURCES_VISIBLE = 4; // Tamanho fixo da fila de fontes
+  const MAX_MESSAGES_VISIBLE = 5; // Número máximo de mensagens visíveis
+
+  // Função para scroll automático
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Função para adicionar mensagem
+  const addMessage = (message: string, type: 'generic' | 'websocket' | 'step') => {
+    setStepMessages(prev => {
+      // Verificar se a mensagem já existe para evitar duplicatas
+      const messageExists = prev.some(msg => msg.message === message && msg.type === type);
+      
+      if (messageExists) {
+        return prev; // Não adicionar se já existe
+      }
+      
+      const newMessage: StepMessage = {
+        id: `${type}-${message.slice(0, 10).replace(/[^a-zA-Z0-9]/g, '')}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`, // ID único e seguro
+        message,
+        timestamp: Date.now(),
+        type
+      };
+      
+      const newMessages = [...prev, newMessage];
+      
+      // Manter apenas as últimas mensagens
+      if (newMessages.length > MAX_MESSAGES_VISIBLE) {
+        // Marcar mensagens antigas como saindo
+        return newMessages.slice(-MAX_MESSAGES_VISIBLE);
+      }
+      
+      return newMessages;
+    });
+    
+    // Scroll para baixo após adicionar mensagem
+    setTimeout(scrollToBottom, 100);
+  };
 
   useEffect(() => {
-    // Buscar etapas de pesquisa do research.json
-    fetch("/research.json")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setResearchSteps(data);
+    // Carregar algumas etapas genéricas iniciais apenas uma vez
+    if (!genericMessagesLoaded) {
+      const genericSteps = [
+        "🔍 Iniciando pesquisa personalizada...",
+        "🌐 Configurando domínios de busca...",
+        "📊 Preparando análise de conteúdo..."
+      ];
+      
+      // Adicionar mensagens genéricas com delay
+      genericSteps.forEach((step, index) => {
+        setTimeout(() => {
+          addMessage(step, 'generic');
+        }, index * 800);
       });
-  }, []);
+      
+      setGenericMessagesLoaded(true);
+    }
+  }, [genericMessagesLoaded]);
 
+  // Configurar WebSocket quando courseId estiver disponível
   useEffect(() => {
-    if (researchSteps.length === 0) return;
-    setVisibleResearchCount(0);
-    // Exibir cada linha a cada 300ms
-    const interval = setInterval(() => {
-      setVisibleResearchCount((prev) => {
-        if (prev < researchSteps.length) {
-          return prev + 1;
-        } else {
-          clearInterval(interval);
-          return prev;
+    if (!state.courseId) return;
+
+    console.log("🔌 Configurando WebSocket para curso:", state.courseId);
+
+    // Configurar callbacks do WebSocket
+    websocketService.setOnConnectionChange((connected) => {
+      console.log("🔌 WebSocket connection status:", connected);
+      setIsWebSocketConnected(connected);
+      
+      if (connected) {
+        // Conectar ao curso quando WebSocket estiver conectado
+        websocketService.joinCourse(state.courseId!);
+      }
+    });
+
+    websocketService.setOnResearchUpdate((update) => {
+      console.log("📡 Research update received:", update);
+      
+      // Atualizar estado com dados do WebSocket
+      dispatch({ type: "SET_RESEARCH_STATUS", payload: update.status });
+      dispatch({ type: "SET_RESEARCH_PROGRESS", payload: update.progress });
+      dispatch({ type: "SET_RESEARCH_MESSAGE", payload: update.message });
+      
+      // Atualizar progresso do WebSocket (sempre crescente)
+      if (update.progress !== undefined) {
+        setWebSocketProgress(prev => Math.max(prev, update.progress));
+        setHasWebSocketUpdate(true);
+      }
+      
+      // Atualizar mensagem em tempo real
+      if (update.message) {
+        setCurrentWebSocketMessage(update.message);
+        addMessage(`🔍 ${update.message}`, 'websocket');
+      }
+      
+      // Mapear steps do WebSocket para mensagens amigáveis
+      if (update.current_step) {
+        const stepMessages = {
+          "preparation": "🔍 Preparando pesquisa...",
+          "generating_domains": "🌐 Gerando domínios de pesquisa...",
+          "generating_queries": "🔍 Criando queries de pesquisa...",
+          "executing_searches": "📊 Executando pesquisas...",
+          "analyzing_results": "🧠 Analisando resultados...",
+          "generating_quiz": "❓ Gerando questões...",
+          "creating_document": "📄 Criando documento final...",
+          "completed": "✅ Pesquisa concluída!"
+        };
+        
+        const stepMessage = stepMessages[update.current_step as keyof typeof stepMessages];
+        
+        if (stepMessage) {
+          // Adicionar mensagem de step (verificação de duplicata já está na função addMessage)
+          addMessage(stepMessage, 'step');
         }
+      }
+    });
+
+    websocketService.setOnSourceFound((source) => {
+      console.log("📚 Source found:", source);
+      
+      const newSource: SourceWithId = {
+        id: `${source.source.domain}-${Date.now()}`,
+        title: source.source.title,
+        url: source.source.url,
+        domain: source.source.domain,
+        timestamp: Date.now(),
+        isLeaving: false
+      };
+      
+      setSourcesFound(prev => {
+        const newSources = [...prev, newSource];
+        
+        // Se exceder o limite, marcar as antigas como "saindo"
+        if (newSources.length > MAX_SOURCES_VISIBLE) {
+          const sourcesToRemove = newSources.length - MAX_SOURCES_VISIBLE;
+          for (let i = 0; i < sourcesToRemove; i++) {
+            newSources[i].isLeaving = true;
+          }
+          
+          // Remover as fontes marcadas como "saindo" após animação
+          setTimeout(() => {
+            setSourcesFound(current => current.filter(s => !s.isLeaving));
+          }, 500); // Tempo da animação
+        }
+        
+        return newSources;
       });
-    }, 600); // Mudado de 300ms para 600ms
-    return () => clearInterval(interval);
-  }, [researchSteps]);
+      
+      // Adicionar fonte encontrada às mensagens
+      addMessage(`📚 Fonte encontrada: ${source.source.title}`, 'websocket');
+    });
+
+    websocketService.setOnResearchCompleted((completed) => {
+      console.log("🎉 Research completed:", completed);
+      
+      // Marcar como concluído
+      dispatch({ type: "SET_RESEARCH_STATUS", payload: ResearchStatus.COMPLETED });
+      dispatch({ type: "SET_RESEARCH_PROGRESS", payload: 100 });
+      dispatch({ type: "SET_RESEARCH_MESSAGE", payload: "Pesquisa concluída com sucesso!" });
+      
+      // Garantir progresso final
+      setWebSocketProgress(100);
+      setProgress(100);
+      setCurrentStep(10);
+      setHasWebSocketUpdate(true);
+      
+      // Adicionar mensagem final
+      addMessage("🎉 Curso criado com sucesso!", 'step');
+      
+      // Redirecionar para próxima tela após um pequeno delay
+      setTimeout(() => {
+        router.push("/create-course-interview");
+      }, 2000);
+    });
+
+    // Conectar ao curso se WebSocket já estiver conectado
+    if (websocketService.getConnectionStatus()) {
+      websocketService.joinCourse(state.courseId);
+    }
+
+    // Cleanup
+    return () => {
+      console.log("🔌 Limpando WebSocket listeners");
+      websocketService.setOnConnectionChange(() => {});
+      websocketService.setOnResearchUpdate(() => {});
+      websocketService.setOnSourceFound(() => {});
+      websocketService.setOnResearchCompleted(() => {});
+    };
+  }, [state.courseId, dispatch]);
+
+  // Atualizar progresso visual baseado no WebSocket ou estado
+  useEffect(() => {
+    const updateProgress = () => {
+      // Priorizar progresso do WebSocket se disponível
+      if (hasWebSocketUpdate && webSocketProgress > 0) {
+        const progressValue = Math.max(progress, webSocketProgress);
+        const stepValue = Math.max(1, Math.min(10, Math.ceil((progressValue / 100) * 10)));
+        
+        setProgress(progressValue);
+        setCurrentStep(stepValue);
+      } else {
+        // Fallback para progresso do estado
+        const progressValue = Math.max(progress, state.researchProgress || 0);
+        const stepValue = Math.max(1, Math.min(10, Math.ceil((progressValue / 100) * 10)));
+        
+        setProgress(progressValue);
+        setCurrentStep(stepValue);
+      }
+    };
+    
+    updateProgress();
+  }, [webSocketProgress, state.researchProgress, hasWebSocketUpdate]);
 
   useEffect(() => {
     // Evitar múltiplas execuções
@@ -57,78 +270,51 @@ export default function CreateCourseLoading() {
       return;
     }
 
+    // Marcar como em processamento
+    isProcessing.current = true;
+
     const monitorResearch = async () => {
       try {
-        isProcessing.current = true;
-
-        console.log("📊 Monitorando pesquisa para curso:", state.courseId);
-
-        // Inicializar progresso com status do contexto
-        setProgress(state.researchProgress || 0);
-        setLoadingMessage(state.researchMessage || "Preparando pesquisa...");
-
-        // Função para mapear status para mensagens amigáveis
-        const getStatusMessage = (status: string, progress: number) => {
-          switch (status) {
-            case "pending":
-              return "Preparando pesquisa...";
-            case "researching":
-              if (progress <= 30) return "Gerando domínios e queries de pesquisa...";
-              if (progress <= 60) return "Executando pesquisas em fontes confiáveis...";
-              return "Compilando resultados das pesquisas...";
-            case "analyzing":
-              if (progress <= 80) return "Analisando e compilando informações...";
-              if (progress <= 90) return "Gerando questões personalizadas...";
-              return "Criando documento final do curso...";
-            case "completed":
-              return "Pesquisa concluída com sucesso! 🎉";
-            case "failed":
-              return "Erro na pesquisa. Tente novamente.";
-            default:
-              return "Processando...";
-          }
-        };
-
-        // Função para atualizar o progresso baseado no status
-        const updateProgressFromStatus = () => {
-          const currentProgress = state.researchProgress || 0;
-          const currentStatus = state.researchStatus || "pending";
-          const message = state.researchMessage || getStatusMessage(currentStatus, currentProgress);
-          
-          console.log("🔧 [DEBUG] Loading - Atualizando progresso:", {
-            status: currentStatus,
-            progress: currentProgress,
-            message: message
-          });
-          
-          setProgress(currentProgress);
-          setLoadingMessage(message);
-          
-          // Mapear progresso para steps visuais (0-100% → 1-10 steps)
-          const calculatedStep = Math.min(Math.max(Math.floor(currentProgress / 10) + 1, 1), 10);
-          setCurrentStep(calculatedStep);
-        };
-
-        // Atualizar uma vez imediatamente
-        updateProgressFromStatus();
-
-        // Iniciar monitoramento periódico
+        console.log("🔧 [DEBUG] Loading - Iniciando monitoramento da pesquisa");
+        
+        // Iniciar verificação de status
         statusCheckInterval.current = setInterval(async () => {
           try {
             console.log("🔧 [DEBUG] Loading - Verificando status da pesquisa...");
+            
+            // Verificar status atual
             await checkResearchStatus();
             
-            // Atualizar UI com novos dados
-            updateProgressFromStatus();
+            const getStatusMessage = (status: string) => {
+              switch (status) {
+                case "preparation":
+                  return "Preparando pesquisa...";
+                case "researching":
+                  return currentWebSocketMessage || "Pesquisando fontes...";
+                case "analyzing":
+                  return "Analisando conteúdo...";
+                case "completed":
+                  return "Pesquisa concluída!";
+                case "failed":
+                  return "Erro na pesquisa";
+                default:
+                  return "Processando...";
+              }
+            };
+            
+            // Atualizar mensagem de loading
+            const message = getStatusMessage(state.researchStatus || "preparation");
+            setLoadingMessage(message);
             
             // Se pesquisa completa (status = completed E progress = 100), redirecionar
-            if (state.researchStatus === "completed" && state.researchProgress >= 100) {
+            if (state.researchStatus === "completed" && (state.researchProgress >= 100 || webSocketProgress >= 100)) {
               if (statusCheckInterval.current) {
                 clearInterval(statusCheckInterval.current);
               }
               
               console.log("✅ Pesquisa concluída com sucesso!");
               setProgress(100);
+              setCurrentStep(10); // Garantir que mostra 10/10
               setLoadingMessage("Curso criado com sucesso! Redirecionando...");
               
               // Marcar como completo
@@ -136,7 +322,7 @@ export default function CreateCourseLoading() {
               
               // Delay para mostrar 100% antes de redirecionar
               setTimeout(() => {
-                router.push("/course-created-success");
+                router.push("/create-course-interview");
               }, 1500);
               return;
             }
@@ -159,10 +345,7 @@ export default function CreateCourseLoading() {
           }
         }, 1500); // Verificar a cada 1.5 segundos para melhor responsividade
       } catch (error) {
-        // Limpeza em caso de erro (progressInterval is handled by finally block)
-
         console.error("❌ Erro durante o processo:", error);
-
         setLoadingMessage("Erro ao criar curso");
         setProgress(0);
 
@@ -192,9 +375,10 @@ export default function CreateCourseLoading() {
     dispatch,
     state.courseId,
     checkResearchStatus,
-    state.researchProgress,
     state.researchMessage,
     state.researchStatus,
+    currentWebSocketMessage,
+    webSocketProgress,
   ]);
 
   return (
@@ -206,6 +390,7 @@ export default function CreateCourseLoading() {
             <span className="text-6xl">🚀</span>
           </div>
         </div>
+        
         {/* Título */}
         <h1 className="text-3xl md:text-4xl font-bold text-[#593100] mb-4">
           {state.researchStatus === "completed" ? "Curso criado com sucesso!" : "Criando seu curso personalizado"}
@@ -226,6 +411,7 @@ export default function CreateCourseLoading() {
             </span>
           </div>
         )}
+        
         {/* Indicador de step */}
         <div className="mb-6">
           <div className="flex items-center justify-center gap-4 mb-2">
@@ -241,10 +427,12 @@ export default function CreateCourseLoading() {
             Etapa {currentStep} de {totalSteps}
           </div>
         </div>
+        
         {/* Mensagem de loading */}
         <p className="text-lg md:text-xl text-[#593100] mb-8 opacity-80">
           {loadingMessage}
         </p>
+        
         {/* Barra de progresso */}
         <div className="w-full mb-8">
           <div className="flex justify-between text-sm text-[#593100] mb-2">
@@ -253,26 +441,139 @@ export default function CreateCourseLoading() {
           </div>
           <div className="w-full bg-[#ffddc2] rounded-full h-4 overflow-hidden">
             <div
-              className="bg-gradient-to-r from-[#cc6200] to-[#ff8c00] h-4 rounded-full transition-all duration-500 ease-out"
+              className="bg-gradient-to-r from-[#cc6200] to-[#ff8c00] h-4 rounded-full transition-all duration-1000 ease-out"
               style={{ width: `${progress}%` }}
             ></div>
           </div>
         </div>
-        {/* Etapas de pesquisa da IA */}
-        <div className="bg-[#fff] border border-[#ffddc2] rounded-xl p-4 mb-8 text-left shadow-sm min-h-[120px]">
+        
+        {/* Status da conexão WebSocket */}
+        <div className="mb-4">
+          <span className={`inline-block px-2 py-1 text-xs rounded-full ${
+            isWebSocketConnected ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+          }`}>
+            {isWebSocketConnected ? "🟢 WebSocket conectado" : "🔴 WebSocket desconectado"}
+          </span>
+        </div>
+
+        {/* Mensagens como WhatsApp - Altura fixa */}
+        <div className="bg-[#fff] border border-[#ffddc2] rounded-xl p-4 mb-4 text-left shadow-sm">
           <h4 className="text-[#cc6200] font-bold mb-2 text-base">
             Processo de pesquisa da IA:
           </h4>
-          <ul className="space-y-1">
-            {researchSteps.slice(0, visibleResearchCount).map((step, idx) => (
-              <li key={idx} className="flex items-start gap-2 animate-fade-in">
-                <span className="text-[#cc6200] mt-0.5">🤖</span>
-                <span className="text-[#593100] text-sm">{step}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="h-32 overflow-y-auto overflow-x-hidden">
+            <div className="space-y-2">
+              {stepMessages.map((msg, index) => (
+                <div 
+                  key={msg.id} 
+                  className={`flex items-start gap-2 transition-all duration-500 ease-out ${
+                    index < stepMessages.length - MAX_MESSAGES_VISIBLE 
+                      ? 'opacity-0 transform -translate-y-2' 
+                      : 'opacity-100 transform translate-y-0'
+                  }`}
+                  style={{
+                    animation: 'slideInUp 0.4s ease-out'
+                  }}
+                >
+                  <span className="text-[#cc6200] mt-0.5 flex-shrink-0">
+                    {msg.message.includes("🔍") ? "🔍" : 
+                     msg.message.includes("📚") ? "📚" : 
+                     msg.message.includes("🎉") ? "🎉" : "🤖"}
+                  </span>
+                  <span className="text-[#593100] text-sm leading-relaxed">
+                    {msg.message}
+                  </span>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          </div>
         </div>
+
+        {/* Fontes encontradas com sistema de fila */}
+        {sourcesFound.length > 0 && (
+          <div className="bg-[#fff] border border-[#ffddc2] rounded-xl p-4 mb-8 text-left shadow-sm">
+            <h4 className="text-[#cc6200] font-bold mb-2 text-base">
+              Fontes encontradas ({sourcesFound.filter(s => !s.isLeaving).length}):
+            </h4>
+            <div className="space-y-2 relative overflow-hidden" style={{ minHeight: `${MAX_SOURCES_VISIBLE * 60}px` }}>
+              {sourcesFound.map((source) => (
+                <div
+                  key={source.id}
+                  className={`flex items-start gap-2 p-2 bg-[#ffddc2] rounded transition-all duration-500 ease-out ${
+                    source.isLeaving 
+                      ? 'opacity-0 transform -translate-y-4' 
+                      : 'opacity-100 transform translate-y-0'
+                  }`}
+                  style={{
+                    animation: source.isLeaving ? 'fadeUpAndOut 0.5s ease-out forwards' : 'fadeInUp 0.3s ease-out'
+                  }}
+                >
+                  <span className="text-[#cc6200] mt-0.5">📚</span>
+                  <div className="flex-1">
+                    <p className="text-[#593100] text-sm font-medium truncate">{source.title}</p>
+                    <p className="text-[#593100] text-xs opacity-60">{source.domain}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
+      
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes slideInUp {
+          from {
+            opacity: 0;
+            transform: translateY(15px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes fadeUpAndOut {
+          from {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          to {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+        }
+        
+        /* Scrollbar customizada para o container de mensagens */
+        .h-32::-webkit-scrollbar {
+          width: 6px;
+        }
+        
+        .h-32::-webkit-scrollbar-track {
+          background: #ffddc2;
+          border-radius: 10px;
+        }
+        
+        .h-32::-webkit-scrollbar-thumb {
+          background: #cc6200;
+          border-radius: 10px;
+        }
+        
+        .h-32::-webkit-scrollbar-thumb:hover {
+          background: #a04f00;
+        }
+      `}</style>
     </div>
   );
 }
