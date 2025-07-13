@@ -92,6 +92,15 @@ export default function MaterialPage({
   const [material, setMaterial] = useState<MaterialContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeQuestionSection, setActiveQuestionSection] = useState<
+    number | null
+  >(null);
+  const [questionInputs, setQuestionInputs] = useState<{
+    [key: number]: string;
+  }>({});
+  const [submittingSections, setSubmittingSections] = useState<{
+    [key: number]: boolean;
+  }>({});
 
   // Unwrap params usando React.use()
   const resolvedParams = use(params);
@@ -132,6 +141,49 @@ export default function MaterialPage({
 
     loadMaterial();
   }, [resolvedParams.id, resolvedParams.materialId]);
+
+  // Função para processar dúvidas com IA
+  const handleQuestionSubmit = async (
+    sectionIndex: number,
+    section: Section,
+    question: string
+  ) => {
+    if (!question.trim() || !material) return;
+
+    setSubmittingSections((prev) => ({ ...prev, [sectionIndex]: true }));
+
+    try {
+      // Fazer chamada para a API que processará com GPT-4o-mini
+      const response = await apiController.rewriteMaterialSection(
+        resolvedParams.id,
+        resolvedParams.materialId,
+        sectionIndex.toString(),
+        question
+      );
+
+      if (response.success) {
+        // Simular por enquanto a atualização da seção
+        // Na implementação real, a API deveria retornar a seção atualizada
+        alert("Sua dúvida foi processada! A seção será atualizada em breve.");
+
+        // Fechar o input e limpar
+        setActiveQuestionSection(null);
+        setQuestionInputs((prev) => ({ ...prev, [sectionIndex]: "" }));
+
+        // Recarregar o material para ver as mudanças
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        alert("Erro ao processar sua dúvida. Tente novamente.");
+      }
+    } catch (error) {
+      console.error("Erro ao processar pergunta:", error);
+      alert("Erro ao processar sua dúvida. Tente novamente.");
+    } finally {
+      setSubmittingSections((prev) => ({ ...prev, [sectionIndex]: false }));
+    }
+  };
 
   // Função para gerar materiais (implementação mais robusta)
   const handleGenerateMaterial = async (type: "pdf" | "audio" | "video") => {
@@ -202,6 +254,80 @@ export default function MaterialPage({
     }
   };
 
+  // Função para renderizar o botão "Não Entendi"
+  const renderQuestionButton = (sectionIndex: number, section: Section) => {
+    return (
+      <div className="mt-4">
+        {activeQuestionSection === sectionIndex ? (
+          <div className="border-t border-gray-200 pt-4">
+            <div className="space-y-3">
+              <textarea
+                value={questionInputs[sectionIndex] || ""}
+                onChange={(e) =>
+                  setQuestionInputs((prev) => ({
+                    ...prev,
+                    [sectionIndex]: e.target.value,
+                  }))
+                }
+                placeholder="Sobre o que você não entendeu? Descreva sua dúvida em detalhes..."
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#cc6200] focus:border-transparent resize-none"
+                rows={3}
+                disabled={submittingSections[sectionIndex]}
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => {
+                    setActiveQuestionSection(null);
+                    setQuestionInputs((prev) => ({
+                      ...prev,
+                      [sectionIndex]: "",
+                    }));
+                  }}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300 transition-colors"
+                  disabled={submittingSections[sectionIndex]}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() =>
+                    handleQuestionSubmit(
+                      sectionIndex,
+                      section,
+                      questionInputs[sectionIndex] || ""
+                    )
+                  }
+                  disabled={
+                    submittingSections[sectionIndex] ||
+                    !questionInputs[sectionIndex]?.trim()
+                  }
+                  className="px-6 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {submittingSections[sectionIndex] ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Enviando...
+                    </>
+                  ) : (
+                    "Enviar"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-end">
+            <button
+              onClick={() => setActiveQuestionSection(sectionIndex)}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
+            >
+              Não Entendi
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // Função para renderizar seções específicas
   const renderSection = (section: Section, index: number) => {
     const sectionClasses =
@@ -215,6 +341,7 @@ export default function MaterialPage({
               📍 {section.title}
             </h3>
             <p className="text-gray-700 leading-relaxed">{section.content}</p>
+            {renderQuestionButton(index, section)}
           </div>
         );
 
@@ -232,6 +359,7 @@ export default function MaterialPage({
                 </li>
               ))}
             </ul>
+            {renderQuestionButton(index, section)}
           </div>
         );
 
@@ -259,6 +387,7 @@ export default function MaterialPage({
                 </div>
               ))}
             </div>
+            {renderQuestionButton(index, section)}
           </div>
         );
 
@@ -303,6 +432,7 @@ export default function MaterialPage({
                 </div>
               ))}
             </div>
+            {renderQuestionButton(index, section)}
           </div>
         );
 
@@ -324,6 +454,7 @@ export default function MaterialPage({
                 </div>
               ))}
             </div>
+            {renderQuestionButton(index, section)}
           </div>
         );
 
@@ -341,6 +472,7 @@ export default function MaterialPage({
                 </li>
               ))}
             </ul>
+            {renderQuestionButton(index, section)}
           </div>
         );
 
@@ -358,6 +490,7 @@ export default function MaterialPage({
                 </li>
               ))}
             </ul>
+            {renderQuestionButton(index, section)}
           </div>
         );
 
@@ -387,6 +520,7 @@ export default function MaterialPage({
                 </ol>
               </div>
             </div>
+            {renderQuestionButton(index, section)}
           </div>
         );
 
@@ -404,6 +538,7 @@ export default function MaterialPage({
                 </li>
               ))}
             </ul>
+            {renderQuestionButton(index, section)}
           </div>
         );
 
@@ -421,6 +556,7 @@ export default function MaterialPage({
                 </li>
               ))}
             </ul>
+            {renderQuestionButton(index, section)}
           </div>
         );
 
@@ -438,6 +574,7 @@ export default function MaterialPage({
                 </li>
               ))}
             </ul>
+            {renderQuestionButton(index, section)}
           </div>
         );
 
@@ -486,6 +623,7 @@ export default function MaterialPage({
                 </li>
               ))}
             </ul>
+            {renderQuestionButton(index, section)}
           </div>
         );
 
@@ -496,6 +634,7 @@ export default function MaterialPage({
               {section.title}
             </h3>
             <p className="text-gray-700">{section.content}</p>
+            {renderQuestionButton(index, section)}
           </div>
         );
     }
