@@ -617,48 +617,6 @@ export default function MaterialPage({
           </div>
         </div>
 
-        {/* Índice/Navegação das Seções */}
-        {jsonContent?.sections && jsonContent.sections.length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-xl font-semibold text-[#593100] mb-4 flex items-center">
-              📋 Índice do Conteúdo
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {jsonContent.sections.map((section, index) => (
-                <a
-                  key={index}
-                  href={`#section-${index}`}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-[#fff7f0] transition-colors border border-gray-100"
-                >
-                  <span className="text-lg">
-                    {section.type === "positioning" && "📍"}
-                    {section.type === "objectives" && "🎯"}
-                    {section.type === "theory" && "📚"}
-                    {section.type === "tutorial" && "🔧"}
-                    {section.type === "cases" && "📋"}
-                    {section.type === "tools" && "🛠️"}
-                    {section.type === "practices" && "✅"}
-                    {section.type === "project" && "🏗️"}
-                    {section.type === "trends" && "📈"}
-                    {section.type === "connections" && "🔗"}
-                    {section.type === "resources" && "📖"}
-                    {section.type === "questions" && "❓"}
-                    {section.type === "todo" && "📝"}
-                  </span>
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-[#593100]">
-                      {section.title}
-                    </div>
-                    <div className="text-xs text-gray-500 capitalize">
-                      {section.type}
-                    </div>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Botões de Geração de Material */}
         <div className="bg-gradient-to-r from-[#cc6200] to-[#ff8c00] rounded-lg p-6 text-white">
           <h3 className="text-xl font-semibold mb-2 flex items-center">
