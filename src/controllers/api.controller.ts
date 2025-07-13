@@ -554,6 +554,31 @@ export class ApiController {
    */
 
   /**
+   * Obtém estrutura completa do curso
+   * @param courseId - ID do curso
+   * @returns Promessa com estrutura do curso
+   */
+  public async getCourseStructure(
+    courseId: string
+  ): Promise<ApiResponse<{
+    course_id: string;
+    topic: string;
+    personalized_curriculum?: Record<string, unknown>;
+    materials: Record<string, Record<string, unknown>>;
+    research_status?: string;
+    research_progress?: number;
+    created_at?: string;
+  }>> {
+    try {
+      const response = await api.get(API_ENDPOINTS.COURSE_STRUCTURE(courseId));
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao obter estrutura do curso:", error);
+      throw error;
+    }
+  }
+
+  /**
    * Inicia geração de material de curso
    * @param courseId - ID do curso
    * @param targetType - Tipo do alvo (module ou submodule)
@@ -573,7 +598,7 @@ export class ApiController {
     target_id: string;
   }>> {
     try {
-      const response = await api.post(`/material/generate`, {
+      const response = await api.post(API_ENDPOINTS.MATERIAL_GENERATE, {
         course_id: courseId,
         target_type: targetType,
         target_id: targetId
@@ -598,7 +623,7 @@ export class ApiController {
     message: string;
   }>> {
     try {
-      const response = await api.get(`/material/status/${courseId}`);
+      const response = await api.get(API_ENDPOINTS.MATERIAL_STATUS(courseId));
       return response.data;
     } catch (error) {
       console.error("Erro ao obter status de geração:", error);
@@ -623,7 +648,7 @@ export class ApiController {
     updated_at: string;
   }>>> {
     try {
-      const response = await api.get(`/material/list/${courseId}`);
+      const response = await api.get(API_ENDPOINTS.MATERIAL_LIST(courseId));
       return response.data;
     } catch (error) {
       console.error("Erro ao listar materiais:", error);
@@ -641,6 +666,7 @@ export class ApiController {
     courseId: string,
     materialId: string
   ): Promise<ApiResponse<{
+    data: boolean;
     material_id: string;
     course_id: string;
     target_type: string;
@@ -653,35 +679,10 @@ export class ApiController {
     updated_at: string;
   }>> {
     try {
-      const response = await api.get(`/material/content/${courseId}/${materialId}`);
+      const response = await api.get(API_ENDPOINTS.MATERIAL_CONTENT(courseId, materialId));
       return response.data;
     } catch (error) {
       console.error("Erro ao obter conteúdo do material:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Obtém estrutura completa do curso
-   * @param courseId - ID do curso
-   * @returns Promessa com estrutura do curso
-   */
-  public async getCourseStructure(
-    courseId: string
-  ): Promise<ApiResponse<{
-    course_id: string;
-    topic: string;
-    personalized_curriculum?: Record<string, unknown>;
-    materials: Record<string, Record<string, unknown>>;
-    research_status?: string;
-    research_progress?: number;
-    created_at?: string;
-  }>> {
-    try {
-      const response = await api.get(`/course/structure/${courseId}`);
-      return response.data;
-    } catch (error) {
-      console.error("Erro ao obter estrutura do curso:", error);
       throw error;
     }
   }
@@ -692,7 +693,7 @@ export class ApiController {
    * @param materialId - ID do material
    * @param sectionId - ID da seção
    * @param userDoubt - Dúvida do usuário (opcional)
-   * @returns Promessa com dados da reescrita
+   * @returns Promessa com status da reescrita
    */
   public async rewriteMaterialSection(
     courseId: string,
@@ -706,7 +707,7 @@ export class ApiController {
     message: string;
   }>> {
     try {
-      const response = await api.post(`/material/rewrite`, {
+      const response = await api.post(API_ENDPOINTS.MATERIAL_REWRITE, {
         course_id: courseId,
         material_id: materialId,
         section_id: sectionId,

@@ -33,6 +33,16 @@ export const API_ENDPOINTS = {
   COURSE_RESEARCH_STATUS: (courseId: string) => `/course/research/${courseId}/status`,
   COURSE_SESSION_DELETE: (courseId: string) => `/course/session/${courseId}`,
   
+  // Endpoints de estrutura do curso
+  COURSE_STRUCTURE: (courseId: string) => `/course/structure/${courseId}`,
+  
+  // Endpoints de materiais
+  MATERIAL_GENERATE: "/material/generate",
+  MATERIAL_STATUS: (courseId: string) => `/material/status/${courseId}`,
+  MATERIAL_LIST: (courseId: string) => `/material/list/${courseId}`,
+  MATERIAL_CONTENT: (courseId: string, materialId: string) => `/material/content/${courseId}/${materialId}`,
+  MATERIAL_REWRITE: "/material/rewrite",
+  
   // Preferências de Curso
   COURSE_PREFERENCES: "/config/course-preferences",
   COURSE_PREFERENCES_BY_IDS: (userId: string, courseId: string) => `/config/course-preferences/${userId}/${courseId}`,

@@ -16,6 +16,8 @@ interface CourseMaterial {
   updated_at: string;
 }
 
+
+
 interface CourseStructure {
   course_id: string;
   topic: string;
@@ -53,36 +55,21 @@ export default function CourseDetailPage({
         setError(null);
         
         console.log("🔄 Carregando dados do curso:", params.id);
+        console.log("🌐 URL base da API:", process.env.NEXT_PUBLIC_API_URL);
         
         // Carregar estrutura do curso e materiais em paralelo
+        console.log("📡 Iniciando chamadas da API...");
         const [structureResponse, materialsResponse] = await Promise.all([
           apiController.getCourseStructure(params.id),
           apiController.listCourseMaterials(params.id)
         ]);
+        
         
         if (structureResponse.success && structureResponse.data) {
           console.log("✅ Estrutura do curso carregada:", structureResponse.data);
           
           // Fazer casting adequado da resposta da API
           const courseData = structureResponse.data;
-          console.log("✅ Estrutura do curso carregada 2:", structureResponse.data.personalized_curriculum);
-          
-          // Debug: verificar todas as chaves disponíveis
-          console.log("🔍 Chaves disponíveis no courseData:", Object.keys(courseData));
-          console.log("🔍 Tipo do personalized_curriculum:", typeof courseData.personalized_curriculum);
-          console.log("🔍 Dados completos do courseData:", JSON.stringify(courseData, null, 2));
-          
-          // Debug adicional: verificar se há uma camada 'data' extra
-          console.log("🔍 Verificando se courseData tem propriedade 'data':", 'data' in courseData);
-          if ('data' in courseData) {
-            console.log("🔍 Conteúdo de courseData.data:", courseData.data);
-            console.log("🔍 Tipo de courseData.data:", typeof courseData.data);
-            if (courseData.data && typeof courseData.data === 'object') {
-              console.log("🔍 Chaves em courseData.data:", Object.keys(courseData.data));
-              // @ts-expect-error - temporário para debug
-              console.log("🔍 personalized_curriculum em data:", courseData.data.personalized_curriculum);
-            }
-          }
           
           // Tentar acessar o personalized_curriculum de diferentes formas
           let personalizedCurriculum = null;
@@ -90,7 +77,7 @@ export default function CourseDetailPage({
           // Primeira tentativa: acesso direto
           if (courseData.personalized_curriculum) {
             personalizedCurriculum = courseData.personalized_curriculum;
-            console.log("✅ Currículo encontrado no acesso direto");
+            console.log("✅ Currículo personalizado encontrado");
           }
           // Segunda tentativa: através de courseData.data
           // @ts-expect-error - temporário para debug  
@@ -100,7 +87,7 @@ export default function CourseDetailPage({
             console.log("✅ Currículo encontrado em courseData.data");
           }
           else {
-            console.log("❌ Currículo personalizado não encontrado em nenhum local");
+            console.log("❌ Currículo personalizado não encontrado");
           }
           
           const structureData: CourseStructure = {
@@ -121,20 +108,45 @@ export default function CourseDetailPage({
         }
 
         if (materialsResponse.success && materialsResponse.data) {
-          setMaterials(materialsResponse.data);
+          console.log("✅ Materiais carregados:", materialsResponse.data);
+          console.log("📊 Tipo de dados recebidos:", typeof materialsResponse.data);
+          
+          // Verificar se os dados estão em data.data (conforme mencionado pelo usuário)
+          const responseData = materialsResponse.data as CourseMaterial[] | { data: CourseMaterial[] };
+          const materialsData = Array.isArray(responseData) 
+            ? responseData 
+            : (responseData as { data: CourseMaterial[] }).data || [];
+          
+          console.log("📊 Dados processados:", materialsData);
+          console.log("📊 É array?", Array.isArray(materialsData));
+          
+          setMaterials(materialsData);
           
           // Criar mapa de materiais por target_type e target_id
           const map: MaterialsMap = {};
-          if (materialsResponse.data.length > 0) {
-            materialsResponse?.data?.forEach((material) => {
-              const key = `${material.target_type}_${material.target_id}`;
-              map[key] = material;
+          if (Array.isArray(materialsData) && materialsData.length > 0) {
+            materialsData.forEach((material: CourseMaterial) => {
+              // Verificar se o material tem as propriedades necessárias
+              if (material.target_type && material.target_id) {
+                const key = `${material.target_type}_${material.target_id}`;
+                map[key] = material;
+                console.log(`📌 Material mapeado: ${key} -> ${material.title} (ID: ${material.material_id})`);
+              } else {
+                console.warn("⚠️ Material sem target_type ou target_id:", material);
+              }
             });
             setMaterialsMap(map);
             console.log("📊 Mapa de materiais criado:", map);
+            console.log("🔑 Chaves no mapa:", Object.keys(map));
+          } else {
+            console.log("ℹ️ Array de materiais vazio ou dados em formato incorreto");
           }
         } else {
           console.log("ℹ️ Nenhum material encontrado para o curso");
+          console.log("❌ Response de materiais:", materialsResponse);
+          console.log("❌ Success:", materialsResponse.success);
+          console.log("❌ Data:", materialsResponse.data);
+          console.log("❌ Message:", materialsResponse.message);
           setMaterials([]);
           setMaterialsMap({});
         }
@@ -148,6 +160,26 @@ export default function CourseDetailPage({
     };
 
     loadCourseData();
+  }, [params.id]);
+
+  // Função de teste para debugging - remover depois
+  const testKnownCourse = async () => {
+    const knownCourseId = "8baeb11e-a4de-4c8f-abfc-a34739f065ee";
+    console.log("🧪 Testando curso conhecido:", knownCourseId);
+    
+    try {
+      const response = await apiController.listCourseMaterials(knownCourseId);
+      console.log("🧪 Resultado do teste:", response);
+    } catch (error) {
+      console.error("🧪 Erro no teste:", error);
+    }
+  };
+
+  // Chama o teste automaticamente se for o curso específico
+  useEffect(() => {
+    if (params.id === "8baeb11e-a4de-4c8f-abfc-a34739f065ee") {
+      testKnownCourse();
+    }
   }, [params.id]);
 
   const handleGenerateContent = async (
@@ -199,7 +231,15 @@ export default function CourseDetailPage({
 
   const getSubmoduleMaterial = (submoduleId: string): CourseMaterial | null => {
     const key = `submodule_${submoduleId}`;
-    return materialsMap[key] || null;
+    const material = materialsMap[key] || null;
+    if (material) {
+      console.log(`✅ Material encontrado para ${key}:`, material.title);
+    } else {
+      console.log(`❌ Material não encontrado para ${key}. Chave procurada: ${submoduleId}`);
+      console.log("🔍 Chaves disponíveis no mapa:", Object.keys(materialsMap));
+    }
+    
+    return material;
   };
 
   const formatDate = (dateString: string): string => {
@@ -323,7 +363,10 @@ export default function CourseDetailPage({
   return (
     <DashboardLayout 
       title={courseStructure.topic} 
-      subtitle={`Curso ID: ${courseStructure.course_id} • ${materials.length} material(s) disponível(s)`}
+      subtitle={hasPersonalizedCurriculum && personalizedCurriculum 
+        ? `${getCourseStatistics().totalModules} módulos • ${getCourseStatistics().totalSubmodules} submódulos • ${getCourseStatistics().completedMaterials} materiais gerados (${getCourseStatistics().progressPercentage.toFixed(0)}% concluído)`
+        : `Curso ID: ${courseStructure.course_id} • ${materials.length} material(s) disponível(s)`
+      }
     >
       <div className="space-y-6">
         {/* Informações do Curso */}
@@ -352,8 +395,16 @@ export default function CourseDetailPage({
             <div className="bg-[#fff7f0] p-4 rounded-lg">
               <h3 className="font-semibold text-[#593100] mb-1">📚 Materiais</h3>
               <p className="text-sm text-[#593100] opacity-80">
-                {materials.length} material(s) gerado(s)
+                {hasPersonalizedCurriculum && personalizedCurriculum 
+                  ? `${getCourseStatistics().completedMaterials} de ${getCourseStatistics().totalSubmodules} gerados`
+                  : `${materials.length} material(s) gerado(s)`
+                }
               </p>
+              {hasPersonalizedCurriculum && personalizedCurriculum && getCourseStatistics().generatingMaterials > 0 && (
+                <p className="text-xs text-yellow-600 mt-1">
+                  ⚙️ {getCourseStatistics().generatingMaterials} sendo gerados
+                </p>
+              )}
             </div>
             
             <div className="bg-[#fff7f0] p-4 rounded-lg">
@@ -364,6 +415,53 @@ export default function CourseDetailPage({
             </div>
           </div>
         </div>
+
+        {/* Resumo Rápido de Materiais (quando há materiais) */}
+        {hasPersonalizedCurriculum && personalizedCurriculum && getCourseStatistics().completedMaterials > 0 && (
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-[#ffddc2]">
+            <h2 className="text-xl font-bold text-[#593100] mb-4">
+              🚀 Acesso Rápido aos Materiais
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {personalizedCurriculum.modulos.map((modulo) => {
+                const completedSubmodules = modulo.SUBMODULOS.filter(submodulo => 
+                  Boolean(getSubmoduleMaterial(submodulo.ID_SUBMODULO))
+                );
+                
+                if (completedSubmodules.length === 0) return null;
+                
+                return (
+                  <div key={modulo.ID_MODULO} className="bg-[#fff7f0] p-4 rounded-lg border border-[#ffddc2]">
+                    <h3 className="font-medium text-[#593100] mb-2 text-sm">
+                      📘 Módulo {modulo.ID_MODULO}: {modulo.NAME_MODULO}
+                    </h3>
+                    <div className="space-y-2">
+                      {completedSubmodules.slice(0, 3).map((submodulo) => {
+                        const material = getSubmoduleMaterial(submodulo.ID_SUBMODULO);
+                        if (!material) return null;
+                        
+                        return (
+                          <button
+                            key={submodulo.ID_SUBMODULO}
+                            onClick={() => handleStudyContent(material.material_id)}
+                            className="w-full text-left px-3 py-2 bg-white rounded border border-[#ffddc2] hover:border-[#cc6200] transition-colors text-xs"
+                          >
+                            📄 {submodulo.NAME_SUBMODULO}
+                          </button>
+                        );
+                      })}
+                      {completedSubmodules.length > 3 && (
+                        <p className="text-xs text-[#593100] opacity-60 text-center">
+                          +{completedSubmodules.length - 3} mais materiais
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Currículo Personalizado */}
         {hasPersonalizedCurriculum && personalizedCurriculum && (
@@ -433,10 +531,10 @@ export default function CourseDetailPage({
           {hasPersonalizedCurriculum && personalizedCurriculum ? (
             <div className="space-y-6">
               {/* Estatísticas Gerais */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div className="bg-[#fff7f0] p-4 rounded-lg border border-[#ffddc2] text-center">
                   <div className="text-2xl font-bold text-[#cc6200]">
-                    {personalizedCurriculum.modulos.length}
+                    {getCourseStatistics().totalModules}
                   </div>
                   <div className="text-sm text-[#593100] opacity-80">
                     Módulos Totais
@@ -444,7 +542,7 @@ export default function CourseDetailPage({
                 </div>
                 <div className="bg-[#fff7f0] p-4 rounded-lg border border-[#ffddc2] text-center">
                   <div className="text-2xl font-bold text-[#cc6200]">
-                    {personalizedCurriculum.modulos.reduce((total, modulo) => total + modulo.SUBMODULOS.length, 0)}
+                    {getCourseStatistics().totalSubmodules}
                   </div>
                   <div className="text-sm text-[#593100] opacity-80">
                     Submódulos Totais
@@ -452,10 +550,18 @@ export default function CourseDetailPage({
                 </div>
                 <div className="bg-[#fff7f0] p-4 rounded-lg border border-[#ffddc2] text-center">
                   <div className="text-2xl font-bold text-[#cc6200]">
-                    {materials.length}
+                    {getCourseStatistics().completedMaterials}
                   </div>
                   <div className="text-sm text-[#593100] opacity-80">
                     Materiais Gerados
+                  </div>
+                </div>
+                <div className="bg-[#fff7f0] p-4 rounded-lg border border-[#ffddc2] text-center">
+                  <div className="text-2xl font-bold text-[#cc6200]">
+                    {getCourseStatistics().progressPercentage.toFixed(0)}%
+                  </div>
+                  <div className="text-sm text-[#593100] opacity-80">
+                    Progresso Geral
                   </div>
                 </div>
               </div>
@@ -463,11 +569,7 @@ export default function CourseDetailPage({
               {/* Módulos */}
               <div className="space-y-6">
                 {personalizedCurriculum.modulos.map((modulo: PersonalizedCurriculumModule) => {
-                  const totalSubmodules = modulo.SUBMODULOS.length;
-                  const completedSubmodules = modulo.SUBMODULOS.filter(submodulo => 
-                    Boolean(getSubmoduleMaterial(submodulo.ID_SUBMODULO))
-                  ).length;
-                  const progressPercentage = totalSubmodules > 0 ? (completedSubmodules / totalSubmodules) * 100 : 0;
+                  const moduleStats = getModuleStatistics(modulo);
                   
                   return (
                     <div key={modulo.ID_MODULO} className="bg-[#fff7f0] p-6 rounded-lg border border-[#ffddc2] hover:shadow-md transition-shadow">
@@ -491,7 +593,25 @@ export default function CourseDetailPage({
                             </span>
                           </div>
                           <div className="text-xs text-[#593100] opacity-60">
-                            {completedSubmodules}/{totalSubmodules} submódulos
+                            {moduleStats.completedSubmodules}/{moduleStats.totalSubmodules} submódulos
+                          </div>
+                          {/* Estatísticas detalhadas do módulo */}
+                          <div className="flex gap-1 text-xs">
+                            {moduleStats.completedSubmodules > 0 && (
+                              <span className="bg-green-100 text-green-700 px-2 py-1 rounded">
+                                ✅ {moduleStats.completedSubmodules} prontos
+                              </span>
+                            )}
+                            {moduleStats.generatingSubmodules > 0 && (
+                              <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
+                                ⚙️ {moduleStats.generatingSubmodules} gerando
+                              </span>
+                            )}
+                            {moduleStats.pendingSubmodules > 0 && (
+                              <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                                ⏳ {moduleStats.pendingSubmodules} pendentes
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -503,13 +623,28 @@ export default function CourseDetailPage({
                             Progresso do Módulo
                           </span>
                           <span className="text-xs text-[#593100] opacity-60">
-                            {progressPercentage.toFixed(0)}%
+                            {moduleStats.progressPercentage.toFixed(0)}%
                           </span>
                         </div>
                         <div className="w-full bg-[#ffddc2] rounded-full h-2">
                           <div 
                             className="bg-[#cc6200] h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${progressPercentage}%` }}
+                            style={{ width: `${moduleStats.progressPercentage}%` }}
+                          ></div>
+                        </div>
+                        {/* Barra segmentada mostrando estados */}
+                        <div className="flex mt-1 h-1 rounded-full overflow-hidden">
+                          <div 
+                            className="bg-green-400 transition-all duration-300"
+                            style={{ width: `${(moduleStats.completedSubmodules / moduleStats.totalSubmodules) * 100}%` }}
+                          ></div>
+                          <div 
+                            className="bg-yellow-400 transition-all duration-300"
+                            style={{ width: `${(moduleStats.generatingSubmodules / moduleStats.totalSubmodules) * 100}%` }}
+                          ></div>
+                          <div 
+                            className="bg-gray-300 transition-all duration-300"
+                            style={{ width: `${(moduleStats.pendingSubmodules / moduleStats.totalSubmodules) * 100}%` }}
                           ></div>
                         </div>
                       </div>
@@ -550,6 +685,47 @@ export default function CourseDetailPage({
                             <div className="text-sm text-yellow-800">
                               {modulo.JUSTIFICATIVA}
                             </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Ações do Módulo */}
+                      {moduleStats.completedSubmodules > 0 && (
+                        <div className="mb-4">
+                          <h4 className="font-medium text-[#593100] mb-2">
+                            🎯 Ações do Módulo
+                          </h4>
+                          <div className="flex gap-2 flex-wrap">
+                            <button
+                              onClick={() => {
+                                const firstMaterial = modulo.SUBMODULOS.find(sub => 
+                                  Boolean(getSubmoduleMaterial(sub.ID_SUBMODULO))
+                                );
+                                if (firstMaterial) {
+                                  const material = getSubmoduleMaterial(firstMaterial.ID_SUBMODULO);
+                                  if (material) {
+                                    handleStudyContent(material.material_id);
+                                  }
+                                }
+                              }}
+                              className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors"
+                            >
+                              📖 Ver Primeiro Material
+                            </button>
+                            <button
+                              onClick={() => {
+                                // Expandir/colapsar todos os submódulos (pode ser implementado depois)
+                                console.log("Expandir submódulos do módulo:", modulo.ID_MODULO);
+                              }}
+                              className="px-3 py-2 bg-purple-500 text-white rounded text-sm hover:bg-purple-600 transition-colors"
+                            >
+                              📋 Ver Todos os Submódulos
+                            </button>
+                            {moduleStats.completedSubmodules === moduleStats.totalSubmodules && (
+                              <span className="px-3 py-2 bg-green-100 text-green-700 rounded text-sm">
+                                🎉 Módulo Completo!
+                              </span>
+                            )}
                           </div>
                         </div>
                       )}
@@ -604,19 +780,39 @@ export default function CourseDetailPage({
                                   </div>
                                   <div className="flex gap-2">
                                     {hasMaterial && material ? (
-                                      <button
-                                        onClick={() => handleStudyContent(material.material_id)}
-                                        className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 transition-colors"
-                                      >
-                                        📖 Estudar
-                                      </button>
+                                      <div className="flex gap-2">
+                                        <button
+                                          onClick={() => handleStudyContent(material.material_id)}
+                                          className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 transition-colors"
+                                        >
+                                          📖 Estudar
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            // Copiar link do material
+                                            const link = `${window.location.origin}/dashboard/courses/${params.id}/material/${material.material_id}`;
+                                            navigator.clipboard.writeText(link);
+                                            // Aqui você pode adicionar uma notificação de sucesso
+                                            console.log("Link copiado:", link);
+                                          }}
+                                          className="px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600 transition-colors"
+                                          title="Copiar link"
+                                        >
+                                          🔗
+                                        </button>
+                                      </div>
                                     ) : isGenerating ? (
-                                      <button
-                                        disabled
-                                        className="px-3 py-1 bg-yellow-400 text-white rounded text-sm opacity-75 cursor-not-allowed"
-                                      >
-                                        ⚙️ Gerando...
-                                      </button>
+                                      <div className="flex gap-2 items-center">
+                                        <button
+                                          disabled
+                                          className="px-3 py-1 bg-yellow-400 text-white rounded text-sm opacity-75 cursor-not-allowed"
+                                        >
+                                          ⚙️ Gerando...
+                                        </button>
+                                        <span className="text-xs text-yellow-700">
+                                          {generationProgress}%
+                                        </span>
+                                      </div>
                                     ) : (
                                       <button
                                         onClick={() => handleGenerateContent(modulo.ID_MODULO, submodulo.ID_SUBMODULO)}
