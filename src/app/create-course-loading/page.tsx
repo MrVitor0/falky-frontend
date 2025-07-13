@@ -36,7 +36,6 @@ export default function CreateCourseLoading() {
   const totalSteps = 10;
   const [stepMessages, setStepMessages] = useState<StepMessage[]>([]);
   const [sourcesFound, setSourcesFound] = useState<SourceWithId[]>([]);
-  const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
   const [currentWebSocketMessage, setCurrentWebSocketMessage] =
     useState<string>("");
   const [webSocketProgress, setWebSocketProgress] = useState(0);
@@ -170,9 +169,6 @@ export default function CreateCourseLoading() {
 
     // Configurar callbacks do WebSocket
     websocketService.setOnConnectionChange((connected) => {
-      console.log("🔌 WebSocket connection status:", connected);
-      setIsWebSocketConnected(connected);
-
       if (connected) {
         // Conectar ao curso quando WebSocket estiver conectado
         websocketService.joinCourse(state.courseId!);
@@ -223,8 +219,6 @@ export default function CreateCourseLoading() {
     });
 
     websocketService.setOnSourceFound((source) => {
-      console.log("📚 Source found:", source);
-
       const newSource: SourceWithId = {
         id: `${source.source.domain}-${Date.now()}`,
         title: source.source.title,
@@ -532,21 +526,6 @@ export default function CreateCourseLoading() {
               style={{ width: `${progress}%` }}
             ></div>
           </div>
-        </div>
-
-        {/* Status da conexão WebSocket */}
-        <div className="mb-4">
-          <span
-            className={`inline-block px-2 py-1 text-xs rounded-full ${
-              isWebSocketConnected
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}
-          >
-            {isWebSocketConnected
-              ? "🟢 WebSocket conectado"
-              : "🔴 WebSocket desconectado"}
-          </span>
         </div>
 
         {/* Mensagens como WhatsApp - Altura fixa */}

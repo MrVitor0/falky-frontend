@@ -286,7 +286,7 @@ export default function CreateCourseInterview() {
             disabled={submitting}
             className="px-6 py-3 rounded-full shadow-md font-medium text-[#593100] bg-white border-2 border-[#ffddc2] hover:bg-[#ffddc2] transition order-3 md:order-1 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            🚀 Ir Direto ao Curso
+            ⏭️ Pular Entrevista
           </button>
 
           {/* Navegação */}

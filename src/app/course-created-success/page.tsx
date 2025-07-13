@@ -221,7 +221,11 @@ export default function CourseCreatedSuccess() {
         {/* Botões de ação */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            href="/dashboard"
+            href={
+              state.courseId
+                ? `/dashboard/courses/${state.courseId}`
+                : "/dashboard"
+            }
             className="px-8 py-4 rounded-full shadow-lg font-bold text-white bg-gradient-to-r from-[#cc6200] to-[#ff8c00] hover:from-[#ff8c00] hover:to-[#cc6200] transition transform hover:scale-105"
           >
             🎯 Começar a estudar
