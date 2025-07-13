@@ -107,28 +107,28 @@ export default function CreateCourseTeacherStyle() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fff7f0] px-4 py-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-[#fff7f0] px-4 py-6">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-[#593100] mb-4">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-[#593100] mb-3">
             Escolha o Estilo do Professor
           </h1>
-          <p className="text-xl text-[#593100] opacity-80 mb-2">
+          <p className="text-lg text-[#593100] opacity-80 mb-1">
             Como você gostaria que o Falky AI ensinasse{" "}
             <span className="font-semibold text-[#cc6200]">
               {state.courseName}
             </span>
             ?
           </p>
-          <p className="text-base text-[#593100] opacity-60">
+          <p className="text-sm text-[#593100] opacity-60">
             Selecione a personalidade que mais combina com seu estilo de
             aprendizado
           </p>
         </div>
 
         {/* Grid de estilos */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {teacherStyles.map((style) => (
             <div
               key={style.id}
@@ -140,7 +140,7 @@ export default function CreateCourseTeacherStyle() {
                     ? "ring-4 ring-[#cc6200] shadow-2xl"
                     : "hover:shadow-xl"
                 }
-                bg-white rounded-2xl p-6 border-2 
+                bg-white rounded-xl p-4 border-2 
                 ${
                   selectedStyle === style.id
                     ? "border-[#cc6200]"
@@ -149,10 +149,10 @@ export default function CreateCourseTeacherStyle() {
               `}
             >
               {/* Radio button */}
-              <div className="absolute top-4 right-4">
+              <div className="absolute top-3 right-3">
                 <div
                   className={`
-                  w-6 h-6 rounded-full border-2 flex items-center justify-center
+                  w-5 h-5 rounded-full border-2 flex items-center justify-center
                   ${
                     selectedStyle === style.id
                       ? "bg-[#cc6200] border-[#cc6200]"
@@ -161,30 +161,30 @@ export default function CreateCourseTeacherStyle() {
                 `}
                 >
                   {selectedStyle === style.id && (
-                    <div className="w-3 h-3 bg-white rounded-full"></div>
+                    <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
                   )}
                 </div>
               </div>
 
               {/* Ícone e gradiente */}
-              <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center gap-3 mb-3">
                 <div
                   className={`
-                  w-16 h-16 rounded-full bg-gradient-to-r ${style.color} 
-                  flex items-center justify-center text-2xl shadow-lg
+                  w-12 h-12 rounded-full bg-gradient-to-r ${style.color} 
+                  flex items-center justify-center text-xl shadow-lg flex-shrink-0
                 `}
                 >
                   {style.icon}
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-[#593100] mb-1">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base font-bold text-[#593100] mb-0.5 truncate">
                     {style.name}
                   </h3>
                 </div>
               </div>
 
               {/* Descrição */}
-              <p className="text-sm text-[#593100] opacity-80 leading-relaxed">
+              <p className="text-xs text-[#593100] opacity-80 leading-relaxed line-clamp-3">
                 {style.description}
               </p>
             </div>
@@ -192,10 +192,10 @@ export default function CreateCourseTeacherStyle() {
         </div>
 
         {/* Botões de ação */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
             onClick={() => router.back()}
-            className="px-8 py-4 rounded-full shadow-lg font-semibold text-[#593100] bg-white border-2 border-[#ffddc2] hover:bg-[#ffddc2] transition"
+            className="px-6 py-3 rounded-full shadow-lg font-semibold text-[#593100] bg-white border-2 border-[#ffddc2] hover:bg-[#ffddc2] transition"
           >
             ← Voltar
           </button>
@@ -203,7 +203,7 @@ export default function CreateCourseTeacherStyle() {
           <button
             onClick={handleContinue}
             disabled={!selectedStyle}
-            className="px-12 py-4 rounded-full shadow-lg font-bold text-white bg-gradient-to-r from-[#cc6200] to-[#ff8c00] hover:from-[#ff8c00] hover:to-[#cc6200] transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="px-8 py-3 rounded-full shadow-lg font-bold text-white bg-gradient-to-r from-[#cc6200] to-[#ff8c00] hover:from-[#ff8c00] hover:to-[#cc6200] transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {selectedStyle ? "🔍 Buscar Professor" : "Selecione um Estilo"}
           </button>

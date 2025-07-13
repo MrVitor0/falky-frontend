@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCourseCreation } from "@/contexts/CourseCreationContext";
+import Image from "next/image";
 
 interface Teacher {
   id: string;
@@ -24,34 +25,13 @@ export default function CreateCourseListTeachers() {
   const { state } = useCourseCreation();
   const [selectedTeacher, setSelectedTeacher] = useState<string | null>(null);
 
-  // Lista de professores mock (Falky AI sempre em primeiro)
   const teachers: Teacher[] = [
-    {
-      id: "falky-ai",
-      name: "Falky AI",
-      type: "ai",
-      avatar: "🤖",
-      specialization: `Especialista em ${state.courseName}`,
-      experience: "IA Avançada",
-      rating: 5.0,
-      reviewsCount: 2847,
-      description:
-        "Professor de inteligência artificial personalizado especialmente para você. Adapta-se ao seu ritmo, estilo de aprendizado e preferências.",
-      teachingStyle: "Personalizado e Adaptativo",
-      highlights: [
-        "🧠 Personalização total baseada em suas respostas",
-        "⚡ Disponível 24 horas por dia",
-        "🎯 Adapta-se ao seu ritmo de aprendizado",
-        "📊 Acompanha seu progresso em tempo real",
-      ],
-    },
     {
       id: "prof-maria",
       name: "Prof. Maria Silva",
       type: "human",
       avatar: "👩‍🏫",
-      photo:
-        "https://images.unsplash.com/photo-1494790108755-2616c9c1f0b1?w=150&h=150&fit=crop&crop=face",
+      photo: "/teachers/4.svg",
       specialization: `Doutora em ${state.courseName}`,
       experience: "15 anos de experiência",
       rating: 4.9,
@@ -71,8 +51,7 @@ export default function CreateCourseListTeachers() {
       name: "Prof. Carlos Santos",
       type: "human",
       avatar: "👨‍💻",
-      photo:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+      photo: "/teachers/2.svg",
       specialization: `Especialista Prático em ${state.courseName}`,
       experience: "10 anos de mercado",
       rating: 4.8,
@@ -92,8 +71,7 @@ export default function CreateCourseListTeachers() {
       name: "Prof. Ana Costa",
       type: "human",
       avatar: "👩‍🔬",
-      photo:
-        "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face",
+      photo: "/teachers/3.svg",
       specialization: `Pesquisadora em ${state.courseName}`,
       experience: "8 anos de pesquisa",
       rating: 4.7,
@@ -108,6 +86,26 @@ export default function CreateCourseListTeachers() {
         "🎨 Abordagem criativa e inovadora",
       ],
     },
+    {
+      id: "prof-lucas",
+      name: "Prof. Lucas Almeida",
+      type: "human",
+      avatar: "🧑‍🚀",
+      photo: "/teachers/1.svg",
+      specialization: `Mentor em ${state.courseName} com foco em tecnologia de ponta`,
+      experience: "12 anos em startups e inovação",
+      rating: 4.85,
+      reviewsCount: 211,
+      description:
+        "Mentor apaixonado por tecnologia, com experiência em ambientes de startups e projetos inovadores. Ideal para quem busca aprender com exemplos do mundo real e tendências tecnológicas.",
+      teachingStyle: "Mentoria prática e inspiradora",
+      highlights: [
+        "🚀 Experiência em startups de tecnologia",
+        "🤝 Mentor de equipes multidisciplinares",
+        "🌐 Projetos internacionais",
+        "🔝 Foco em inovação e tendências de mercado",
+      ],
+    },
   ];
 
   const handleSelectTeacher = (teacherId: string) => {
@@ -119,8 +117,8 @@ export default function CreateCourseListTeachers() {
       // Aqui você salvaria a escolha do professor
       console.log("Professor selecionado:", selectedTeacher);
 
-      // Redirecionar para página de sucesso ou próxima etapa
-      router.push("/course-created-success");
+      // Redirecionar para tela de loading
+      router.push("/create-course-finishing");
     }
   };
 
@@ -157,10 +155,13 @@ export default function CreateCourseListTeachers() {
           ) : (
             <div className="w-12 h-12 rounded-full overflow-hidden bg-[#ffddc2] flex-shrink-0">
               {teacher.photo ? (
-                <img
+                <Image
                   src={teacher.photo}
                   alt={teacher.name}
+                  width={48}
+                  height={48}
                   className="w-full h-full object-cover"
+                  unoptimized
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-xl">

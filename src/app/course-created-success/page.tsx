@@ -153,10 +153,6 @@ export default function CourseCreatedSuccess() {
     ],
   };
 
-  const totalHours = mockCourseData.modulos.reduce((total, modulo) => {
-    return total + parseInt(modulo.TEMPO_ESTIMADO.split(" ")[0]);
-  }, 0);
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#fff7f0] px-4">
       <div className="max-w-4xl text-center">
@@ -174,58 +170,6 @@ export default function CourseCreatedSuccess() {
         <h2 className="text-2xl md:text-3xl font-semibold text-[#cc6200] mb-8">
           Seu curso foi criado com sucesso!
         </h2>
-
-        {/* Informações do Curso */}
-        <div className="bg-[#ffddc2] rounded-xl p-8 shadow-lg mb-8 border-2 border-[#cc6200]">
-          <h3 className="text-xl font-bold text-[#593100] mb-6">
-            📚 Seu Curso Personalizado:
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left mb-6">
-            <div className="bg-[#fff7f0] rounded-lg p-4">
-              <h4 className="font-semibold text-[#593100] mb-2">
-                Nome do curso:
-              </h4>
-              <p className="text-[#593100] text-lg font-medium">
-                {mockCourseData.course_topic}
-              </p>
-            </div>
-
-            <div className="bg-[#fff7f0] rounded-lg p-4">
-              <h4 className="font-semibold text-[#593100] mb-2">
-                Nível Identificado:
-              </h4>
-              <p className="text-[#593100]">
-                🌱 {mockCourseData.nivel_identificado}
-              </p>
-            </div>
-
-            <div className="bg-[#fff7f0] rounded-lg p-4">
-              <h4 className="font-semibold text-[#593100] mb-2">
-                Personalidade do Professor:
-              </h4>
-              <p className="text-[#593100]">
-                🎓 {mockCourseData.personalidade_aplicada}
-              </p>
-            </div>
-
-            <div className="bg-[#fff7f0] rounded-lg p-4">
-              <h4 className="font-semibold text-[#593100] mb-2">
-                Carga Horária Total:
-              </h4>
-              <p className="text-[#593100]">⏱️ {totalHours} horas</p>
-            </div>
-          </div>
-
-          <div className="bg-[#fff7f0] rounded-lg p-4 mb-6">
-            <h4 className="font-semibold text-[#593100] mb-2">
-              Adaptações Personalizadas:
-            </h4>
-            <p className="text-[#593100] leading-relaxed text-sm">
-              {mockCourseData.adaptacoes_personalizadas}
-            </p>
-          </div>
-        </div>
 
         {/* Módulos do Curso */}
         <div className="bg-white rounded-xl p-8 shadow-lg mb-8 border-2 border-[#ffddc2]">
@@ -274,53 +218,13 @@ export default function CourseCreatedSuccess() {
           </div>
         </div>
 
-        {/* Próximos passos */}
-        <div className="bg-gradient-to-r from-[#cc6200] to-[#ff8c00] rounded-xl p-8 text-white mb-12">
-          <h3 className="text-2xl font-bold mb-4">🎯 Próximos passos:</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-            <div className="bg-white bg-opacity-20 rounded-lg p-4 text-[#593100]">
-              <h4 className="font-semibold mb-2">1. 📧 Verificar email</h4>
-              <p className="text-sm">
-                Você receberá um email com os detalhes do seu curso.
-              </p>
-            </div>
-            <div className="bg-white bg-opacity-20 rounded-lg p-4 text-[#593100]">
-              <h4 className="font-semibold mb-2">2. 🎓 Acessar plataforma</h4>
-              <p className="text-sm">
-                Seu curso estará disponível na área do aluno.
-              </p>
-            </div>
-            <div className="bg-white bg-opacity-20 rounded-lg p-4 text-[#593100]">
-              <h4 className="font-semibold mb-2">3. 🚀 Começar a estudar</h4>
-              <p className="text-sm">
-                Inicie sua jornada de aprendizado personalizada!
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* Botões de ação */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/dashboard"
             className="px-8 py-4 rounded-full shadow-lg font-bold text-white bg-gradient-to-r from-[#cc6200] to-[#ff8c00] hover:from-[#ff8c00] hover:to-[#cc6200] transition transform hover:scale-105"
           >
-            🎯 Ir para Dashboard
-          </Link>
-
-          <Link
-            href="/create-course-step-one"
-            onClick={() => dispatch({ type: "RESET" })}
-            className="px-8 py-4 rounded-full shadow-lg font-semibold text-[#593100] bg-[#ffddc2] border-2 border-[#cc6200] hover:bg-[#fff7f0] transition"
-          >
-            ➕ Criar outro curso
-          </Link>
-
-          <Link
-            href="/"
-            className="px-8 py-4 rounded-full shadow-lg font-semibold text-[#593100] bg-white border-2 border-[#cc6200] hover:bg-[#ffddc2] transition"
-          >
-            🏠 Voltar ao Início
+            🎯 Começar a estudar
           </Link>
         </div>
 
