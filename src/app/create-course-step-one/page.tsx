@@ -6,7 +6,13 @@ import { useCourseCreation } from "@/contexts/CourseCreationContext";
 
 export default function CreateCourseStepOne() {
   const router = useRouter();
-  const { state, dispatch, canProceedToNext, createCourseWithTopic, clearError } = useCourseCreation();
+  const {
+    state,
+    dispatch,
+    canProceedToNext,
+    createCourseWithTopic,
+    clearError,
+  } = useCourseCreation();
   const [inputValue, setInputValue] = useState(state.courseName);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,18 +30,21 @@ export default function CreateCourseStepOne() {
     console.log("🔧 [DEBUG] - inputValue:", inputValue);
     console.log("🔧 [DEBUG] - canProceedToNext():", canProceedToNext());
     console.log("🔧 [DEBUG] - state antes da chamada:", state);
-    
+
     if (canProceedToNext()) {
       try {
         console.log("🔧 [DEBUG] STEP-ONE: Criando curso no backend...");
         // Criar curso no backend
         const result = await createCourseWithTopic(inputValue);
-        
+
         console.log("🔧 [DEBUG] STEP-ONE: Resultado da criação:", result);
-        
+
         if (result.success && result.courseId) {
-          console.log("🔧 [DEBUG] STEP-ONE: Curso criado com sucesso, courseId:", result.courseId);
-          
+          console.log(
+            "🔧 [DEBUG] STEP-ONE: Curso criado com sucesso, courseId:",
+            result.courseId
+          );
+
           // Se chegou até aqui, foi sucesso
           dispatch({ type: "NEXT_STEP" });
           console.log("🔧 [DEBUG] STEP-ONE: Redirecionando para step-two");
@@ -59,14 +68,14 @@ export default function CreateCourseStepOne() {
         <label className="text-3xl font-bold text-[#593100] mb-8 text-center">
           O que você quer aprender hoje?
         </label>
-        
+
         {/* Mensagem de erro da API */}
         {state.apiError && (
           <div className="w-full max-w-xl mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
             <p className="text-sm">{state.apiError}</p>
           </div>
         )}
-        
+
         <input
           type="text"
           value={inputValue}
@@ -75,7 +84,7 @@ export default function CreateCourseStepOne() {
           className="w-full max-w-xl px-6 py-5 text-2xl text-[#593100] bg-[#fff7f0] border-2 border-[#cc6200] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#cc6200] focus:border-transparent placeholder-[#cc6200] placeholder-opacity-40 mb-10 shadow-sm"
           disabled={state.loading}
         />
-        
+
         <button
           onClick={handleContinue}
           disabled={!canProceedToNext() || state.loading}
@@ -87,7 +96,7 @@ export default function CreateCourseStepOne() {
               Criando curso...
             </>
           ) : (
-            "Quero criar meu professor"
+            "Continuar"
           )}
         </button>
       </div>

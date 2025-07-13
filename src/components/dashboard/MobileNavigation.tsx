@@ -3,6 +3,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import Image from "next/image";
 
 interface MobileNavigationProps {
   isOpen: boolean;
@@ -112,7 +113,7 @@ export default function MobileNavigation({
         <div className="p-4 border-b border-[#ffddc2]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-2xl">🦜</span>
+              <Image src="/logo.svg" alt="Logo Falky" width={32} height={32} />
               <h1 className="text-xl font-bold text-[#593100]">Falky</h1>
             </div>
             <button

@@ -2,11 +2,11 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 // import { useAuth } from "@/contexts/AuthContext"; // TEMPORÁRIO: Comentado durante desenvolvimento
 
 interface SidebarProps {
   collapsed: boolean;
-  onToggleCollapse: () => void;
 }
 
 interface MenuItem {
@@ -79,7 +79,7 @@ const menuItems: MenuItem[] = [
   },
 ];
 
-export default function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
+export default function Sidebar({ collapsed }: SidebarProps) {
   const pathname = usePathname();
   // const { user, signOut } = useAuth(); // TEMPORÁRIO: Comentado durante desenvolvimento
 
@@ -112,21 +112,23 @@ export default function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
     >
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="p-4 border-b border-[#ffddc2]">
-          <div className="flex items-center justify-between">
-            {!collapsed && (
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">🦜</span>
-                <h1 className="text-xl font-bold text-[#593100]">Falky</h1>
-              </div>
-            )}
-            <button
-              onClick={onToggleCollapse}
-              className="p-2 rounded-lg hover:bg-[#ffddc2] text-[#593100] transition-colors"
-            >
-              {collapsed ? "→" : "←"}
-            </button>
-          </div>
+        <div
+          className={
+            collapsed
+              ? "py-4 px-2 border-b border-[#ffddc2]"
+              : "p-4 border-b border-[#ffddc2]"
+          }
+        >
+          {collapsed ? (
+            <div className="flex items-center justify-center">
+              <Image src="/logo.svg" alt="Logo Falky" width={32} height={32} />
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Image src="/logo.svg" alt="Logo Falky" width={32} height={32} />
+              <h1 className="text-xl font-bold text-[#593100]">Falky</h1>
+            </div>
+          )}
         </div>
 
         {/* User Info */}
