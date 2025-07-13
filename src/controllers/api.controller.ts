@@ -747,6 +747,44 @@ export class ApiController {
   }
 
   /**
+   * Explica uma seção específica do material para o usuário (botão "Não Entendi")
+   * @param courseId - ID do curso
+   * @param materialId - ID do material
+   * @param sectionId - ID da seção
+   * @param userQuestion - Pergunta específica do usuário (opcional)
+   * @returns Promessa com explicação da seção
+   */
+  public async explainMaterialSection(
+    courseId: string,
+    materialId: string,
+    sectionId: string,
+    userQuestion?: string
+  ): Promise<
+    ApiResponse<{
+      course_id: string;
+      material_id: string;
+      section_id: string;
+      updated_section: object;
+      section_index: number;
+      status: string;
+      user_question?: string;
+    }>
+  > {
+    try {
+      const response = await api.post(API_ENDPOINTS.MATERIAL_EXPLAIN_SECTION, {
+        course_id: courseId,
+        material_id: materialId,
+        section_id: sectionId,
+        user_question: userQuestion,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao explicar seção:", error);
+      throw error;
+    }
+  }
+
+  /**
    * Salva preferências opcionais da entrevista do usuário
    * @param interviewData - Dados da entrevista (opcional)
    * @returns Promessa com confirmação do salvamento
