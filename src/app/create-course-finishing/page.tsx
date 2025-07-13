@@ -2,16 +2,31 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useCourseCreation } from "@/contexts/CourseCreationContext";
+import { api } from "@/services/api.service";
 
 export default function CreateCourseFinishing() {
   const router = useRouter();
+  const { state } = useCourseCreation();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      router.push("/course-created-success");
-    }, 10000); // 10 segundos
-    return () => clearTimeout(timer);
-  }, [router]);
+    const createInitialThread = async () => {
+      try {
+        await api.post(`/material/create-initial-thread`, {
+          course_id: state.courseId,
+          topic: state.courseName,
+          knowledge_level: "Nao Informado",
+        });
+        // Só redireciona após receber a resposta da API
+        router.push("/dashboard/courses/" + state.courseId);
+      } catch (error) {
+        console.error("Erro ao criar arquivo inicial de thread:", error);
+        router.push("/");
+      }
+    };
+
+    createInitialThread();
+  }, [router, state]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#fff7f0] px-4">
@@ -26,7 +41,7 @@ export default function CreateCourseFinishing() {
         </h1>
         <p className="text-lg text-[#593100] opacity-80 mb-6">
           Isso pode levar alguns instantes. Estamos preparando tudo com carinho
-          para você!
+          para você! Por favor, não saia desta página.
         </p>
         <div className="flex flex-col items-center gap-2">
           <div className="w-64 h-3 bg-[#ffddc2] rounded-full overflow-hidden">
@@ -36,7 +51,7 @@ export default function CreateCourseFinishing() {
             ></div>
           </div>
           <span className="text-[#cc6200] text-sm mt-2 animate-pulse">
-            Aguarde, seu curso está quase pronto...
+            Processando... Isso pode levar alguns minutos.
           </span>
         </div>
       </div>
@@ -50,7 +65,7 @@ export default function CreateCourseFinishing() {
           }
         }
         .animate-loading-bar {
-          animation: loading-bar 10s linear forwards;
+          animation: loading-bar 30s linear infinite;
         }
       `}</style>
     </div>
