@@ -255,9 +255,9 @@ export default function CreateCourseLoading() {
       // Adicionar mensagem final
       addMessage("Curso criado com sucesso!", 'step');
       
-      // Redirecionar para próxima tela após um pequeno delay
+      // Redirecionar para dashboard após um pequeno delay
       setTimeout(() => {
-        router.push("/create-course-interview");
+        router.push(`/dashboard/courses/${state.courseId}`);
       }, 2000);
     });
 
@@ -363,7 +363,7 @@ export default function CreateCourseLoading() {
               
               // Delay para mostrar 100% antes de redirecionar
               setTimeout(() => {
-                router.push("/create-course-interview");
+                router.push(`/dashboard/courses/${state.courseId}`);
               }, 1500);
               return;
             }

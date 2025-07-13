@@ -12,7 +12,7 @@ interface ResearchUpdate {
   message: string;
   timestamp: string;
   current_source?: string;
-  sources_found?: any[];
+  sources_found?: unknown[];
   current_step?: string;
 }
 
@@ -39,9 +39,47 @@ interface ResearchCompleted {
   timestamp: string;
 }
 
+interface MaterialUpdate {
+  course_id: string;
+  status: string;
+  progress: number;
+  message: string;
+  current_step?: string;
+  timestamp: string;
+}
+
+interface MaterialCompleted {
+  course_id: string;
+  status: string;
+  progress: number;
+  message: string;
+  timestamp: string;
+}
+
+interface SectionRewriteUpdate {
+  course_id: string;
+  status: string;
+  progress: number;
+  message: string;
+  current_step?: string;
+  timestamp: string;
+}
+
+interface SectionRewriteCompleted {
+  course_id: string;
+  status: string;
+  progress: number;
+  message: string;
+  timestamp: string;
+}
+
 type ResearchUpdateCallback = (update: ResearchUpdate) => void;
 type SourceFoundCallback = (source: SourceFound) => void;
 type ResearchCompletedCallback = (completed: ResearchCompleted) => void;
+type MaterialUpdateCallback = (update: MaterialUpdate) => void;
+type MaterialCompletedCallback = (completed: MaterialCompleted) => void;
+type SectionRewriteUpdateCallback = (update: SectionRewriteUpdate) => void;
+type SectionRewriteCompletedCallback = (completed: SectionRewriteCompleted) => void;
 type ConnectionCallback = (connected: boolean) => void;
 
 export class WebSocketService {
@@ -54,6 +92,10 @@ export class WebSocketService {
   private onResearchUpdate: ResearchUpdateCallback | null = null;
   private onSourceFound: SourceFoundCallback | null = null;
   private onResearchCompleted: ResearchCompletedCallback | null = null;
+  private onMaterialUpdate: MaterialUpdateCallback | null = null;
+  private onMaterialCompleted: MaterialCompletedCallback | null = null;
+  private onSectionRewriteUpdate: SectionRewriteUpdateCallback | null = null;
+  private onSectionRewriteCompleted: SectionRewriteCompletedCallback | null = null;
   private onConnectionChange: ConnectionCallback | null = null;
 
   constructor() {
@@ -132,6 +174,28 @@ export class WebSocketService {
       console.log('🎉 Pesquisa concluída:', data);
       this.onResearchCompleted?.(data);
     });
+
+    // Eventos de material
+    this.socket.on('material_update', (data: MaterialUpdate) => {
+      console.log('📄 Material update recebido:', data);
+      this.onMaterialUpdate?.(data);
+    });
+
+    this.socket.on('material_completed', (data: MaterialCompleted) => {
+      console.log('✅ Material completed recebido:', data);
+      this.onMaterialCompleted?.(data);
+    });
+
+    // Eventos de reescrita de seção
+    this.socket.on('section_rewrite_update', (data: SectionRewriteUpdate) => {
+      console.log('✏️ Section rewrite update recebido:', data);
+      this.onSectionRewriteUpdate?.(data);
+    });
+
+    this.socket.on('section_rewrite_completed', (data: SectionRewriteCompleted) => {
+      console.log('✅ Section rewrite completed recebido:', data);
+      this.onSectionRewriteCompleted?.(data);
+    });
   }
 
   /**
@@ -166,6 +230,34 @@ export class WebSocketService {
    */
   public setOnResearchCompleted(callback: ResearchCompletedCallback) {
     this.onResearchCompleted = callback;
+  }
+
+  /**
+   * Definir callback para atualizações de material
+   */
+  public setOnMaterialUpdate(callback: MaterialUpdateCallback) {
+    this.onMaterialUpdate = callback;
+  }
+
+  /**
+   * Definir callback para material concluído
+   */
+  public setOnMaterialCompleted(callback: MaterialCompletedCallback) {
+    this.onMaterialCompleted = callback;
+  }
+
+  /**
+   * Definir callback para atualizações de reescrita de seção
+   */
+  public setOnSectionRewriteUpdate(callback: SectionRewriteUpdateCallback) {
+    this.onSectionRewriteUpdate = callback;
+  }
+
+  /**
+   * Definir callback para reescrita de seção concluída
+   */
+  public setOnSectionRewriteCompleted(callback: SectionRewriteCompletedCallback) {
+    this.onSectionRewriteCompleted = callback;
   }
 
   /**

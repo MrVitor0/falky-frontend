@@ -549,6 +549,175 @@ export class ApiController {
     }
   }
 
+  /**
+   * Métodos para Material de Curso
+   */
+
+  /**
+   * Inicia geração de material de curso
+   * @param courseId - ID do curso
+   * @param targetType - Tipo do alvo (module ou submodule)
+   * @param targetId - ID do alvo
+   * @returns Promessa com dados da geração
+   */
+  public async generateCourseMaterial(
+    courseId: string,
+    targetType: string,
+    targetId: string
+  ): Promise<ApiResponse<{
+    course_id: string;
+    task_id: string;
+    status: string;
+    message: string;
+    target_type: string;
+    target_id: string;
+  }>> {
+    try {
+      const response = await api.post(`/material/generate`, {
+        course_id: courseId,
+        target_type: targetType,
+        target_id: targetId
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao gerar material:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtém status da geração de material
+   * @param courseId - ID do curso
+   * @returns Promessa com status da geração
+   */
+  public async getMaterialGenerationStatus(
+    courseId: string
+  ): Promise<ApiResponse<{
+    status: string;
+    progress: number;
+    message: string;
+  }>> {
+    try {
+      const response = await api.get(`/material/status/${courseId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao obter status de geração:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Lista materiais de um curso
+   * @param courseId - ID do curso
+   * @returns Promessa com lista de materiais
+   */
+  public async listCourseMaterials(
+    courseId: string
+  ): Promise<ApiResponse<Array<{
+    material_id: string;
+    course_id: string;
+    target_type: string;
+    target_id: string;
+    title: string;
+    created_at: string;
+    updated_at: string;
+  }>>> {
+    try {
+      const response = await api.get(`/material/list/${courseId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao listar materiais:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtém conteúdo de um material específico
+   * @param courseId - ID do curso
+   * @param materialId - ID do material
+   * @returns Promessa com conteúdo do material
+   */
+  public async getMaterialContent(
+    courseId: string,
+    materialId: string
+  ): Promise<ApiResponse<{
+    material_id: string;
+    course_id: string;
+    target_type: string;
+    target_id: string;
+    title: string;
+    content: string;
+    json_content?: Record<string, unknown>;
+    file_path: string;
+    created_at: string;
+    updated_at: string;
+  }>> {
+    try {
+      const response = await api.get(`/material/content/${courseId}/${materialId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao obter conteúdo do material:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtém estrutura completa do curso
+   * @param courseId - ID do curso
+   * @returns Promessa com estrutura do curso
+   */
+  public async getCourseStructure(
+    courseId: string
+  ): Promise<ApiResponse<{
+    course_id: string;
+    topic: string;
+    personalized_curriculum?: Record<string, unknown>;
+    materials: Record<string, Record<string, unknown>>;
+    research_status?: string;
+    research_progress?: number;
+    created_at?: string;
+  }>> {
+    try {
+      const response = await api.get(`/course/structure/${courseId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao obter estrutura do curso:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Reescreve seção de material
+   * @param courseId - ID do curso
+   * @param materialId - ID do material
+   * @param sectionId - ID da seção
+   * @param userDoubt - Dúvida do usuário (opcional)
+   * @returns Promessa com dados da reescrita
+   */
+  public async rewriteMaterialSection(
+    courseId: string,
+    materialId: string,
+    sectionId: string,
+    userDoubt?: string
+  ): Promise<ApiResponse<{
+    course_id: string;
+    task_id: string;
+    status: string;
+    message: string;
+  }>> {
+    try {
+      const response = await api.post(`/material/rewrite`, {
+        course_id: courseId,
+        material_id: materialId,
+        section_id: sectionId,
+        user_doubt: userDoubt
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao reescrever seção:", error);
+      throw error;
+    }
+  }
 
 }
 

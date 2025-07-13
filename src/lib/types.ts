@@ -98,7 +98,8 @@ export interface PersonalizedCurriculum {
   personalidade_aplicada: string;
   adaptacoes_personalizadas: string;
   adaptacoes_neurodivergencia: string;
-  justificativa_personalizacao: string;
+  justificativa_personalizacao?: string; // Tornar opcional
+  observacao?: string; // Adicionar campo observacao que existe nos dados
   modulos: PersonalizedCurriculumModule[];
 }
 
