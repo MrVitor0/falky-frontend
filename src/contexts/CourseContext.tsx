@@ -39,6 +39,14 @@ export const CourseProvider: React.FC<{ children: React.ReactNode }> = ({
     // Garantir que está no cliente
     if (typeof window !== "undefined") {
       console.log("Iniciando useEffect do CourseContext");
+      // Só inicializar mock se não houver cursos salvos
+      const stored = localStorage.getItem("falky_courses");
+      if (!stored) {
+        console.log(
+          "Nenhum curso encontrado no localStorage, inicializando mock..."
+        );
+        mockCourseDB.initializeMockData();
+      }
       loadData();
     } else {
       console.log("Window não está definido, pulando carregamento");
@@ -56,9 +64,7 @@ export const CourseProvider: React.FC<{ children: React.ReactNode }> = ({
         setLoading(false);
       }, 5000);
 
-      // Forçar inicialização dos dados mock para garantir que há dados
-      console.log("📦 Inicializando dados mock...");
-      mockCourseDB.initializeMockData();
+      // Removido: mockCourseDB.initializeMockData();
 
       // Aguardar um pouco para garantir que os dados foram salvos
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -114,10 +120,8 @@ export const CourseProvider: React.FC<{ children: React.ReactNode }> = ({
     courseData: Omit<Course, "id" | "createdAt" | "updatedAt">
   ) => {
     try {
-      const newCourse = mockCourseDB.addCourse(courseData);
-      setCourses((prev) => [...prev, newCourse]);
-      refreshStats();
-      refreshActivity();
+      mockCourseDB.addCourse(courseData);
+      loadData(); // Garante sincronização do estado com localStorage
     } catch (error) {
       console.error("Erro ao adicionar curso:", error);
     }

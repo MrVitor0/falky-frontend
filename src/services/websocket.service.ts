@@ -1,9 +1,7 @@
-/**
- * Serviço WebSocket para comunicação em tempo real com o backend
- */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { io, Socket } from 'socket.io-client';
-import { ResearchStatus } from '@/lib/types';
+import { io, Socket } from "socket.io-client";
+import { ResearchStatus } from "@/lib/types";
 
 interface ResearchUpdate {
   course_id: string;
@@ -49,7 +47,7 @@ export class WebSocketService {
   private isConnected = false;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
-  
+
   // Callbacks
   private onResearchUpdate: ResearchUpdateCallback | null = null;
   private onSourceFound: SourceFoundCallback | null = null;
@@ -64,12 +62,14 @@ export class WebSocketService {
    * Conectar ao servidor WebSocket
    */
   private connect() {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8000';
-    
-    console.log('🔌 Conectando ao WebSocket:', backendUrl);
-    
+    const backendUrl =
+      process.env.NEXT_PUBLIC_API_URL?.replace("/api/v1", "") ||
+      "http://localhost:8000";
+
+    console.log("🔌 Conectando ao WebSocket:", backendUrl);
+
     this.socket = io(backendUrl, {
-      transports: ['websocket', 'polling'],
+      transports: ["websocket", "polling"],
       autoConnect: true,
       reconnection: true,
       reconnectionAttempts: this.maxReconnectAttempts,
@@ -87,49 +87,49 @@ export class WebSocketService {
     if (!this.socket) return;
 
     // Eventos de conexão
-    this.socket.on('connect', () => {
-      console.log('✅ WebSocket conectado:', this.socket?.id);
+    this.socket.on("connect", () => {
+      console.log("✅ WebSocket conectado:", this.socket?.id);
       this.isConnected = true;
       this.reconnectAttempts = 0;
       this.onConnectionChange?.(true);
     });
 
-    this.socket.on('disconnect', (reason) => {
-      console.log('❌ WebSocket desconectado:', reason);
+    this.socket.on("disconnect", (reason) => {
+      console.log("❌ WebSocket desconectado:", reason);
       this.isConnected = false;
       this.onConnectionChange?.(false);
     });
 
-    this.socket.on('connect_error', (error) => {
-      console.error('❌ Erro de conexão WebSocket:', error);
+    this.socket.on("connect_error", (error) => {
+      console.error("❌ Erro de conexão WebSocket:", error);
       this.reconnectAttempts++;
-      
+
       if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-        console.error('❌ Máximo de tentativas de reconexão atingido');
+        console.error("❌ Máximo de tentativas de reconexão atingido");
       }
     });
 
     // Eventos personalizados
-    this.socket.on('connected', (data) => {
-      console.log('🔌 Confirmação de conexão:', data);
+    this.socket.on("connected", (data) => {
+      console.log("🔌 Confirmação de conexão:", data);
     });
 
-    this.socket.on('joined_course', (data) => {
-      console.log('🎓 Associado ao curso:', data);
+    this.socket.on("joined_course", (data) => {
+      console.log("🎓 Associado ao curso:", data);
     });
 
-    this.socket.on('research_update', (data: ResearchUpdate) => {
-      console.log('📡 Atualização de pesquisa recebida:', data);
+    this.socket.on("research_update", (data: ResearchUpdate) => {
+      console.log("📡 Atualização de pesquisa recebida:", data);
       this.onResearchUpdate?.(data);
     });
 
-    this.socket.on('source_found', (data: SourceFound) => {
-      console.log('📚 Nova fonte encontrada:', data);
+    this.socket.on("source_found", (data: SourceFound) => {
+      console.log("📚 Nova fonte encontrada:", data);
       this.onSourceFound?.(data);
     });
 
-    this.socket.on('research_completed', (data: ResearchCompleted) => {
-      console.log('🎉 Pesquisa concluída:', data);
+    this.socket.on("research_completed", (data: ResearchCompleted) => {
+      console.log("🎉 Pesquisa concluída:", data);
       this.onResearchCompleted?.(data);
     });
   }
@@ -139,12 +139,12 @@ export class WebSocketService {
    */
   public joinCourse(courseId: string) {
     if (!this.socket) {
-      console.error('❌ Socket não conectado');
+      console.error("❌ Socket não conectado");
       return;
     }
 
-    console.log('🎓 Associando ao curso:', courseId);
-    this.socket.emit('join_course', { course_id: courseId });
+    console.log("🎓 Associando ao curso:", courseId);
+    this.socket.emit("join_course", { course_id: courseId });
   }
 
   /**
@@ -187,7 +187,7 @@ export class WebSocketService {
    */
   public disconnect() {
     if (this.socket) {
-      console.log('🔌 Desconectando WebSocket...');
+      console.log("🔌 Desconectando WebSocket...");
       this.socket.disconnect();
       this.socket = null;
       this.isConnected = false;
@@ -207,4 +207,4 @@ export class WebSocketService {
 }
 
 // Instância singleton
-export const websocketService = new WebSocketService(); 
+export const websocketService = new WebSocketService();
