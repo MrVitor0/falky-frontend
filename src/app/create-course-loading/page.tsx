@@ -165,8 +165,6 @@ export default function CreateCourseLoading() {
   useEffect(() => {
     if (!state.courseId) return;
 
-    console.log("🔌 Configurando WebSocket para curso:", state.courseId);
-
     // Configurar callbacks do WebSocket
     websocketService.setOnConnectionChange((connected) => {
       if (connected) {
@@ -176,8 +174,6 @@ export default function CreateCourseLoading() {
     });
 
     websocketService.setOnResearchUpdate((update) => {
-      console.log("📡 Research update received:", update);
-
       // Atualizar estado com dados do WebSocket
       dispatch({ type: "SET_RESEARCH_STATUS", payload: update.status });
       dispatch({ type: "SET_RESEARCH_PROGRESS", payload: update.progress });
@@ -251,9 +247,7 @@ export default function CreateCourseLoading() {
       addMessage(`Fonte encontrada: ${source.source.title}`, "websocket");
     });
 
-    websocketService.setOnResearchCompleted((completed) => {
-      console.log("🎉 Research completed:", completed);
-
+    websocketService.setOnResearchCompleted(() => {
       // Marcar como concluído
       dispatch({
         type: "SET_RESEARCH_STATUS",
@@ -287,7 +281,6 @@ export default function CreateCourseLoading() {
 
     // Cleanup
     return () => {
-      console.log("🔌 Limpando WebSocket listeners");
       websocketService.setOnConnectionChange(() => {});
       websocketService.setOnResearchUpdate(() => {});
       websocketService.setOnSourceFound(() => {});
@@ -341,15 +334,9 @@ export default function CreateCourseLoading() {
 
     const monitorResearch = async () => {
       try {
-        console.log("🔧 [DEBUG] Loading - Iniciando monitoramento da pesquisa");
-
         // Iniciar verificação de status
         statusCheckInterval.current = setInterval(async () => {
           try {
-            console.log(
-              "🔧 [DEBUG] Loading - Verificando status da pesquisa..."
-            );
-
             // Verificar status atual
             await checkResearchStatus();
 
@@ -385,7 +372,6 @@ export default function CreateCourseLoading() {
                 clearInterval(statusCheckInterval.current);
               }
 
-              console.log("✅ Pesquisa concluída com sucesso!");
               setProgress(100);
               setCurrentStep(10); // Garantir que mostra 10/10
               setLoadingMessage("Curso criado com sucesso! Redirecionando...");

@@ -5,36 +5,19 @@ import { useCourseCreation } from "@/contexts/CourseCreationContext";
 
 export default function CreateCourseStepTwo() {
   const router = useRouter();
-  const { state, dispatch, processCourseStep, clearError } = useCourseCreation();
+  const { state, dispatch, processCourseStep, clearError } =
+    useCourseCreation();
   const [motivation, setMotivation] = useState("");
 
   // Usar a pergunta do contexto que veio da API
-  const question = state.currentQuestion || `Qual a sua motivação para aprender sobre ${state.courseName || "este assunto"}?`;
+  const question =
+    state.currentQuestion ||
+    `Qual a sua motivação para aprender sobre ${
+      state.courseName || "este assunto"
+    }?`;
   const loading = state.loading;
 
   useEffect(() => {
-    console.log("🔧 [DEBUG] STEP-TWO useEffect executado:");
-    console.log("🔧 [DEBUG] - state.courseId:", state.courseId);
-    console.log("🔧 [DEBUG] - state.apiError:", state.apiError);
-    console.log("🔧 [DEBUG] - state.loading:", state.loading);
-    console.log("🔧 [DEBUG] - state completo:", state);
-    
-    // Se está carregando, aguardar
-    if (state.loading) {
-      console.log("🔧 [DEBUG] STEP-TWO: Estado carregando, aguardando...");
-      return;
-    }
-    
-    // Se não temos courseId, redirecionar para step-one
-    if (!state.courseId) {
-      console.log("🔧 [DEBUG] STEP-TWO: courseId não encontrado, redirecionando para step-one");
-      router.push("/create-course-step-one");
-      return;
-    }
-    
-    console.log("🔧 [DEBUG] STEP-TWO: courseId encontrado, continuando no step-two");
-    
-    // Limpar erro quando entrar na página
     if (state.apiError) {
       clearError();
     }
@@ -45,10 +28,10 @@ export default function CreateCourseStepTwo() {
       try {
         // Salvar localmente
         dispatch({ type: "SET_STEP_TWO_ANSWER", payload: motivation });
-        
+
         // Processar step no backend
         await processCourseStep(motivation);
-        
+
         // Se chegou até aqui, foi sucesso
         dispatch({ type: "NEXT_STEP" });
         router.push("/create-course-step-three");
@@ -72,14 +55,14 @@ export default function CreateCourseStepTwo() {
             <label className="text-2xl font-bold text-[#593100] mb-8 text-center">
               {question}
             </label>
-            
+
             {/* Mensagem de erro da API */}
             {state.apiError && (
               <div className="w-full max-w-xl mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
                 <p className="text-sm">{state.apiError}</p>
               </div>
             )}
-            
+
             <textarea
               value={motivation}
               onChange={(e) => setMotivation(e.target.value)}
@@ -87,7 +70,7 @@ export default function CreateCourseStepTwo() {
               className="w-full max-w-xl px-6 py-5 text-lg text-[#593100] bg-[#fff7f0] border-2 border-[#cc6200] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#cc6200] focus:border-transparent placeholder-[#cc6200] placeholder-opacity-40 mb-10 shadow-sm resize-none min-h-[120px]"
               disabled={state.loading}
             />
-            
+
             <div className="flex gap-4">
               <button
                 onClick={() => router.push("/create-course-step-one")}

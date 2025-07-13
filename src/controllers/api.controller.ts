@@ -224,8 +224,6 @@ export class ApiController {
         courseData
       );
 
-      console.log("✅ Curso criado com sucesso:", response.data);
-
       return response.data;
     } catch (error) {
       console.error("❌ Erro ao criar curso:", error);
@@ -325,7 +323,6 @@ export class ApiController {
       const response: AxiosResponse<ApiResponse<CourseGenerationStatus>> =
         await api.post(API_ENDPOINTS.COURSE_GENERATE, request);
 
-      console.log("✅ Curso gerado com sucesso:", response.data);
       return response.data;
     } catch (error) {
       console.error("❌ Erro ao gerar curso:", error);
@@ -407,22 +404,9 @@ export class ApiController {
     topicData: CourseTopicRequest
   ): Promise<ApiResponse<CourseStepResponse>> {
     try {
-      console.log(
-        "🔧 [DEBUG] API Controller - Request para:",
-        API_ENDPOINTS.COURSE_CREATE
-      );
-      console.log("🔧 [DEBUG] API Controller - Dados enviados:", topicData);
-
       const response: AxiosResponse<ApiResponse<CourseStepResponse>> =
         await api.post(API_ENDPOINTS.COURSE_CREATE, topicData);
 
-      console.log("🔧 [DEBUG] API Controller - Response completa:", response);
-      console.log("🔧 [DEBUG] API Controller - Response.data:", response.data);
-      console.log(
-        "🔧 [DEBUG] API Controller - Response.data.data:",
-        response.data.data
-      );
-      console.log("✅ Curso criado com tópico:", response.data);
       return response.data;
     } catch (error) {
       console.error("❌ Erro ao criar curso com tópico:", error);
@@ -459,7 +443,6 @@ export class ApiController {
         >
       > = await api.post(API_ENDPOINTS.COURSE_STEP, stepData);
 
-      console.log("✅ Step processado:", response.data);
       return response.data;
     } catch (error) {
       console.error("❌ Erro ao processar step:", error);
@@ -479,7 +462,6 @@ export class ApiController {
       const response: AxiosResponse<ApiResponse<CourseSessionResponse>> =
         await api.get(API_ENDPOINTS.COURSE_SESSION(courseId));
 
-      console.log("✅ Sessão recuperada:", response.data);
       return response.data;
     } catch (error) {
       console.error("❌ Erro ao recuperar sessão:", error);
@@ -499,7 +481,6 @@ export class ApiController {
       const response: AxiosResponse<ApiResponse<ResearchResponse>> =
         await api.post(API_ENDPOINTS.COURSE_RESEARCH, researchData);
 
-      console.log("✅ Pesquisa iniciada:", response.data);
       return response.data;
     } catch (error) {
       console.error("❌ Erro ao iniciar pesquisa:", error);
@@ -539,7 +520,6 @@ export class ApiController {
         ApiResponse<{ course_id: string; deleted: boolean }>
       > = await api.delete(API_ENDPOINTS.COURSE_SESSION_DELETE(courseId));
 
-      console.log("✅ Sessão removida:", response.data);
       return response.data;
     } catch (error) {
       console.error("❌ Erro ao remover sessão:", error);
@@ -751,28 +731,10 @@ export class ApiController {
    * @param interviewData - Dados da entrevista (opcional)
    * @returns Promessa com confirmação do salvamento
    */
-  public async saveInterviewPreferences(interviewData: {
-    interview_responses: string[];
-    feedback_preference: string;
-    study_schedule: string;
-    learning_style: string;
-    difficulty_handling: string;
-    success_indicators: string;
-    course_topic: string;
-    completed_at: string;
-    optional_completed?: boolean;
-  }): Promise<ApiResponse<{ message: string }>> {
+  public async saveInterviewPreferences(): Promise<
+    ApiResponse<{ message: string }>
+  > {
     try {
-      console.log(
-        "💾 Salvando preferências opcionais da entrevista:",
-        interviewData
-      );
-
-      // Por enquanto, simular salvamento
-      // Aqui você pode implementar a chamada real para o backend
-      // const response = await api.post('/user-interview-preferences', interviewData);
-
-      // Simular resposta de sucesso
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       return {
@@ -805,19 +767,8 @@ export class ApiController {
    * @param skipData - Dados do skip (opcional)
    * @returns Promessa com confirmação do salvamento
    */
-  public async saveInterviewSkip(skipData: {
-    course_topic: string;
-    interview_skipped: boolean;
-    skipped_at: string;
-    optional_skipped?: boolean;
-  }): Promise<ApiResponse<{ message: string }>> {
+  public async saveInterviewSkip(): Promise<ApiResponse<{ message: string }>> {
     try {
-      console.log(
-        "⏭️ Salvando dados opcionais de skip da entrevista:",
-        skipData
-      );
-
-      // Por enquanto, simular salvamento
       // Aqui você pode implementar a chamada real para o backend
       // const response = await api.post('/user-interview-skip', skipData);
 

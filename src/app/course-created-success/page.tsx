@@ -89,7 +89,6 @@ export default function CourseCreatedSuccess() {
             ],
           };
 
-          console.log("Criando curso:", newCourse);
           addCourse(newCourse);
           setCourseCreated(true);
         } catch (error) {

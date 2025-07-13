@@ -26,39 +26,20 @@ export default function CreateCourseStepOne() {
   };
 
   const handleContinue = async () => {
-    console.log("🔧 [DEBUG] STEP-ONE handleContinue iniciado");
-    console.log("🔧 [DEBUG] - inputValue:", inputValue);
-    console.log("🔧 [DEBUG] - canProceedToNext():", canProceedToNext());
-    console.log("🔧 [DEBUG] - state antes da chamada:", state);
-
     if (canProceedToNext()) {
       try {
-        console.log("🔧 [DEBUG] STEP-ONE: Criando curso no backend...");
         // Criar curso no backend
         const result = await createCourseWithTopic(inputValue);
 
-        console.log("🔧 [DEBUG] STEP-ONE: Resultado da criação:", result);
-
         if (result.success && result.courseId) {
-          console.log(
-            "🔧 [DEBUG] STEP-ONE: Curso criado com sucesso, courseId:",
-            result.courseId
-          );
-
           // Se chegou até aqui, foi sucesso
           dispatch({ type: "NEXT_STEP" });
-          console.log("🔧 [DEBUG] STEP-ONE: Redirecionando para step-two");
           router.push("/create-course-step-two");
-        } else {
-          console.error("🔧 [DEBUG] STEP-ONE: Falha ao criar curso:", result);
-          // Erro já tratado no contexto
         }
       } catch (error) {
         // Erro já tratado no contexto
         console.error("🔧 [DEBUG] STEP-ONE: Erro ao criar curso:", error);
       }
-    } else {
-      console.log("🔧 [DEBUG] STEP-ONE: canProceedToNext() retornou false");
     }
   };
 

@@ -38,24 +38,17 @@ export const CourseProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     // Garantir que está no cliente
     if (typeof window !== "undefined") {
-      console.log("Iniciando useEffect do CourseContext");
       // Só inicializar mock se não houver cursos salvos
       const stored = localStorage.getItem("falky_courses");
       if (!stored) {
-        console.log(
-          "Nenhum curso encontrado no localStorage, inicializando mock..."
-        );
         mockCourseDB.initializeMockData();
       }
       loadData();
-    } else {
-      console.log("Window não está definido, pulando carregamento");
     }
   }, []);
 
   const loadData = async () => {
     try {
-      console.log("🔄 Iniciando carregamento dos dados...");
       setLoading(true);
 
       // Timeout de segurança para evitar loading infinito
@@ -70,15 +63,12 @@ export const CourseProvider: React.FC<{ children: React.ReactNode }> = ({
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const dashboardData = mockCourseDB.getDashboardData();
-      console.log("📊 Dados carregados:", dashboardData);
 
       // Verificar se os dados são válidos
       if (dashboardData && dashboardData.courses && dashboardData.stats) {
-        console.log("✅ Dados válidos, atualizando estado...");
         setCourses(dashboardData.courses);
         setStats(dashboardData.stats);
         setRecentActivity(dashboardData.recentActivity || []);
-        console.log("🎉 Estado atualizado com sucesso");
       } else {
         console.error("❌ Dados inválidos recebidos:", dashboardData);
         // Definir dados padrão em caso de erro
@@ -112,7 +102,6 @@ export const CourseProvider: React.FC<{ children: React.ReactNode }> = ({
       setRecentActivity([]);
     } finally {
       setLoading(false);
-      console.log("🏁 Loading finalizado");
     }
   };
 

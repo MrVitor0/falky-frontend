@@ -588,22 +588,17 @@ const STORAGE_KEYS = {
 export class MockCourseDB {
   // Verificar se o usuário tem cursos
   static hasAnyCourses(): boolean {
-    console.log("🔍 Verificando se há cursos...");
     if (typeof window === "undefined") {
-      console.log("❌ Window undefined, retornando false");
       return false;
     }
 
     const hasCoursesFlag = localStorage.getItem(STORAGE_KEYS.HAS_COURSES);
-    console.log("🏷️ Flag hasAnyCourses:", hasCoursesFlag);
     if (hasCoursesFlag !== null) {
       const result = JSON.parse(hasCoursesFlag);
-      console.log("✅ Retornando flag:", result);
       return result;
     }
 
     const courses = this.getCourses();
-    console.log("📚 Cursos encontrados:", courses.length);
     return courses.length > 0;
   }
 
@@ -621,29 +616,18 @@ export class MockCourseDB {
 
   // Inicializar dados mock
   static initializeMockData(): void {
-    console.log("🚀 Inicializando dados mock...");
     if (typeof window === "undefined") {
-      console.log("❌ Window undefined, não inicializando");
       return;
     }
 
-    console.log("💾 Salvando cursos mock:", mockCourses.length, "cursos");
     localStorage.setItem(STORAGE_KEYS.COURSES, JSON.stringify(mockCourses));
 
-    console.log(
-      "📝 Salvando atividades mock:",
-      mockActivities.length,
-      "atividades"
-    );
     localStorage.setItem(
       STORAGE_KEYS.ACTIVITIES,
       JSON.stringify(mockActivities)
     );
 
-    console.log("🏷️ Marcando como tendo cursos");
     localStorage.setItem(STORAGE_KEYS.HAS_COURSES, JSON.stringify(true));
-
-    console.log("✅ Dados mock inicializados com sucesso");
   }
 
   // Limpar todos os dados
@@ -658,21 +642,17 @@ export class MockCourseDB {
   // CRUD de cursos
   static getCourses(): Course[] {
     if (typeof window === "undefined") {
-      console.log("getCourses: window undefined, retornando array vazio");
       return [];
     }
 
     const stored = localStorage.getItem(STORAGE_KEYS.COURSES);
-    console.log("getCourses: dados armazenados:", stored);
 
     if (!stored) {
-      console.log("getCourses: nenhum dado encontrado no localStorage");
       return [];
     }
 
     try {
       const courses = JSON.parse(stored) as Course[];
-      console.log("getCourses: cursos parseados:", courses.length);
 
       const processedCourses = courses.map((course) => ({
         ...course,
@@ -680,7 +660,6 @@ export class MockCourseDB {
         updatedAt: new Date(course.updatedAt),
       }));
 
-      console.log("getCourses: cursos processados:", processedCourses.length);
       return processedCourses;
     } catch (error) {
       console.error("getCourses: erro ao processar dados:", error);
@@ -847,10 +826,6 @@ export class MockCourseDB {
     moduleId: string,
     submoduleId: string
   ): Promise<boolean> {
-    console.log(
-      `🚀 Gerando conteúdo para submódulo ${submoduleId} do módulo ${moduleId} do curso ${courseId}`
-    );
-
     if (typeof window === "undefined") return false;
 
     const course = this.getCourseById(courseId);
@@ -930,7 +905,6 @@ export class MockCourseDB {
           description: `Conteúdo gerado para: ${submoduleName}`,
         });
 
-        console.log("✅ Conteúdo gerado com sucesso");
         return true;
       }
 
@@ -999,14 +973,9 @@ export class MockCourseDB {
 
   // Dados completos do dashboard
   static getDashboardData(): DashboardData {
-    console.log("📊 Obtendo dados do dashboard...");
     const courses = this.getCourses();
     const stats = this.getStats();
     const recentActivity = this.getActivities().slice(0, 10);
-
-    console.log("📚 Cursos obtidos:", courses.length);
-    console.log("📈 Stats obtidas:", stats);
-    console.log("📝 Atividades obtidas:", recentActivity.length);
 
     const dashboardData = {
       courses,
@@ -1014,7 +983,6 @@ export class MockCourseDB {
       recentActivity,
     };
 
-    console.log("✅ Dashboard data pronta:", dashboardData);
     return dashboardData;
   }
 }

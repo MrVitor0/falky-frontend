@@ -105,13 +105,6 @@ export class ApiService {
     // Adiciona timestamp da requisição
     config.headers["X-Request-Time"] = getCurrentTimestamp().toString();
 
-    console.log("🚀 Requisição:", {
-      method: config.method?.toUpperCase(),
-      url: config.url,
-      data: config.data,
-      headers: config.headers,
-    });
-
     return config;
   }
 
@@ -148,12 +141,6 @@ export class ApiService {
         message: response.statusText,
         timestamp: new Date().toISOString(),
       };
-
-      console.log("✅ Resposta recebida:", {
-        status: response.status,
-        data: response.data,
-        headers: response.headers,
-      });
 
       // Retorna a resposta formatada
       return {

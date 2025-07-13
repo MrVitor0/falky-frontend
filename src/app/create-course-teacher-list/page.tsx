@@ -114,10 +114,6 @@ export default function CreateCourseListTeachers() {
 
   const handleContinue = () => {
     if (selectedTeacher) {
-      // Aqui você salvaria a escolha do professor
-      console.log("Professor selecionado:", selectedTeacher);
-
-      // Redirecionar para tela de loading
       router.push("/create-course-finishing");
     }
   };

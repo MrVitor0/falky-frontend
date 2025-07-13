@@ -121,19 +121,13 @@ export default function GenerateMaterialPage({
 
   // Configurar WebSocket
   useEffect(() => {
-    console.log("🔌 Configurando WebSocket para curso:", params.id);
-
     websocketService.setOnConnectionChange((connected) => {
-      console.log("🔌 WebSocket connection status:", connected);
-
       if (connected) {
         websocketService.joinCourse(params.id);
       }
     });
 
     websocketService.setOnMaterialUpdate((update) => {
-      console.log("📄 Material update received:", update);
-
       if (update.progress !== undefined) {
         setProgress(Math.max(progress, update.progress));
         setCurrentStep(
@@ -153,9 +147,7 @@ export default function GenerateMaterialPage({
       }
     });
 
-    websocketService.setOnMaterialCompleted((completed) => {
-      console.log("🎉 Material completed:", completed);
-
+    websocketService.setOnMaterialCompleted(() => {
       setProgress(100);
       setCurrentStep(totalSteps);
       setLoadingMessage("Material gerado com sucesso!");
@@ -175,7 +167,6 @@ export default function GenerateMaterialPage({
 
     // Cleanup
     return () => {
-      console.log("🔌 Limpando WebSocket listeners");
       websocketService.setOnConnectionChange(() => {});
       websocketService.setOnMaterialUpdate(() => {});
       websocketService.setOnMaterialCompleted(() => {});
@@ -201,11 +192,6 @@ export default function GenerateMaterialPage({
       // Iniciar geração
       setTimeout(async () => {
         try {
-          console.log("🚀 Iniciando geração de material:", {
-            targetType,
-            targetId,
-          });
-
           const response = await apiController.generateCourseMaterial(
             params.id,
             targetType,
@@ -213,7 +199,6 @@ export default function GenerateMaterialPage({
           );
 
           if (response.success) {
-            console.log("✅ Geração iniciada com sucesso:", response.data);
             addMessage("Geração de material iniciada com sucesso!", "step");
           } else {
             console.error("❌ Erro ao iniciar geração:", response.message);
@@ -250,10 +235,7 @@ export default function GenerateMaterialPage({
 
           {/* Indicador de step */}
           <div className="mb-6">
-            <div className="flex items-center justify-center gap-4 mb-2">
-              <div className="bg-[#cc6200] text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg">
-                {currentStep}
-              </div>
+            <div className="flex items-center justify-center mb-2">
               <div className="text-[#593100] font-medium">
                 <span className="text-2xl font-bold">{currentStep}</span>
                 <span className="text-xl opacity-60">/{totalSteps}</span>

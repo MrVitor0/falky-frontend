@@ -30,7 +30,6 @@ export const useApiDemo = () => {
       };
 
       const result = await apiController.createCourse(courseData);
-      console.log("✅ Curso criado:", result);
 
       return result;
     } catch (err) {
@@ -53,10 +52,6 @@ export const useApiDemo = () => {
 
     try {
       const isConnected = await apiController.testConnection();
-      console.log(
-        "🔌 Status da conexão:",
-        isConnected ? "Conectado" : "Desconectado"
-      );
 
       return isConnected;
     } catch (err) {

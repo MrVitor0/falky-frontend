@@ -130,7 +130,6 @@ export default function MaterialPage({
               | undefined,
           };
           setMaterial(material);
-          console.log("Material loaded:", material);
         } else {
           setError("Erro ao carregar material");
         }
@@ -192,28 +191,22 @@ export default function MaterialPage({
   const handleGenerateMaterial = async (type: "pdf" | "audio" | "video") => {
     try {
       setLoading(true);
-      console.log(
-        `🎨 Iniciando geração de material ${type} para o módulo "${material?.title}"`
-      );
 
       // Simular chamada à API para geração de material
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       switch (type) {
         case "pdf":
-          console.log("📄 PDF gerado com sucesso!");
           alert(
             "📄 PDF gerado com sucesso! O download será iniciado em breve."
           );
           break;
         case "audio":
-          console.log("🎵 Áudio gerado com sucesso!");
           alert(
             "🎵 Áudio gerado com sucesso! O arquivo estará disponível em breve."
           );
           break;
         case "video":
-          console.log("🎥 Vídeo gerado com sucesso!");
           alert(
             "🎥 Vídeo gerado com sucesso! O arquivo estará disponível em breve."
           );
@@ -236,7 +229,6 @@ export default function MaterialPage({
   // Função para marcar módulo como concluído
   const handleMarkAsCompleted = async () => {
     try {
-      console.log("✅ Marcando módulo como concluído...");
       // Aqui você pode implementar a lógica para salvar o progresso
       alert("✅ Módulo marcado como concluído!");
     } catch (error) {
@@ -248,7 +240,6 @@ export default function MaterialPage({
   // Função para adicionar aos favoritos
   const handleAddToFavorites = async () => {
     try {
-      console.log("⭐ Adicionando aos favoritos...");
       // Aqui você pode implementar a lógica para adicionar aos favoritos
       alert("⭐ Módulo adicionado aos favoritos!");
     } catch (error) {

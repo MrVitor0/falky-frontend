@@ -269,15 +269,6 @@ export default function MyCourses() {
         updates.completedLessons = 0;
       }
     }
-
-    // updateCourse(courseId, updates); // This line was removed as per the edit hint
-  };
-
-  const handleDelete = (courseId: string) => {
-    if (window.confirm("Tem certeza que deseja excluir este curso?")) {
-      console.log("Excluindo curso:", courseId);
-      // deleteCourse(courseId); // This line was removed as per the edit hint
-    }
   };
 
   return (

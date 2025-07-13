@@ -55,9 +55,6 @@ export default function CreateCourseLoadingTeacher() {
   useEffect(() => {
     const findTeachers = async () => {
       try {
-        console.log("🔍 Buscando professores para:", state.courseName);
-
-        // Simular progresso de busca
         const progressSteps = [
           {
             message: "Iniciando busca de professores...",
@@ -103,14 +100,10 @@ export default function CreateCourseLoadingTeacher() {
           });
         }, 600); // 600ms por step para cobrir 8 steps em ~5 segundos
 
-        // Aguardar o tempo de loading
         await totalLoadingTime;
 
         clearInterval(progressInterval);
 
-        console.log("✅ Professores encontrados com sucesso!");
-
-        // Pequeno delay para mostrar 100% antes de redirecionar
         setTimeout(() => {
           router.push("/create-course-interview");
         }, 500);

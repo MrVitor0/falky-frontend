@@ -60,22 +60,12 @@ export default function CourseDetailPage({
         setLoading(true);
         setError(null);
 
-        console.log("🔄 Carregando dados do curso:", params.id);
-        console.log("🌐 URL base da API:", process.env.NEXT_PUBLIC_API_URL);
-
-        // Carregar estrutura do curso e materiais em paralelo
-        console.log("📡 Iniciando chamadas da API...");
         const [structureResponse, materialsResponse] = await Promise.all([
           apiController.getCourseStructure(params.id),
           apiController.listCourseMaterials(params.id),
         ]);
 
         if (structureResponse.success && structureResponse.data) {
-          console.log(
-            "✅ Estrutura do curso carregada:",
-            structureResponse.data
-          );
-
           // Fazer casting adequado da resposta da API
           const courseData = structureResponse.data;
 
@@ -116,12 +106,6 @@ export default function CourseDetailPage({
         }
 
         if (materialsResponse.success && materialsResponse.data) {
-          console.log("✅ Materiais carregados:", materialsResponse.data);
-          console.log(
-            "📊 Tipo de dados recebidos:",
-            typeof materialsResponse.data
-          );
-
           // Verificar se os dados estão em data.data (conforme mencionado pelo usuário)
           const responseData = materialsResponse.data as
             | CourseMaterial[]
@@ -129,9 +113,6 @@ export default function CourseDetailPage({
           const materialsData = Array.isArray(responseData)
             ? responseData
             : (responseData as { data: CourseMaterial[] }).data || [];
-
-          console.log("📊 Dados processados:", materialsData);
-          console.log("📊 É array?", Array.isArray(materialsData));
 
           setMaterials(materialsData);
 
@@ -143,9 +124,6 @@ export default function CourseDetailPage({
               if (material.target_type && material.target_id) {
                 const key = `${material.target_type}_${material.target_id}`;
                 map[key] = material;
-                console.log(
-                  `📌 Material mapeado: ${key} -> ${material.title} (ID: ${material.material_id})`
-                );
               } else {
                 console.warn(
                   "⚠️ Material sem target_type ou target_id:",
@@ -154,19 +132,8 @@ export default function CourseDetailPage({
               }
             });
             setMaterialsMap(map);
-            console.log("📊 Mapa de materiais criado:", map);
-            console.log("🔑 Chaves no mapa:", Object.keys(map));
-          } else {
-            console.log(
-              "ℹ️ Array de materiais vazio ou dados em formato incorreto"
-            );
           }
         } else {
-          console.log("ℹ️ Nenhum material encontrado para o curso");
-          console.log("❌ Response de materiais:", materialsResponse);
-          console.log("❌ Success:", materialsResponse.success);
-          console.log("❌ Data:", materialsResponse.data);
-          console.log("❌ Message:", materialsResponse.message);
           setMaterials([]);
           setMaterialsMap({});
         }
@@ -181,32 +148,10 @@ export default function CourseDetailPage({
     loadCourseData();
   }, [params.id]);
 
-  // Função de teste para debugging - remover depois
-  const testKnownCourse = async () => {
-    const knownCourseId = "8baeb11e-a4de-4c8f-abfc-a34739f065ee";
-    console.log("🧪 Testando curso conhecido:", knownCourseId);
-
-    try {
-      const response = await apiController.listCourseMaterials(knownCourseId);
-      console.log("🧪 Resultado do teste:", response);
-    } catch (error) {
-      console.error("🧪 Erro no teste:", error);
-    }
-  };
-
-  // Chama o teste automaticamente se for o curso específico
-  useEffect(() => {
-    if (params.id === "8baeb11e-a4de-4c8f-abfc-a34739f065ee") {
-      testKnownCourse();
-    }
-  }, [params.id]);
-
   const handleGenerateContent = async (
     moduleId: string,
     submoduleId: string
   ) => {
-    console.log("🚀 Gerando material para:", { moduleId, submoduleId });
-
     const materialKey = `${moduleId}_${submoduleId}`;
 
     // Adicionar ao estado de geração
@@ -247,8 +192,6 @@ export default function CourseDetailPage({
   };
 
   const handleStudyContent = (materialId: string) => {
-    console.log("📖 Abrindo material:", materialId);
-    // Navegar para a página de material
     router.push(`/dashboard/courses/${params.id}/material/${materialId}`);
   };
 
@@ -256,14 +199,7 @@ export default function CourseDetailPage({
     const key = `submodule_${submoduleId}`;
     const material = materialsMap[key] || null;
     if (material) {
-      console.log(`✅ Material encontrado para ${key}:`, material.title);
-    } else {
-      console.log(
-        `❌ Material não encontrado para ${key}. Chave procurada: ${submoduleId}`
-      );
-      console.log("🔍 Chaves disponíveis no mapa:", Object.keys(materialsMap));
     }
-
     return material;
   };
 
@@ -823,13 +759,7 @@ export default function CourseDetailPage({
                                 📖 Ver Primeiro Material
                               </button>
                               <button
-                                onClick={() => {
-                                  // Expandir/colapsar todos os submódulos (pode ser implementado depois)
-                                  console.log(
-                                    "Expandir submódulos do módulo:",
-                                    modulo.ID_MODULO
-                                  );
-                                }}
+                                onClick={() => {}}
                                 className="px-3 py-2 bg-purple-500 text-white rounded text-sm hover:bg-purple-600 transition-colors"
                               >
                                 📋 Ver Todos os Submódulos
@@ -920,11 +850,6 @@ export default function CourseDetailPage({
                                               // Copiar link do material
                                               const link = `${window.location.origin}/dashboard/courses/${params.id}/material/${material.material_id}`;
                                               navigator.clipboard.writeText(
-                                                link
-                                              );
-                                              // Aqui você pode adicionar uma notificação de sucesso
-                                              console.log(
-                                                "Link copiado:",
                                                 link
                                               );
                                             }}
@@ -1026,7 +951,9 @@ export default function CourseDetailPage({
                   Estrutura do Curso em Preparação
                 </h3>
                 <p className="text-[#593100] opacity-70 max-w-md mx-auto">
-                  O currículo personalizado está sendo gerado. Esta página será atualizada automaticamente quando o conteúdo estiver disponível.
+                  O currículo personalizado está sendo gerado. Esta página será
+                  atualizada automaticamente quando o conteúdo estiver
+                  disponível.
                 </p>
                 <div className="flex justify-center gap-4 mt-6">
                   <button

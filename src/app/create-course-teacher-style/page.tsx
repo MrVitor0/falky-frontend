@@ -98,10 +98,6 @@ export default function CreateCourseTeacherStyle() {
 
   const handleContinue = () => {
     if (selectedStyle) {
-      // Aqui você salvaria o estilo selecionado no contexto
-      console.log("Estilo selecionado:", selectedStyle);
-
-      // Redirecionar para pesquisa de professor
       router.push("/create-course-finishing");
     }
   };

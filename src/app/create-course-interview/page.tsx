@@ -74,21 +74,12 @@ export default function CreateCourseInterview() {
         optional_completed: true, // Flag indicando que foi completada opcionalmente
       };
 
-      console.log(
-        "💾 Salvando preferências do usuário (opcional):",
-        preferences
-      );
-
       // Usar o método do controller para salvar
       const response = await apiController.saveInterviewPreferences(
         preferences
       );
 
       if (response.success) {
-        console.log(
-          "✅ Preferências opcionais salvas com sucesso!",
-          response.data
-        );
         return true;
       } else {
         console.warn(
@@ -138,8 +129,6 @@ export default function CreateCourseInterview() {
       // Marcar entrevista como pulada
       dispatch({ type: "SKIP_INTERVIEW" });
 
-      console.log("⏭️ Usuário pulou a entrevista (100% opcional)");
-
       // Salvar informação de que a entrevista foi pulada (opcional)
       const skipData = {
         course_topic: state.courseName,
@@ -148,14 +137,11 @@ export default function CreateCourseInterview() {
         optional_skipped: true, // Flag indicando que foi pulada opcionalmente
       };
 
-      console.log("💾 Registrando skip opcional:", skipData);
-
       try {
         // Usar o método do controller para salvar o skip
         const response = await apiController.saveInterviewSkip(skipData);
 
         if (response.success) {
-          console.log("✅ Skip opcional registrado:", response.data);
         } else {
           console.warn(
             "⚠️ Erro ao registrar skip (não crítico):",

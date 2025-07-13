@@ -91,7 +91,6 @@ export default function Sidebar({ collapsed }: SidebarProps) {
 
   const handleSignOut = async () => {
     // await signOut(); // TEMPORÁRIO: Comentado durante desenvolvimento
-    console.log("SignOut desabilitado durante desenvolvimento");
   };
 
   const isActive = (href: string) => {
