@@ -8,19 +8,6 @@ export const handleCourseCreationNavigation = (
   router: AppRouterInstance,
   targetPath: string = "/create-course-step-one"
 ) => {
-  if (!user) {
-    // Se não está logado, redireciona para login
-    router.push("/login");
-    return;
-  }
-
-  if (!hasPreferences()) {
-    // Salvar intenção de navegar para o destino após completar profile
-    localStorage.setItem("redirectAfterProfile", targetPath);
-    router.push("/signup-step-one");
-    return;
-  }
-
-  // Se tem tudo, vai para o destino
+  // Permitir navegação para criação de curso mesmo sem login
   router.push(targetPath);
 };

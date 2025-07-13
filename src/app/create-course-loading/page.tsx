@@ -3,25 +3,54 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCourseCreation } from "@/contexts/CourseCreationContext";
-import { apiController } from "@/controllers/api.controller";
 
 export default function CreateCourseLoading() {
   const router = useRouter();
-  const { state, dispatch, getCoursePreferencesData } = useCourseCreation();
-  const [loadingMessage, setLoadingMessage] = useState("Preparando seu curso personalizado...");
+  const { dispatch, getCoursePreferencesData } = useCourseCreation();
+  const [loadingMessage, setLoadingMessage] = useState(
+    "Preparando seu curso personalizado..."
+  );
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 10;
+  const [researchSteps, setResearchSteps] = useState<string[]>([]);
+  const [visibleResearchCount, setVisibleResearchCount] = useState(0);
+
+  useEffect(() => {
+    // Buscar etapas de pesquisa do research.json
+    fetch("/research.json")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setResearchSteps(data);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (researchSteps.length === 0) return;
+    setVisibleResearchCount(0);
+    // Exibir cada linha a cada 300ms
+    const interval = setInterval(() => {
+      setVisibleResearchCount((prev) => {
+        if (prev < researchSteps.length) {
+          return prev + 1;
+        } else {
+          clearInterval(interval);
+          return prev;
+        }
+      });
+    }, 600); // Mudado de 300ms para 600ms
+    return () => clearInterval(interval);
+  }, [researchSteps]);
 
   useEffect(() => {
     const createCourse = async () => {
       try {
         // Simulando um user_id (em produção, viria da autenticação)
         const userId = "user_demo_123";
-        
+
         // Obter dados formatados do context
         const courseData = getCoursePreferencesData();
-        
+
         // Adicionar user_id aos dados
         const completeData = {
           user_id: userId,
@@ -34,26 +63,39 @@ export default function CreateCourseLoading() {
         const progressSteps = [
           { message: "Iniciando criação do curso...", progress: 10, step: 1 },
           { message: "Analisando suas preferências...", progress: 20, step: 2 },
-          { message: "Configurando nível de dificuldade...", progress: 30, step: 3 },
+          {
+            message: "Configurando nível de dificuldade...",
+            progress: 30,
+            step: 3,
+          },
           { message: "Personalizando conteúdo...", progress: 40, step: 4 },
           { message: "Estruturando módulos...", progress: 50, step: 5 },
           { message: "Criando exercícios práticos...", progress: 60, step: 6 },
           { message: "Definindo cronograma...", progress: 70, step: 7 },
           { message: "Ajustando metodologia...", progress: 80, step: 8 },
           { message: "Finalizando detalhes...", progress: 90, step: 9 },
-          { message: "Curso quase pronto!", progress: 100, step: 10 }
+          { message: "Curso quase pronto!", progress: 100, step: 10 },
         ];
 
         // Criar um delay mínimo de 3 segundos para a experiência do usuário
-        const minLoadingTime = new Promise(resolve => setTimeout(resolve, 3000));
+        const minLoadingTime = new Promise(
+          (resolve) => setTimeout(resolve, 5000) // Mudado de 3000ms para 5000ms
+        );
 
         // Chamar a API
-        const apiCall = apiController.setCoursePreferences(completeData);
+        // const apiCall = apiController.setCoursePreferences(completeData);
+        const apiCall = new Promise<{
+          success: boolean;
+          data?: object;
+          error?: string;
+        }>((resolve) =>
+          setTimeout(() => resolve({ success: true, data: {} }), 1000)
+        );
 
         // Simular progresso enquanto aguarda
         const progressInterval = setInterval(() => {
-          setProgress(prev => {
-            const nextStep = progressSteps.find(step => step.progress > prev);
+          setProgress((prev) => {
+            const nextStep = progressSteps.find((step) => step.progress > prev);
             if (nextStep) {
               setLoadingMessage(nextStep.message);
               setCurrentStep(nextStep.step);
@@ -61,23 +103,22 @@ export default function CreateCourseLoading() {
             }
             return prev;
           });
-        }, 300); // Acelerado para 300ms para cobrir 10 steps em 3 segundos
+        }, 500); // Mudado de 300ms para 500ms para cobrir 10 steps em 5 segundos
 
         // Aguardar tanto a API quanto o tempo mínimo de loading
         const [response] = await Promise.all([apiCall, minLoadingTime]);
 
         clearInterval(progressInterval);
-        
+
         if (response.success) {
           console.log("✅ Curso criado com sucesso:", response.data);
-          
-          // Salvar os dados da resposta no contexto
-          dispatch({ type: 'SET_CREATED_COURSE_DATA', payload: response.data });
-          dispatch({ type: 'COMPLETE_CREATION' });
-          
+
+          // Marcar como completo
+          dispatch({ type: "COMPLETE_CREATION" });
+
           // Pequeno delay para mostrar 100% antes de redirecionar
           setTimeout(() => {
-            router.push("/course-created-success");
+            router.push("/create-course-interview");
           }, 500);
         } else {
           console.error("❌ Erro ao criar curso:", response.error);
@@ -97,19 +138,16 @@ export default function CreateCourseLoading() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#fff7f0] px-4">
       <div className="w-full max-w-2xl text-center">
-        
         {/* Logo/Ícone animado */}
         <div className="mb-8">
           <div className="w-32 h-32 bg-gradient-to-br from-[#cc6200] to-[#ff8c00] rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
             <span className="text-6xl">🚀</span>
           </div>
         </div>
-
         {/* Título */}
         <h1 className="text-3xl md:text-4xl font-bold text-[#593100] mb-4">
           Criando seu curso personalizado
         </h1>
-
         {/* Indicador de step */}
         <div className="mb-6">
           <div className="flex items-center justify-center gap-4 mb-2">
@@ -125,58 +163,31 @@ export default function CreateCourseLoading() {
             Etapa {currentStep} de {totalSteps}
           </div>
         </div>
-
         {/* Mensagem de loading */}
         <p className="text-lg md:text-xl text-[#593100] mb-8 opacity-80">
           {loadingMessage}
         </p>
-
         {/* Barra de progresso */}
         <div className="w-full bg-[#ffddc2] rounded-full h-4 mb-8 overflow-hidden">
-          <div 
+          <div
             className="bg-gradient-to-r from-[#cc6200] to-[#ff8c00] h-4 rounded-full transition-all duration-300 ease-out"
             style={{ width: `${progress}%` }}
           ></div>
         </div>
-
-        {/* Informações do curso */}
-        <div className="bg-[#ffddc2] rounded-xl p-6 border-2 border-[#cc6200] mb-8">
-          <h3 className="text-xl font-bold text-[#593100] mb-4">
-            📚 Seu curso: {state.courseName}
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="text-[#593100]">
-              <span className="font-semibold">Nível:</span> {' '}
-              {state.knowledgeLevel === 'novato' ? '🌱 Iniciante' :
-               state.knowledgeLevel === 'intermediario' ? '📚 Intermediário' :
-               state.knowledgeLevel === 'avancado' ? '🎓 Avançado' : ''}
-            </div>
-            <div className="text-[#593100]">
-              <span className="font-semibold">Ritmo:</span> {' '}
-              {state.studyPace === 'pausado' ? '🐌 Pausado' :
-               state.studyPace === 'moderado' ? '🚶 Moderado' :
-               state.studyPace === 'rapido' ? '🏃 Rápido' : ''}
-            </div>
-            <div className="text-[#593100] md:col-span-2">
-              <span className="font-semibold">Objetivo:</span> {' '}
-              {state.goalsAndMotivations === 'aprovacao_prova' ? '📋 Aprovação em Prova' :
-               state.goalsAndMotivations === 'dominio_tema' ? '🎯 Domínio do Tema' :
-               state.goalsAndMotivations === 'hobby' ? '🎨 Hobby Pessoal' : ''}
-            </div>
-          </div>
+        {/* Etapas de pesquisa da IA */}
+        <div className="bg-[#fff] border border-[#ffddc2] rounded-xl p-4 mb-8 text-left shadow-sm min-h-[120px]">
+          <h4 className="text-[#cc6200] font-bold mb-2 text-base">
+            Processo de pesquisa da IA:
+          </h4>
+          <ul className="space-y-1">
+            {researchSteps.slice(0, visibleResearchCount).map((step, idx) => (
+              <li key={idx} className="flex items-start gap-2 animate-fade-in">
+                <span className="text-[#cc6200] mt-0.5">🤖</span>
+                <span className="text-[#593100] text-sm">{step}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-
-        {/* Loading dots */}
-        <div className="flex justify-center space-x-2">
-          <div className="w-3 h-3 bg-[#cc6200] rounded-full animate-bounce"></div>
-          <div className="w-3 h-3 bg-[#cc6200] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-          <div className="w-3 h-3 bg-[#cc6200] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-        </div>
-
-        {/* Texto de apoio */}
-        <p className="text-sm text-[#593100] opacity-60 mt-8">
-          Estamos personalizando cada detalhe para você...
-        </p>
       </div>
     </div>
   );
