@@ -5,29 +5,49 @@ import { useCourseCreation } from "@/contexts/CourseCreationContext";
 
 export default function CreateCourseStepFive() {
   const router = useRouter();
-  const { dispatch } = useCourseCreation();
-  const [question, setQuestion] = useState<string>("");
-  const [loading, setLoading] = useState(true);
+  const { state, dispatch, processCourseStep, clearError, startResearch } =
+    useCourseCreation();
   const [successCriteria, setSuccessCriteria] = useState("");
 
-  useEffect(() => {
-    // Simulação de fetch do backend
-    const fetchQuestion = async () => {
-      setLoading(true);
-      setTimeout(() => {
-        setQuestion(
-          "Qual o seu critério de sucesso? O que você considera que foi um sucesso ao final do aprendizado?"
-        );
-        setLoading(false);
-      }, 500);
-    };
-    fetchQuestion();
-  }, []);
+  // Usar a pergunta do contexto que veio da API
+  const question =
+    state.currentQuestion ||
+    "Qual o seu critério de sucesso? O que você considera que foi um sucesso ao final do aprendizado?";
+  const loading = state.loading;
 
-  const handleContinue = () => {
-    dispatch({ type: "SET_STEP_FIVE_ANSWER", payload: successCriteria });
-    dispatch({ type: "NEXT_STEP" });
-    router.push("/create-course-signup");
+  useEffect(() => {
+    // Se não temos courseId, redirecionar para step-one
+    if (!state.courseId) {
+      router.push("/create-course-step-one");
+      return;
+    }
+
+    // Limpar erro quando entrar na página
+    if (state.apiError) {
+      clearError();
+    }
+  }, [state.courseId, state.apiError, router, clearError]);
+
+  const handleContinue = async () => {
+    if (successCriteria.trim().length > 5) {
+      try {
+        // Salvar localmente
+        dispatch({ type: "SET_STEP_FIVE_ANSWER", payload: successCriteria });
+
+        // Processar step no backend (último step)
+        await processCourseStep(successCriteria);
+
+        // Iniciar pesquisa
+        await startResearch();
+
+        // Se chegou até aqui, foi sucesso
+        dispatch({ type: "NEXT_STEP" });
+        router.push("/create-course-loading");
+      } catch (error) {
+        // Erro já tratado no contexto
+        console.error("Erro ao processar step:", error);
+      }
+    }
   };
 
   return (

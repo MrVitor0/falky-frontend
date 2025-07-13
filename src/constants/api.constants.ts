@@ -25,6 +25,14 @@ export const API_ENDPOINTS = {
   COURSE_DETAILS: (userId: string, filename: string) => `/courses/details/${userId}/${filename}`,
   COURSE_DELETE: (userId: string, filename: string) => `/courses/delete/${userId}/${filename}`,
   
+  // Novos endpoints de criação de curso
+  COURSE_CREATE: "/course/create",
+  COURSE_STEP: "/course/step",
+  COURSE_SESSION: (courseId: string) => `/course/session/${courseId}`,
+  COURSE_RESEARCH: "/course/research",
+  COURSE_RESEARCH_STATUS: (courseId: string) => `/course/research/${courseId}/status`,
+  COURSE_SESSION_DELETE: (courseId: string) => `/course/session/${courseId}`,
+  
   // Preferências de Curso
   COURSE_PREFERENCES: "/config/course-preferences",
   COURSE_PREFERENCES_BY_IDS: (userId: string, courseId: string) => `/config/course-preferences/${userId}/${courseId}`,

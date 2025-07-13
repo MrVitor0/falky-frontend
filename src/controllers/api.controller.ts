@@ -20,6 +20,14 @@ import {
   CourseDetailsResponse,
   CourseDeleteResponse,
 } from "@/types/api.types";
+import {
+  CourseTopicRequest,
+  CourseStepRequest,
+  CourseStepResponse,
+  CourseSessionResponse,
+  ResearchRequest,
+  ResearchResponse,
+} from "@/lib/types";
 import { AxiosResponse } from "axios";
 
 /**
@@ -386,6 +394,144 @@ export class ApiController {
   }
 
   /**
+   * Novos métodos para sistema de criação de curso
+   */
+
+  /**
+   * Cria um novo curso com tópico
+   * @param topicData - Dados do tópico do curso
+   * @returns Promessa com resposta do step
+   */
+  public async createCourseWithTopic(
+    topicData: CourseTopicRequest
+  ): Promise<ApiResponse<CourseStepResponse>> {
+    try {
+      console.log("🔧 [DEBUG] API Controller - Request para:", API_ENDPOINTS.COURSE_CREATE);
+      console.log("🔧 [DEBUG] API Controller - Dados enviados:", topicData);
+      
+      const response: AxiosResponse<ApiResponse<CourseStepResponse>> = await api.post(
+        API_ENDPOINTS.COURSE_CREATE,
+        topicData
+      );
+
+      console.log("🔧 [DEBUG] API Controller - Response completa:", response);
+      console.log("🔧 [DEBUG] API Controller - Response.data:", response.data);
+      console.log("🔧 [DEBUG] API Controller - Response.data.data:", response.data.data);
+      console.log("✅ Curso criado com tópico:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Erro ao criar curso com tópico:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Processa um step do curso (resposta + próxima pergunta)
+   * @param stepData - Dados do step
+   * @returns Promessa com próxima pergunta ou finalização
+   */
+  public async processCourseStep(
+    stepData: CourseStepRequest
+  ): Promise<ApiResponse<CourseStepResponse | { status: string; message: string; progress: number; next_action: string }>> {
+    try {
+      const response: AxiosResponse<ApiResponse<CourseStepResponse | { status: string; message: string; progress: number; next_action: string }>> = await api.post(
+        API_ENDPOINTS.COURSE_STEP,
+        stepData
+      );
+
+      console.log("✅ Step processado:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Erro ao processar step:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Recupera informações da sessão do curso
+   * @param courseId - ID do curso
+   * @returns Promessa com dados da sessão
+   */
+  public async getCourseSession(
+    courseId: string
+  ): Promise<ApiResponse<CourseSessionResponse>> {
+    try {
+      const response: AxiosResponse<ApiResponse<CourseSessionResponse>> = await api.get(
+        API_ENDPOINTS.COURSE_SESSION(courseId)
+      );
+
+      console.log("✅ Sessão recuperada:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Erro ao recuperar sessão:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Inicia pesquisa e geração de conteúdo
+   * @param researchData - Dados da pesquisa
+   * @returns Promessa com status da pesquisa
+   */
+  public async startCourseResearch(
+    researchData: ResearchRequest
+  ): Promise<ApiResponse<ResearchResponse>> {
+    try {
+      const response: AxiosResponse<ApiResponse<ResearchResponse>> = await api.post(
+        API_ENDPOINTS.COURSE_RESEARCH,
+        researchData
+      );
+
+      console.log("✅ Pesquisa iniciada:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Erro ao iniciar pesquisa:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Verifica status da pesquisa
+   * @param courseId - ID do curso
+   * @returns Promessa com status atual da pesquisa
+   */
+  public async getCourseResearchStatus(
+    courseId: string
+  ): Promise<ApiResponse<ResearchResponse>> {
+    try {
+      const response: AxiosResponse<ApiResponse<ResearchResponse>> = await api.get(
+        API_ENDPOINTS.COURSE_RESEARCH_STATUS(courseId)
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("❌ Erro ao verificar status da pesquisa:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Remove uma sessão de curso
+   * @param courseId - ID do curso
+   * @returns Promessa com confirmação da remoção
+   */
+  public async deleteCourseSession(
+    courseId: string
+  ): Promise<ApiResponse<{ course_id: string; deleted: boolean }>> {
+    try {
+      const response: AxiosResponse<ApiResponse<{ course_id: string; deleted: boolean }>> = await api.delete(
+        API_ENDPOINTS.COURSE_SESSION_DELETE(courseId)
+      );
+
+      console.log("✅ Sessão removida:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Erro ao remover sessão:", error);
+      throw error;
+    }
+  }
+
+  /**
    * Métodos utilitários
    */
 
@@ -402,6 +548,8 @@ export class ApiController {
       return false;
     }
   }
+
+
 }
 
 /**

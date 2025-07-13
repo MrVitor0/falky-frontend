@@ -5,31 +5,43 @@ import { useCourseCreation } from "@/contexts/CourseCreationContext";
 
 export default function CreateCourseStepFour() {
   const router = useRouter();
-  const { state, dispatch } = useCourseCreation();
-  const [question, setQuestion] = useState<string>("");
-  const [loading, setLoading] = useState(true);
+  const { state, dispatch, processCourseStep, clearError } = useCourseCreation();
   const [knowledge, setKnowledge] = useState("");
 
-  useEffect(() => {
-    // Simulação de fetch do backend
-    const fetchQuestion = async () => {
-      setLoading(true);
-      setTimeout(() => {
-        setQuestion(
-          `Qual o seu nível de conhecimento atual sobre ${
-            state.courseName || "o tema"
-          }?`
-        );
-        setLoading(false);
-      }, 500);
-    };
-    fetchQuestion();
-  }, [state.courseName]);
+  // Usar a pergunta do contexto que veio da API
+  const question = state.currentQuestion || `Qual o seu nível de conhecimento atual sobre ${state.courseName || "o tema"}?`;
+  const loading = state.loading;
 
-  const handleContinue = () => {
-    dispatch({ type: "SET_STEP_FOUR_ANSWER", payload: knowledge });
-    dispatch({ type: "NEXT_STEP" });
-    router.push("/create-course-step-five");
+  useEffect(() => {
+    // Se não temos courseId, redirecionar para step-one
+    if (!state.courseId) {
+      router.push("/create-course-step-one");
+      return;
+    }
+    
+    // Limpar erro quando entrar na página
+    if (state.apiError) {
+      clearError();
+    }
+  }, [state.courseId, state.apiError, router, clearError]);
+
+  const handleContinue = async () => {
+    if (knowledge.trim().length > 5) {
+      try {
+        // Salvar localmente
+        dispatch({ type: "SET_STEP_FOUR_ANSWER", payload: knowledge });
+        
+        // Processar step no backend
+        await processCourseStep(knowledge);
+        
+        // Se chegou até aqui, foi sucesso
+        dispatch({ type: "NEXT_STEP" });
+        router.push("/create-course-step-five");
+      } catch (error) {
+        // Erro já tratado no contexto
+        console.error("Erro ao processar step:", error);
+      }
+    }
   };
 
   return (
