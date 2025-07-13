@@ -112,7 +112,7 @@ export default function CreateCourseLoadingTeacher() {
 
         // Pequeno delay para mostrar 100% antes de redirecionar
         setTimeout(() => {
-          router.push("/create-course-list-teachers");
+          router.push("/create-course-teacher-list");
         }, 500);
       } catch (error) {
         console.error("❌ Erro ao buscar professores:", error);

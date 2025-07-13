@@ -58,7 +58,7 @@ export default function CreateCourseInterview() {
     } else {
       // Última pergunta - finalizar entrevista
       dispatch({ type: "COMPLETE_INTERVIEW" });
-      router.push("/create-course-loading-teacher");
+      router.push("/create-course-teacher-loading");
     }
   };
 
