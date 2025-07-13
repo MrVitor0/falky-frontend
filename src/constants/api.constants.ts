@@ -90,7 +90,7 @@ export const ERROR_MESSAGES = {
  * Configurações de timeout e retry
  */
 export const API_CONFIG = {
-  TIMEOUT: 10000, // 10 segundos
+  TIMEOUT: 999999999999999999999999999999999, // 10 segundos
   MAX_RETRIES: 3,
   RETRY_DELAY: 1000, // 1 segundo
 } as const;
